@@ -1,0 +1,58 @@
+PROJECT: Gothic Industrial Railway Viaduct
+
+TARGET:
+approximately 125 blocks long
+11 blocks wide
+38 blocks tall
+
+Create a monumental Minecraft stone railway viaduct designed to cross a deep fantasy mountain valley.
+
+DESIGN:
+Create a repeating series of enormous gothic arches.
+The middle section should use a repeating pattern so it can later be duplicated with WorldEdit.
+
+ARCHES:
+Approximately 17-20 blocks wide.
+Use tall narrow arch shapes rather than simple rectangular gaps.
+
+SUPPORTS:
+Create:
+- massive stone pillars
+- buttresses
+- reinforcement arches
+- maintenance platforms
+- occasional iron supports
+
+TOP DECK:
+Create a flat railway deck.
+Allow enough space for rails, a decorative custom train and a maintenance walkway.
+Add protective walls or railings.
+
+LIGHTING:
+Place sparse industrial lanterns along the upper deck.
+
+MATERIALS:
+stone_bricks
+cracked_stone_bricks
+andesite
+tuff_bricks
+cobblestone
+deepslate details
+iron_bars
+chains
+
+STYLE:
+Ancient monumental engineering combined with Victorian railway architecture.
+
+STRUCTURAL REALISM:
+Pillars must align convincingly with arches.
+Avoid unnecessary floating decorations.
+
+IMPORTANT:
+The middle arch module should be visually repeatable.
+
+TERRAIN:
+Do not generate cliffs or valley terrain.
+
+OUTPUT:
+Standalone extendable railway viaduct schematic.

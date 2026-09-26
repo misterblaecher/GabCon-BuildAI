@@ -1,0 +1,93 @@
+PROJECT: Arcane Industrial Portal Complex
+
+TARGET:
+approximately 105 blocks wide
+78 blocks deep
+115 blocks tall
+
+Create a huge vertically stacked magical-industrial Minecraft complex containing several portal machines.
+
+STYLE:
+Medieval gothic architecture
+Victorian steampunk machinery
+arcane fantasy technology
+
+Avoid modern science-fiction architecture.
+
+MAIN COMPOSITION:
+Build the complex over several stone terraces at different elevations.
+
+Create three major portal machines:
+1. cyan portal
+2. deep blue portal
+3. purple portal
+
+Each portal must have a distinct surrounding structure.
+
+PORTALS:
+The portal machines should be visible from far across the valley.
+Use layered lighting and glass rather than simple flat colored rectangles.
+
+CYAN MATERIALS:
+cyan_stained_glass
+sea_lantern
+prismarine
+soul_lantern
+
+BLUE MATERIALS:
+light_blue_stained_glass
+blue_stained_glass
+prismarine
+sea_lantern
+
+PURPLE MATERIALS:
+purple_stained_glass
+amethyst_block
+crying_obsidian
+end_rod
+
+Use glowing materials sparingly enough that the structure remains mostly stone and industrial.
+
+ARCHITECTURE:
+Create:
+- laboratories
+- gothic halls
+- mechanical towers
+- bridges
+- elevated platforms
+- crane structures
+- pipes
+- boilers
+- chains
+- maintenance catwalks
+- waterfalls passing between terraces
+
+MATERIALS:
+deepslate_bricks
+blackstone
+stone_bricks
+tuff_bricks
+dark_oak
+spruce
+copper
+oxidized_copper
+iron_bars
+chains
+
+VERTICALITY:
+Strong multi-level composition.
+Some portals should sit significantly higher than others.
+Use bridges and stairs to visually connect the levels.
+
+LIGHTING:
+Dark architecture with intense localized portal lighting.
+
+STRUCTURAL REALISM:
+No unsupported floating laboratories or platforms.
+
+TERRAIN:
+Create only terraced cliff foundations immediately underneath the complex.
+Do not generate an entire mountain.
+
+OUTPUT:
+Standalone WorldEdit-ready schematic.

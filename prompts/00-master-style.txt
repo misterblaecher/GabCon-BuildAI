@@ -1,0 +1,125 @@
+PROJECT: GabCon Steampunk Fantasy Valley
+
+GLOBAL ART DIRECTION
+
+This project recreates a gigantic Minecraft fantasy-steampunk valley surrounding a mountain lake.
+
+The visual identity must stay consistent across every independent schematic.
+
+STYLE:
+- medieval European fantasy
+- Victorian steampunk
+- dark stone industrial architecture
+- warm inhabited buildings
+- copper machinery
+- magical cyan and purple energy
+- mountainous alpine environment
+- dense vertical architecture
+- highly detailed Minecraft build
+
+GENERAL VISUAL LANGUAGE:
+Architecture must feel handcrafted and old.
+Avoid modern architecture.
+Avoid clean science-fiction architecture.
+Avoid giant flat rectangular walls.
+
+Prefer:
+- irregular footprints
+- stepped building heights
+- towers of different sizes
+- overhanging roofs
+- balconies
+- arches
+- buttresses
+- exposed wooden beams
+- bridges
+- stairs
+- terraces
+- pipes
+- gears
+- water wheels
+- cranes
+- chimneys
+- hanging lanterns
+- chains
+
+PRIMARY STONE PALETTE:
+stone_bricks
+cracked_stone_bricks
+mossy_stone_bricks
+cobblestone
+andesite
+tuff
+tuff_bricks
+deepslate_bricks
+deepslate_tiles
+polished_deepslate
+polished_blackstone_bricks
+
+WOOD PALETTE:
+spruce_log
+stripped_spruce_log
+spruce_planks
+dark_oak_log
+stripped_dark_oak_log
+dark_oak_planks
+spruce_stairs
+dark_oak_stairs
+spruce_slab
+dark_oak_slab
+spruce_trapdoor
+dark_oak_trapdoor
+
+INDUSTRIAL PALETTE:
+copper_block
+cut_copper
+exposed_copper
+weathered_copper
+oxidized_copper
+iron_bars
+chain
+lightning_rod
+
+LIGHTING:
+Warm amber lighting should dominate normal buildings.
+Use lantern, soul_lantern and concealed glowstone when needed.
+
+MAGICAL AREAS:
+Use sea_lantern, cyan_stained_glass, light_blue_stained_glass,
+blue_stained_glass, purple_stained_glass, amethyst_block,
+budding_amethyst and crying_obsidian.
+
+Normal city lighting = warm amber / orange.
+Magic lighting = cyan / electric blue / purple.
+
+Do not cover entire buildings in glowing blocks.
+Magic lighting should remain localized.
+
+MASSING:
+Buildings should have strong silhouettes when viewed from 100-300 blocks away.
+Large builds must have major primary masses, secondary towers and tertiary details.
+Do not make every detail the same scale.
+
+ARCHITECTURAL DETAIL:
+Use stairs, slabs, walls, fences, trapdoors and panes extensively.
+Break flat surfaces with recessed windows, columns, balconies, trim,
+roof overhangs, buttresses and controlled material variation.
+
+WEATHERING:
+Stone surfaces should use restrained variation, roughly:
+70% base stone
+20% cracked / alternate stone
+10% mossy or aged material
+
+STRUCTURAL RULES:
+No floating structures.
+Bridges must connect physically to supports.
+Large platforms need pillars, brackets, suspension or visible beams.
+Player routes should be believable.
+Doors, stairs, bridges and major platforms should preferably be traversable.
+
+WORLD COMPOSITION:
+The lake and terrain will be built separately.
+Individual schematics should avoid generating large amounts of terrain.
+Build only enough stone foundation to make each structure self-contained.
+Every module must be suitable for later placement with WorldEdit/FAWE.

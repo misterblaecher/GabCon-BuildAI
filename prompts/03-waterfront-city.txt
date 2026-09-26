@@ -1,0 +1,72 @@
+PROJECT: Central Waterfront Market District
+
+TARGET:
+approximately 160 blocks wide
+110 blocks deep
+55 blocks tall
+
+Create a dense fantasy-steampunk lakeside town surrounding the main city plaza.
+
+BUILDING COUNT:
+Create approximately 14-18 major buildings.
+Do not make them identical.
+
+BUILDING TYPES:
+Include:
+- inn
+- merchant houses
+- artisan workshops
+- warehouse
+- tavern
+- market hall
+- harbor office
+- residential townhouses
+- small guild building
+- boat workshop
+
+STYLE:
+Medieval timber-frame European architecture with subtle steampunk machinery.
+Buildings should be visually rich but cozy rather than industrial.
+
+HEIGHT:
+Mostly 2-4 floors.
+A few civic buildings may reach 5 floors.
+
+STREETS:
+Create irregular pedestrian streets.
+Avoid a square grid.
+Use stairs, small terraces, alleys, archways, bridges and retaining walls.
+
+WATERFRONT:
+One side of the district must open completely onto the lake.
+Build stone quays, wooden piers, loading docks, a small crane,
+boat mooring spaces, steps descending toward water and warehouse entrances.
+
+CENTRAL MARKET:
+Create an open marketplace with 10-14 small stalls.
+Use restrained colorful awnings in cyan, blue, red and orange.
+
+TREES AND VEGETATION:
+Include several medium trees integrated into plazas.
+Use leaves, flower boxes and vines to soften the stone architecture.
+
+LIGHTING:
+Extremely warm and inviting.
+Use many hanging lanterns.
+Make the district visually attractive at night.
+
+ROOFS:
+Use steep roofs and multiple roof heights.
+Prefer dark_oak, spruce, deepslate_tiles and oxidized_copper accents.
+Avoid large flat roofs.
+
+DETAIL:
+Use barrels, trapdoors, fences, chains, flower pots, stairs,
+slabs, awnings, crates and small signs.
+
+Do not generate the main portal.
+Leave a broad plaza opening where the portal schematic can later be inserted.
+Do not create the lake itself.
+
+OUTPUT:
+Standalone WorldEdit-ready city district schematic.

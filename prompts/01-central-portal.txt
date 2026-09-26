@@ -1,0 +1,75 @@
+PROJECT: Central Lakeside Arcane Gateway
+
+TARGET:
+approximately 48 blocks wide
+32 blocks deep
+55 blocks tall
+
+Create the main magical landmark of the entire valley.
+The structure stands at the end of a large ceremonial plaza beside the lake.
+
+MAIN PORTAL:
+Create one enormous vertical gothic portal approximately 22 blocks wide and 38 blocks tall.
+The portal opening should be an elongated gothic arch rather than a simple rectangle.
+Create several nested stone frames around the portal to produce strong depth.
+
+Use:
+deepslate_bricks
+polished_deepslate
+stone_bricks
+blackstone
+oxidized_copper
+
+MAGICAL CORE:
+Create a visually layered cyan magical interior using restrained combinations of:
+cyan_stained_glass
+light_blue_stained_glass
+cyan_stained_glass_pane
+sea_lantern
+prismarine
+dark_prismarine
+soul_lantern
+
+The portal must not be a flat colored wall.
+Create at least three depth layers:
+- outer magical frame
+- inner glowing frame
+- central energy opening
+
+PORTAL CRYSTALS:
+Place several crystal-like formations above and beside the portal.
+Use amethyst_block, budding_amethyst, purple_stained_glass and end_rod.
+Purple should accent the cyan portal rather than dominate it.
+
+ARCHITECTURE:
+Create:
+- monumental staircase
+- two secondary portal pylons
+- gothic buttresses
+- stone arches
+- balconies
+- copper mechanical details
+- chains
+- narrow towers
+- lantern posts
+
+PLAZA:
+Create a multi-level plaza approximately 45x30 blocks.
+Include broad stairs, retaining walls, planters, lantern posts,
+bench-like stairs/slabs and several market locations.
+The plaza should descend naturally toward the waterfront.
+
+MARKET DETAILS:
+Add small wooden market stalls around the edges.
+Use colorful wool or carpet roofs sparingly.
+Keep the portal itself unobstructed.
+
+LIGHTING:
+Strong cyan portal light contrasted with warm lantern lighting around the plaza.
+
+Do not generate surrounding city buildings.
+Do not generate the lake.
+Do not generate large terrain.
+
+OUTPUT:
+Standalone WorldEdit-ready schematic.

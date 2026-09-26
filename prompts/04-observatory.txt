@@ -1,0 +1,72 @@
+PROJECT: Steampunk Mountain Observatory
+
+TARGET:
+approximately 68 blocks wide
+58 blocks deep
+92 blocks tall
+
+Create a dramatic fantasy-steampunk astronomical observatory suitable for placement on a high mountain overlooking a valley.
+
+MAIN LANDMARK:
+Create one tall cylindrical observatory tower terminating in a large observation dome.
+Attach an enormous telescope to the upper observatory.
+The telescope must be clearly recognizable from a distance.
+
+TELESCOPE:
+Length approximately 35-45 blocks.
+Point it diagonally upward toward the sky.
+
+Create:
+- large cylindrical telescope body
+- wide front lens
+- copper rings
+- mechanical support arms
+- giant rotating mount
+- counterweight
+- gear/wheel-like decorative structures
+
+The telescope must appear structurally supported.
+
+ARCHITECTURE:
+Combine medieval stone architecture with Victorian scientific machinery.
+
+Create:
+- central tower
+- observation dome
+- lower laboratory buildings
+- external staircases
+- balconies
+- stone arches
+- narrow bridges
+- machinery platforms
+- antennas or lightning rods
+- several smaller towers
+
+MATERIALS:
+stone_bricks
+deepslate_bricks
+polished_deepslate
+tuff_bricks
+dark_oak
+spruce
+copper
+oxidized_copper
+iron_bars
+chains
+glass
+light_blue_stained_glass
+
+LIGHTING:
+Mix warm orange lantern lighting with subtle blue scientific lighting.
+
+SILHOUETTE:
+Strong vertical profile.
+The telescope and dome must remain visually identifiable from at least 150 blocks away.
+
+TERRAIN:
+Only create a rough stone cliff foundation approximately 8-12 blocks high.
+Do not generate a full mountain.
+Do not generate trees or surrounding landscape.
+
+OUTPUT:
+Standalone WorldEdit-ready schematic.

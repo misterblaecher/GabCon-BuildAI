@@ -1,0 +1,77 @@
+PROJECT: Snowy Gothic Mountain Castle
+
+TARGET:
+approximately 130 blocks wide
+95 blocks deep
+135 blocks tall
+
+Create an enormous gothic fantasy castle intended to sit on the summit of a dramatic snowy mountain.
+
+DISTANT VIEW:
+This castle will frequently be viewed from 200-400 blocks away.
+Prioritize silhouette, tower composition and large architectural forms before micro-detail.
+
+MAIN COMPOSITION:
+Create:
+- one dominant central palace
+- one enormous central tower
+- 6-10 secondary towers
+- narrow gothic spires
+- bridges between towers
+- elevated courtyards
+- flying buttresses
+- large gothic windows
+- enormous entrance gate
+- several terraces
+- defensive walls
+
+CENTRAL TOWER:
+Height approximately 120-130 blocks above the base.
+The central tower must clearly dominate the skyline.
+
+SECONDARY TOWERS:
+Vary heights between approximately 55 and 100 blocks.
+Avoid placing every tower symmetrically.
+Create a balanced but organic skyline.
+
+ARCHITECTURE:
+Tall narrow proportions.
+Deep gothic arches.
+Strong vertical lines.
+Flying buttresses.
+Layered rooflines.
+Elegant but intimidating appearance.
+
+MATERIALS:
+stone_bricks
+cracked_stone_bricks
+deepslate_bricks
+deepslate_tiles
+polished_deepslate
+calcite
+andesite
+dark_oak
+spruce
+
+LIGHTING:
+Many warm illuminated windows.
+The castle should look inhabited and glow strongly when viewed at night.
+
+SNOW:
+Add snow layers to roofs, balconies and selected ledges.
+Use packed_ice and blue_ice only sparingly.
+
+FUNCTIONALITY:
+Provide stairs between major floors.
+Connect towers through bridges and corridors where practical.
+
+STRUCTURAL REALISM:
+No floating towers.
+All bridges and extensions must have convincing support.
+
+TERRAIN:
+Only create the summit foundation immediately beneath the castle.
+Do not generate the mountain itself.
+
+OUTPUT:
+Standalone WorldEdit-ready schematic intended for placement on separately created terrain.

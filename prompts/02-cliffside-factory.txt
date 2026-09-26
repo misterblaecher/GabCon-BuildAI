@@ -1,0 +1,75 @@
+PROJECT: Great Cliffside Waterwheel Factory
+
+TARGET:
+approximately 145 blocks wide
+85 blocks deep
+125 blocks tall
+
+Create a gigantic fantasy-steampunk factory climbing vertically up a cliff.
+This is not one building; it is an interconnected industrial district.
+
+MASSING:
+Create at least 8 clearly identifiable architectural masses.
+They should climb upward from the waterfront toward the cliff summit.
+The skyline must be strongly asymmetrical.
+
+WATER WHEELS:
+Create 4 giant water wheels with approximate diameters:
+- 29 blocks
+- 25 blocks
+- 21 blocks
+- 15 blocks
+
+The two largest wheels must dominate the front facade.
+Build convincing circular wheels using dark oak, spruce, stairs, slabs,
+fences and trapdoors.
+Add central axles and structural supports.
+Create water channels and waterfalls feeding several wheels.
+
+VERTICAL FACTORY:
+Create:
+- enormous lower industrial halls
+- mid-level workshops
+- upper machinery towers
+- observation towers
+- narrow industrial spires
+
+Connect everything through bridges, external staircases, catwalks,
+conveyor-like structures, elevated rails and maintenance platforms.
+
+SMOKESTACKS:
+Create 7-10 chimneys.
+They should vary strongly in height, diameter and shape.
+Some should be brick, some dark stone, some with copper bands.
+
+CRANES:
+Create at least 3 large mechanical cranes.
+One should extend above the waterfront.
+Use logs, fences, chains, copper and iron_bars.
+
+WORKSHOP AREAS:
+Include visible loading bays with crates, barrels, work tables,
+furnaces, rails, chains and industrial lighting.
+
+ARCHITECTURE:
+Blend medieval stone architecture with Victorian industrial engineering.
+Do not make it look like a modern factory.
+
+WINDOWS:
+Use large warm illuminated industrial windows framed with dark structural beams.
+
+WATER:
+Create several vertical waterfalls passing directly between buildings.
+The interaction of water and machinery is a major visual feature.
+
+LIGHTING:
+Use many small points of warm lantern light.
+Use cyan magical machinery only in a few locations.
+At least one vertical cyan energy machine may be visible.
+
+FOUNDATION:
+Build only the immediate cliff structure required to support the factory.
+Do not create the surrounding mountains or lake.
+
+OUTPUT:
+Standalone WorldEdit-ready industrial schematic.
