@@ -5,10 +5,13 @@ approximately 130 blocks wide
 95 blocks deep
 135 blocks tall
 
-Create an enormous gothic fantasy castle intended to sit on the summit of a dramatic snowy mountain.
+ROLE:
+This is the distant high-altitude landmark at the back of the valley.
+
+Create an enormous gothic fantasy castle intended to sit on a separately built snowy mountain summit.
 
 DISTANT VIEW:
-This castle will frequently be viewed from 200-400 blocks away.
+The castle will frequently be viewed from 200-400 blocks away.
 Prioritize silhouette, tower composition and large architectural forms before micro-detail.
 
 MAIN COMPOSITION:
@@ -27,11 +30,11 @@ Create:
 
 CENTRAL TOWER:
 Height approximately 120-130 blocks above the base.
-The central tower must clearly dominate the skyline.
+It must clearly dominate the skyline.
 
 SECONDARY TOWERS:
 Vary heights between approximately 55 and 100 blocks.
-Avoid placing every tower symmetrically.
+Avoid perfect symmetry.
 Create a balanced but organic skyline.
 
 ARCHITECTURE:
@@ -40,7 +43,7 @@ Deep gothic arches.
 Strong vertical lines.
 Flying buttresses.
 Layered rooflines.
-Elegant but intimidating appearance.
+Elegant, mysterious and imposing appearance.
 
 MATERIALS:
 stone_bricks
@@ -55,23 +58,35 @@ spruce
 
 LIGHTING:
 Many warm illuminated windows.
-The castle should look inhabited and glow strongly when viewed at night.
+The castle should feel inhabited and glow strongly at night.
 
 SNOW:
 Add snow layers to roofs, balconies and selected ledges.
-Use packed_ice and blue_ice only sparingly.
+Use packed-ice / blue-ice-like accents only sparingly.
 
 FUNCTIONALITY:
-Provide stairs between major floors.
+Show plausible stair / bridge circulation between major masses.
 Connect towers through bridges and corridors where practical.
 
 STRUCTURAL REALISM:
 No floating towers.
-All bridges and extensions must have convincing support.
+All bridges and extensions need convincing supports or buttresses.
 
-TERRAIN:
-Only create the summit foundation immediately beneath the castle.
-Do not generate the mountain itself.
+FOUNDATION:
+Only create a compact snowy stone summit plinth immediately beneath the castle.
+Do NOT generate the mountain itself.
+Do NOT generate a huge snowy landscape.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use an elevated three-quarter isometric viewpoint.
+Show the entire castle from foundation to tallest spire.
+Keep every major tower in frame.
+Show enough of the front and one side to understand depth and tower placement.
+Do not hide the lower palace behind a mountain.
+Do not use fog to obscure the architecture.
+Do not crop spires.
+Use only a small snowy foundation and a minimal background.
+Prioritize silhouette and Minecraft-readable geometry over cinematic scenery.
 
 OUTPUT:
-Standalone WorldEdit-ready schematic intended for placement on separately created terrain.
+A standalone Minecraft schematic-reference image for the mountain castle module.

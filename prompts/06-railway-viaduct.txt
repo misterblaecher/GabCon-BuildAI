@@ -2,18 +2,23 @@ PROJECT: Gothic Industrial Railway Viaduct
 
 TARGET:
 approximately 125 blocks long
-11 blocks wide
-38 blocks tall
+11-13 blocks wide
+38-42 blocks tall
 
-Create a monumental Minecraft stone railway viaduct designed to cross a deep fantasy mountain valley.
+ROLE:
+This viaduct crosses the rear portion of the valley and must be easy to extend or repeat.
+
+Create a monumental Minecraft stone railway viaduct using a repeatable gothic arch system.
 
 DESIGN:
 Create a repeating series of enormous gothic arches.
-The middle section should use a repeating pattern so it can later be duplicated with WorldEdit.
+The middle section must use a clearly repeatable structural module so it can later be extended with WorldEdit / mcbuild.
 
 ARCHES:
 Approximately 17-20 blocks wide.
-Use tall narrow arch shapes rather than simple rectangular gaps.
+Use tall pointed / gothic arch shapes rather than rectangular gaps.
+
+Create enough repeated spans that the rhythm is obvious.
 
 SUPPORTS:
 Create:
@@ -21,15 +26,26 @@ Create:
 - buttresses
 - reinforcement arches
 - maintenance platforms
-- occasional iron supports
+- occasional iron / copper reinforcement
+- readable foundations at pillar bottoms
 
 TOP DECK:
-Create a flat railway deck.
-Allow enough space for rails, a decorative custom train and a maintenance walkway.
-Add protective walls or railings.
+Create a flat railway deck with enough width for:
+- rail line
+- decorative custom train
+- narrow maintenance walkway
 
-LIGHTING:
-Place sparse industrial lanterns along the upper deck.
+Add protective walls / railings.
+
+INDUSTRIAL DETAIL:
+Use sparse Victorian railway details:
+- lanterns
+- iron braces
+- copper / brass fittings
+- small service platforms
+- occasional Create-style mechanical components
+
+Keep these secondary to the stone structure.
 
 MATERIALS:
 stone_bricks
@@ -46,13 +62,22 @@ Ancient monumental engineering combined with Victorian railway architecture.
 
 STRUCTURAL REALISM:
 Pillars must align convincingly with arches.
-Avoid unnecessary floating decorations.
-
-IMPORTANT:
-The middle arch module should be visually repeatable.
+No floating deck sections.
+Do not over-decorate the repeating center spans.
 
 TERRAIN:
-Do not generate cliffs or valley terrain.
+Do not generate cliffs, valley walls or mountains.
+Use only tiny support pads under pillars if necessary.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use a long near-side elevation / shallow three-quarter viewpoint.
+The ENTIRE viaduct length must fit inside the frame from one end to the other.
+The camera should be high enough to reveal the railway deck but low enough to clearly read every arch.
+Do not use strong foreshortening.
+Do not hide arches behind terrain.
+Do not place a large train that obscures the deck.
+Make the repeatable center arch module extremely clear.
+Use a neutral minimal background.
 
 OUTPUT:
-Standalone extendable railway viaduct schematic.
+A standalone Minecraft schematic-reference image for an extendable railway viaduct module.

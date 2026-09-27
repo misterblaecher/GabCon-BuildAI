@@ -5,12 +5,15 @@ approximately 145 blocks wide
 85 blocks deep
 125 blocks tall
 
-Create a gigantic fantasy-steampunk factory climbing vertically up a cliff.
+ROLE:
+This is the huge industrial landmark on the left side of the final valley composition.
+
+Create a gigantic fantasy-steampunk factory climbing vertically up a limited rocky foundation.
 This is not one building; it is an interconnected industrial district.
 
 MASSING:
 Create at least 8 clearly identifiable architectural masses.
-They should climb upward from the waterfront toward the cliff summit.
+They should climb upward from the waterfront level toward the rear / upper cliff foundation.
 The skyline must be strongly asymmetrical.
 
 WATER WHEELS:
@@ -20,11 +23,19 @@ Create 4 giant water wheels with approximate diameters:
 - 21 blocks
 - 15 blocks
 
-The two largest wheels must dominate the front facade.
-Build convincing circular wheels using dark oak, spruce, stairs, slabs,
-fences and trapdoors.
-Add central axles and structural supports.
-Create water channels and waterfalls feeding several wheels.
+The two largest wheels must dominate the visible front / lake-facing facade.
+Make their axles, spokes and supports clearly readable.
+
+Use a Minecraft-readable construction language:
+dark oak
+spruce
+stairs
+slabs
+fences
+trapdoors
+copper / brass mechanical hubs
+
+Create channels and short waterfalls feeding several wheels.
 
 VERTICAL FACTORY:
 Create:
@@ -33,43 +44,81 @@ Create:
 - upper machinery towers
 - observation towers
 - narrow industrial spires
+- loading bays
+- boiler buildings
 
-Connect everything through bridges, external staircases, catwalks,
-conveyor-like structures, elevated rails and maintenance platforms.
+Connect them with:
+- bridges
+- external staircases
+- catwalks
+- elevated rails
+- maintenance platforms
+- mechanical galleries
 
 SMOKESTACKS:
 Create 7-10 chimneys.
-They should vary strongly in height, diameter and shape.
-Some should be brick, some dark stone, some with copper bands.
+Vary height, diameter and shape.
+Use a mix of:
+- brick
+- dark stone
+- copper / brass banding
 
 CRANES:
 Create at least 3 large mechanical cranes.
-One should extend above the waterfront.
-Use logs, fences, chains, copper and iron_bars.
+One should project above the waterfront edge.
+Their booms and supports must be fully visible.
+
+SERVER / CREATE VISUAL LANGUAGE:
+Use visible machinery inspired by the GabCon server palette:
+- andesite-like casings
+- brass-like casings
+- copper-like casings
+- shafts / mechanical joints
+- industrial frames
+- fluid-tank-like forms
+- valves and pipe networks
+
+Do not turn the build into modern technology.
+It must remain Victorian / medieval fantasy.
 
 WORKSHOP AREAS:
-Include visible loading bays with crates, barrels, work tables,
-furnaces, rails, chains and industrial lighting.
-
-ARCHITECTURE:
-Blend medieval stone architecture with Victorian industrial engineering.
-Do not make it look like a modern factory.
+Include visible loading areas with:
+- crates
+- barrels
+- furnaces
+- workshop tables
+- rails
+- chains
+- industrial lights
 
 WINDOWS:
 Use large warm illuminated industrial windows framed with dark structural beams.
 
 WATER:
-Create several vertical waterfalls passing directly between buildings.
-The interaction of water and machinery is a major visual feature.
+Water interacting with machinery is a major visual feature.
+Create several controlled waterfalls / channels passing between buildings.
+Do not let waterfalls hide major architectural forms.
 
 LIGHTING:
-Use many small points of warm lantern light.
-Use cyan magical machinery only in a few locations.
-At least one vertical cyan energy machine may be visible.
+Many small warm amber lights.
+Use cyan magical machinery only in a few focal points.
+One vertical cyan energy device may be present.
 
 FOUNDATION:
-Build only the immediate cliff structure required to support the factory.
-Do not create the surrounding mountains or lake.
+Show only enough rocky foundation to explain the vertical levels.
+Do not generate the full mountain.
+Do not generate the surrounding lake or city.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use an elevated three-quarter view from the lake-facing side.
+The entire factory must fit inside the frame.
+All 4 water wheels should be visible or clearly inferable.
+At least 6 chimneys should be visible.
+Show the highest tower, waterfront crane, bridges and multiple vertical levels simultaneously.
+Do not let rock formations hide the lower factory.
+Use minimal background.
+Avoid atmospheric fog covering the machinery.
+Prioritize block-readable Minecraft geometry.
 
 OUTPUT:
-Standalone WorldEdit-ready industrial schematic.
+A standalone Minecraft schematic-reference image for the cliffside factory module.

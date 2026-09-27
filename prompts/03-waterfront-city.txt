@@ -1,14 +1,32 @@
 PROJECT: Central Waterfront Market District
 
 TARGET:
-approximately 160 blocks wide
-110 blocks deep
-55 blocks tall
+approximately 220 blocks wide
+160 blocks deep
+55-65 blocks tall
 
-Create a dense fantasy-steampunk lakeside town surrounding the main city plaza.
+ROLE:
+This district wraps around the already-built central portal module.
+It forms the inhabited heart of the valley.
+
+Create a dense fantasy-steampunk lakeside town surrounding a deliberately EMPTY central ceremonial zone.
+
+CRITICAL INTEGRATION REQUIREMENT:
+The central portal is a separate schematic and must NOT be generated again.
+
+Reserve a large unobstructed central insertion zone approximately:
+95 blocks wide
+80 blocks deep
+
+This empty / open area must be visually obvious in the concept image.
+It should connect naturally to surrounding streets and plazas.
+
+Do not place buildings, trees, cranes or major stalls inside the reserved portal footprint.
+
+The city should frame and visually lead toward the empty central landmark area.
 
 BUILDING COUNT:
-Create approximately 14-18 major buildings.
+Create approximately 16-22 major buildings.
 Do not make them identical.
 
 BUILDING TYPES:
@@ -21,52 +39,112 @@ Include:
 - market hall
 - harbor office
 - residential townhouses
-- small guild building
+- guild building
 - boat workshop
+- small mechanical workshop
+- several narrow waterfront houses
 
 STYLE:
-Medieval timber-frame European architecture with subtle steampunk machinery.
-Buildings should be visually rich but cozy rather than industrial.
+Medieval timber-frame European architecture with subtle Victorian steampunk machinery.
+The district should feel cozy, inhabited and dense rather than heavily industrial.
 
 HEIGHT:
 Mostly 2-4 floors.
-A few civic buildings may reach 5 floors.
+A few civic / guild buildings may reach 5 floors.
+Keep sightlines toward the central insertion zone.
 
 STREETS:
 Create irregular pedestrian streets.
 Avoid a square grid.
-Use stairs, small terraces, alleys, archways, bridges and retaining walls.
+
+Use:
+- stairs
+- small terraces
+- alleys
+- archways
+- retaining walls
+- short bridges
+- covered passages
+
+All major routes should visually converge toward the central portal zone or waterfront.
 
 WATERFRONT:
-One side of the district must open completely onto the lake.
-Build stone quays, wooden piers, loading docks, a small crane,
-boat mooring spaces, steps descending toward water and warehouse entrances.
+One complete edge of the district opens toward the lake.
 
-CENTRAL MARKET:
-Create an open marketplace with 10-14 small stalls.
-Use restrained colorful awnings in cyan, blue, red and orange.
+Build:
+- stone quays
+- wooden piers
+- loading docks
+- one or two small cranes
+- boat mooring spaces
+- stairs descending toward water
+- warehouse doors facing the harbor
 
-TREES AND VEGETATION:
-Include several medium trees integrated into plazas.
-Use leaves, flower boxes and vines to soften the stone architecture.
+Do not generate the lake itself.
+Leave a clean waterfront edge so the schematic can meet separately built water.
+
+MARKETS:
+Create several small market clusters, but keep them away from the reserved portal insertion zone.
+Use restrained colorful awnings:
+cyan
+blue
+red
+orange
+
+VEGETATION:
+Use several medium trees, flower boxes and vines.
+Keep vegetation architectural and controlled.
+Do not hide buildings.
 
 LIGHTING:
-Extremely warm and inviting.
-Use many hanging lanterns.
-Make the district visually attractive at night.
+Warm, inviting nighttime lighting.
+Many lanterns and illuminated windows.
+Do not use excessive magical cyan except where subtle machinery accents are needed.
 
 ROOFS:
-Use steep roofs and multiple roof heights.
-Prefer dark_oak, spruce, deepslate_tiles and oxidized_copper accents.
-Avoid large flat roofs.
+Use steep roofs with varied heights.
+Prefer:
+dark_oak
+spruce
+deepslate_tiles
+oxidized_copper accents
+
+Avoid broad flat roofs.
 
 DETAIL:
-Use barrels, trapdoors, fences, chains, flower pots, stairs,
-slabs, awnings, crates and small signs.
+Use visually readable Minecraft details:
+barrels
+trapdoors
+fences
+chains
+flower pots
+stairs
+slabs
+awnings
+crates
+signs
+small industrial fittings
 
-Do not generate the main portal.
-Leave a broad plaza opening where the portal schematic can later be inserted.
-Do not create the lake itself.
+SERVER / CREATE VISUAL LANGUAGE:
+Small workshops may use subtle:
+- andesite-like casings
+- brass-like machinery
+- copper-like machinery
+- mechanical frames
+- small pipe assemblies
+
+The district must remain residential / commercial, not become another factory.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use a high elevated three-quarter / near-isometric viewpoint.
+The whole district must fit in frame.
+The central empty portal insertion zone must be clearly visible and measurable by eye.
+Show the waterfront edge, docks, streets and surrounding building ring simultaneously.
+Do not place the camera at street level.
+Do not fill the reserved center with decorative architecture.
+Do not generate another portal.
+Use minimal terrain and minimal lake water.
+Prioritize layout readability over cinematic atmosphere.
 
 OUTPUT:
-Standalone WorldEdit-ready city district schematic.
+A standalone Minecraft schematic-reference image for the city module, designed to wrap around module 01.

@@ -1,75 +1,102 @@
 PROJECT: Central Lakeside Arcane Gateway
 
-TARGET:
-approximately 48 blocks wide
-32 blocks deep
-55 blocks tall
+STATUS:
+This module already has an approved concept direction.
+Use this prompt only when regenerating or refining the portal reference image.
 
-Create the main magical landmark of the entire valley.
-The structure stands at the end of a large ceremonial plaza beside the lake.
+TARGET:
+approximately 85-95 blocks wide
+65-80 blocks deep
+85-100 blocks tall
+
+ROLE:
+This is the main visual anchor of the valley and the insertion point around which the waterfront city will be designed.
+
+Create a monumental gothic-steampunk magical gateway standing at the end of a ceremonial plaza.
 
 MAIN PORTAL:
-Create one enormous vertical gothic portal approximately 22 blocks wide and 38 blocks tall.
-The portal opening should be an elongated gothic arch rather than a simple rectangle.
-Create several nested stone frames around the portal to produce strong depth.
+Create one enormous vertical gothic portal.
+The opening should be an elongated pointed arch, not a rectangle.
+Use several nested architectural and mechanical frames to create strong depth.
 
-Use:
+The portal should feel approximately:
+- 20-25 blocks wide internally
+- 40-50 blocks tall internally
+- deeply recessed rather than flat
+
+MATERIAL LANGUAGE:
 deepslate_bricks
 polished_deepslate
 stone_bricks
 blackstone
 oxidized_copper
+brass / copper mechanical accents
+andesite industrial details
 
 MAGICAL CORE:
-Create a visually layered cyan magical interior using restrained combinations of:
+Create a layered cyan energy interior using visual equivalents of:
 cyan_stained_glass
 light_blue_stained_glass
-cyan_stained_glass_pane
 sea_lantern
 prismarine
-dark_prismarine
-soul_lantern
+soul-like cyan light
 
-The portal must not be a flat colored wall.
-Create at least three depth layers:
-- outer magical frame
-- inner glowing frame
-- central energy opening
+The portal must not look like a flat colored wall.
+Show:
+- outer architectural frame
+- mechanical inner frame
+- glowing energy layer
+- deep central opening / energy spine
 
 PORTAL CRYSTALS:
-Place several crystal-like formations above and beside the portal.
-Use amethyst_block, budding_amethyst, purple_stained_glass and end_rod.
-Purple should accent the cyan portal rather than dominate it.
+Place several purple crystal formations above and beside the portal.
+Purple should accent the cyan energy rather than dominate it.
 
 ARCHITECTURE:
 Create:
 - monumental staircase
-- two secondary portal pylons
+- two dominant side towers
+- crystal chambers in the side towers
 - gothic buttresses
-- stone arches
+- layered pointed arches
 - balconies
-- copper mechanical details
+- copper / brass machinery
 - chains
-- narrow towers
+- narrow rear turrets
 - lantern posts
+- mechanical galleries
 
 PLAZA:
-Create a multi-level plaza approximately 45x30 blocks.
-Include broad stairs, retaining walls, planters, lantern posts,
-bench-like stairs/slabs and several market locations.
-The plaza should descend naturally toward the waterfront.
+Create a multi-level ceremonial plaza in front.
+Include:
+- broad stairs
+- retaining walls
+- planters
+- lantern posts
+- benches
+- a few small market stalls at the edges
 
-MARKET DETAILS:
-Add small wooden market stalls around the edges.
-Use colorful wool or carpet roofs sparingly.
-Keep the portal itself unobstructed.
+Keep the direct approach to the portal visually clear.
 
 LIGHTING:
-Strong cyan portal light contrasted with warm lantern lighting around the plaza.
+Strong cyan portal light.
+Purple crystal highlights.
+Warm amber plaza lighting.
 
-Do not generate surrounding city buildings.
+INTEGRATION:
+Do not generate the surrounding city.
 Do not generate the lake.
-Do not generate large terrain.
+Do not generate mountains.
+The city module will be designed around this module later.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use an elevated frontal three-quarter viewpoint.
+Show the complete portal, both side towers and the full staircase.
+Keep the structure centered and symmetrical enough to read clearly.
+Do not hide the lower plaza with foreground props.
+Do not crop tower tips.
+Use minimal background.
+Prioritize Minecraft-readable structure over cinematic atmosphere.
 
 OUTPUT:
-Standalone WorldEdit-ready schematic.
+A standalone Minecraft schematic-reference image for the central portal module.

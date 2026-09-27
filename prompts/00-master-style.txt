@@ -6,19 +6,32 @@ This project recreates a gigantic Minecraft fantasy-steampunk valley surrounding
 
 The visual identity must stay consistent across every independent schematic.
 
+HOW TO USE THIS FILE:
+For concept-image generation, combine this master style prompt with exactly one module prompt:
+01-central-portal.txt
+02-cliffside-factory.txt
+03-waterfront-city.txt
+04-observatory.txt
+05-arcane-complex.txt
+06-railway-viaduct.txt
+07-mountain-castle.txt
+
+The concept image is not the final schematic.
+It is a clear visual reference that will later be translated into a block-by-block mcbuild blueprint.
+
 STYLE:
 - medieval European fantasy
 - Victorian steampunk
 - dark stone industrial architecture
 - warm inhabited buildings
-- copper machinery
+- copper and brass machinery
 - magical cyan and purple energy
-- mountainous alpine environment
+- mountainous alpine world
 - dense vertical architecture
-- highly detailed Minecraft build
+- highly detailed Minecraft construction
 
 GENERAL VISUAL LANGUAGE:
-Architecture must feel handcrafted and old.
+Architecture must feel handcrafted, old, layered and physically believable.
 Avoid modern architecture.
 Avoid clean science-fiction architecture.
 Avoid giant flat rectangular walls.
@@ -40,8 +53,9 @@ Prefer:
 - water wheels
 - cranes
 - chimneys
-- hanging lanterns
+- lanterns
 - chains
+- visible structural supports
 
 PRIMARY STONE PALETTE:
 stone_bricks
@@ -80,34 +94,52 @@ iron_bars
 chain
 lightning_rod
 
+SERVER / MODDED DESIGN LANGUAGE:
+The real GabCon server contains Create-style industrial blocks and machinery.
+Concept images may visually suggest:
+- andesite machinery casings
+- brass machinery casings
+- copper machinery casings
+- gear housings
+- mechanical joints
+- shafts
+- pipes
+- industrial frames
+- trading / workshop details
+
+Do not make exact mod block IDs visually mandatory.
+The final mcbuild blueprint will choose only blocks validated by the server registry.
+
 LIGHTING:
 Warm amber lighting should dominate normal buildings.
-Use lantern, soul_lantern and concealed glowstone when needed.
-
-MAGICAL AREAS:
-Use sea_lantern, cyan_stained_glass, light_blue_stained_glass,
-blue_stained_glass, purple_stained_glass, amethyst_block,
-budding_amethyst and crying_obsidian.
-
-Normal city lighting = warm amber / orange.
-Magic lighting = cyan / electric blue / purple.
-
+Magic areas use cyan / electric blue / purple light.
 Do not cover entire buildings in glowing blocks.
-Magic lighting should remain localized.
+Keep magical illumination localized and high-contrast.
 
 MASSING:
 Buildings should have strong silhouettes when viewed from 100-300 blocks away.
-Large builds must have major primary masses, secondary towers and tertiary details.
+Large builds must have:
+- primary masses
+- secondary towers / wings
+- tertiary detail
+
 Do not make every detail the same scale.
 
 ARCHITECTURAL DETAIL:
-Use stairs, slabs, walls, fences, trapdoors and panes extensively.
-Break flat surfaces with recessed windows, columns, balconies, trim,
-roof overhangs, buttresses and controlled material variation.
+Use Minecraft-readable geometry.
+Stairs, slabs, walls, fences, trapdoors and panes should be visually plausible.
+Break flat surfaces with:
+- recessed windows
+- support columns
+- balconies
+- trim
+- roof overhangs
+- buttresses
+- controlled material variation
 
 WEATHERING:
-Stone surfaces should use restrained variation, roughly:
-70% base stone
+Stone surfaces should visually suggest restrained aging:
+approximately 70% base stone
 20% cracked / alternate stone
 10% mossy or aged material
 
@@ -115,11 +147,32 @@ STRUCTURAL RULES:
 No floating structures.
 Bridges must connect physically to supports.
 Large platforms need pillars, brackets, suspension or visible beams.
-Player routes should be believable.
-Doors, stairs, bridges and major platforms should preferably be traversable.
+Player routes should look believable.
+Doors, stairs, bridges and major platforms should be plausibly traversable.
 
 WORLD COMPOSITION:
-The lake and terrain will be built separately.
-Individual schematics should avoid generating large amounts of terrain.
-Build only enough stone foundation to make each structure self-contained.
-Every module must be suitable for later placement with WorldEdit/FAWE.
+The lake, mountains and large terrain will be built separately.
+Individual module references should avoid generating large amounts of terrain.
+Only show enough foundation to explain how the module stands.
+
+REFERENCE-IMAGE MODE:
+The goal is a schematic-oriented Minecraft build reference, not cinematic concept art.
+
+Unless a module says otherwise:
+- show the complete structure
+- use an elevated three-quarter isometric viewpoint
+- keep the full build inside the frame
+- use a clean dark-neutral or simple void-like background
+- use minimal surrounding terrain
+- make individual Minecraft block forms readable
+- keep entrances, supports, towers, roofs and machinery visible
+- avoid perspective so extreme that proportions become hard to reconstruct
+- avoid heavy fog
+- avoid bloom that hides blocks
+- avoid cropped towers or roofs
+- avoid foreground objects covering important geometry
+- avoid distant scenery dominating the image
+- avoid impossible floating architecture
+
+OUTPUT INTENT:
+The image should look like a premium Minecraft build showcase / schematic reference that can realistically be converted into a WorldEdit/FAWE build.

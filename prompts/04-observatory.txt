@@ -5,16 +5,20 @@ approximately 68 blocks wide
 58 blocks deep
 92 blocks tall
 
-Create a dramatic fantasy-steampunk astronomical observatory suitable for placement on a high mountain overlooking a valley.
+ROLE:
+This is a high-elevation scientific landmark on the right / rear side of the valley.
+
+Create a dramatic fantasy-steampunk astronomical observatory suitable for placement on a high mountain.
 
 MAIN LANDMARK:
 Create one tall cylindrical observatory tower terminating in a large observation dome.
 Attach an enormous telescope to the upper observatory.
-The telescope must be clearly recognizable from a distance.
+
+The telescope must be unmistakable from a distance.
 
 TELESCOPE:
 Length approximately 35-45 blocks.
-Point it diagonally upward toward the sky.
+Point it diagonally upward toward the sky at approximately 25-40 degrees.
 
 Create:
 - large cylindrical telescope body
@@ -23,9 +27,10 @@ Create:
 - mechanical support arms
 - giant rotating mount
 - counterweight
-- gear/wheel-like decorative structures
+- gear / wheel-like structures
+- maintenance access around the mount
 
-The telescope must appear structurally supported.
+The telescope must look physically supported and buildable in Minecraft.
 
 ARCHITECTURE:
 Combine medieval stone architecture with Victorian scientific machinery.
@@ -39,8 +44,8 @@ Create:
 - stone arches
 - narrow bridges
 - machinery platforms
-- antennas or lightning rods
-- several smaller towers
+- antennas / lightning rods
+- 2-4 smaller towers
 
 MATERIALS:
 stone_bricks
@@ -56,17 +61,45 @@ chains
 glass
 light_blue_stained_glass
 
+SERVER / CREATE VISUAL LANGUAGE:
+Use mechanical details suggesting:
+- brass casings
+- copper casings
+- andesite machinery
+- rotating mounts
+- shafts
+- valves
+- mechanical braces
+
 LIGHTING:
-Mix warm orange lantern lighting with subtle blue scientific lighting.
+Warm orange lantern lighting in occupied rooms.
+Subtle cool blue scientific lighting around the telescope / dome.
 
 SILHOUETTE:
 Strong vertical profile.
-The telescope and dome must remain visually identifiable from at least 150 blocks away.
+The dome and telescope must remain recognizable from at least 150 blocks away.
 
-TERRAIN:
-Only create a rough stone cliff foundation approximately 8-12 blocks high.
+FOUNDATION:
+Only create a compact rough stone summit / cliff foundation approximately 8-12 blocks high.
 Do not generate a full mountain.
-Do not generate trees or surrounding landscape.
+Do not generate forests or surrounding landscape.
+
+REFERENCE IMAGE REQUIREMENTS:
+Use a three-quarter view from slightly above and from the side of the telescope.
+Show:
+- the entire tower
+- the complete telescope barrel
+- the lens
+- the support mount
+- the lower laboratories
+- bridges / stairs
+- the full foundation
+
+Do not let the telescope point directly toward or away from the camera.
+Its full length must be visible in profile / three-quarter.
+Do not crop the telescope tip or tower roof.
+Minimal background.
+Prioritize mechanical readability and Minecraft geometry.
 
 OUTPUT:
-Standalone WorldEdit-ready schematic.
+A standalone Minecraft schematic-reference image for the observatory module.

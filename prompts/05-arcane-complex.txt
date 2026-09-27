@@ -5,48 +5,54 @@ approximately 105 blocks wide
 78 blocks deep
 115 blocks tall
 
-Create a huge vertically stacked magical-industrial Minecraft complex containing several portal machines.
+ROLE:
+This is the magical-industrial landmark on the right side of the valley.
+
+Create a huge vertically stacked Minecraft complex containing three distinct arcane machines / portal systems.
 
 STYLE:
-Medieval gothic architecture
-Victorian steampunk machinery
-arcane fantasy technology
+- medieval gothic architecture
+- Victorian steampunk machinery
+- arcane fantasy technology
 
-Avoid modern science-fiction architecture.
+Avoid modern clean science-fiction architecture.
 
 MAIN COMPOSITION:
-Build the complex over several stone terraces at different elevations.
+Build the complex over several clearly separated stone terraces at different elevations.
 
 Create three major portal machines:
 1. cyan portal
 2. deep blue portal
 3. purple portal
 
-Each portal must have a distinct surrounding structure.
+Each portal must:
+- have a different architectural frame
+- sit at a different height
+- remain clearly visible in the reference image
+- connect into the same overall industrial complex
 
 PORTALS:
-The portal machines should be visible from far across the valley.
-Use layered lighting and glass rather than simple flat colored rectangles.
+Use layered lighting, glass-like energy fields and heavy mechanical frames.
+Do not use simple flat colored rectangles.
 
-CYAN MATERIALS:
-cyan_stained_glass
-sea_lantern
-prismarine
-soul_lantern
+CYAN VISUAL MATERIALS:
+cyan stained glass
+sea-lantern-like light
+prismarine-like accents
+cool soul-blue light
 
-BLUE MATERIALS:
-light_blue_stained_glass
-blue_stained_glass
-prismarine
-sea_lantern
+BLUE VISUAL MATERIALS:
+light blue / blue glass
+prismarine-like details
+cold bright light
 
-PURPLE MATERIALS:
-purple_stained_glass
-amethyst_block
-crying_obsidian
-end_rod
+PURPLE VISUAL MATERIALS:
+purple glass
+amethyst
+crying-obsidian-like accents
+small end-rod-like highlights
 
-Use glowing materials sparingly enough that the structure remains mostly stone and industrial.
+Use glowing materials sparingly so the architecture remains mostly stone and machinery.
 
 ARCHITECTURE:
 Create:
@@ -60,7 +66,21 @@ Create:
 - boilers
 - chains
 - maintenance catwalks
-- waterfalls passing between terraces
+- controlled waterfalls between terraces
+
+SERVER / CREATE VISUAL LANGUAGE:
+Use machinery inspired by the GabCon server:
+- andesite casings
+- brass casings
+- copper casings
+- fluid tanks
+- valves
+- shafts
+- gantry / crane-like assemblies
+- mechanical frames
+
+Do not require exact block IDs in the image.
+The blueprint will select validated registry blocks later.
 
 MATERIALS:
 deepslate_bricks
@@ -76,18 +96,31 @@ chains
 
 VERTICALITY:
 Strong multi-level composition.
-Some portals should sit significantly higher than others.
-Use bridges and stairs to visually connect the levels.
+Portal 1, 2 and 3 should sit on clearly different terraces.
+Use bridges and stairs to visually connect levels.
 
 LIGHTING:
-Dark architecture with intense localized portal lighting.
+Dark architecture with intense localized cyan / blue / purple portal lighting.
+Retain warm amber lighting in occupied workshops.
 
 STRUCTURAL REALISM:
-No unsupported floating laboratories or platforms.
+No unsupported floating laboratories, portals or platforms.
+Every major machine should have a visible structural frame.
 
-TERRAIN:
+FOUNDATION:
 Create only terraced cliff foundations immediately underneath the complex.
 Do not generate an entire mountain.
 
+REFERENCE IMAGE REQUIREMENTS:
+Use an elevated three-quarter view from the front / lake-facing side.
+All three portal machines must be visible in the same image.
+Do not hide one portal behind another.
+Show the vertical terrace hierarchy clearly.
+Show major bridges, stairs, cranes and laboratories.
+Keep the whole complex in frame.
+Minimal terrain and background.
+Avoid fog and extreme glow.
+Prioritize readable block geometry.
+
 OUTPUT:
-Standalone WorldEdit-ready schematic.
+A standalone Minecraft schematic-reference image for the arcane complex module.
