@@ -465,7 +465,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--all-blocks",
         action="store_true",
-        help="Test every registry block, including all vanilla blocks. Default is all modded blocks + vanilla fixtures.",
+        help=(
+            "Test every registry block, including all vanilla blocks. "
+            "Default is all modded blocks + vanilla fixtures."
+        ),
     )
     parser.add_argument(
         "--no-render",
