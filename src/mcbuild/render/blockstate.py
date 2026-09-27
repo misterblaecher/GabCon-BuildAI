@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from mcbuild.render import resources
+
 BLOCKSTATE_DIR = Path(__file__).resolve().parent.parent / "assets" / "blockstates"
 
 
@@ -25,8 +27,8 @@ class ModelPart:
 
 @cache
 def _load_blockstate(name: str) -> dict | None:
-    path = BLOCKSTATE_DIR / f"{name}.json"
-    if not path.exists():
+    path = resources.blockstate_path(name)
+    if path is None:
         return None
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -34,18 +36,27 @@ def _load_blockstate(name: str) -> dict | None:
         return None
 
 
-def _bare_model(ref) -> str:
+def configure_mod_asset_cache(path: str | Path | None) -> None:
+    resources.configure_cache_root(path)
+    _load_blockstate.cache_clear()
+
+
+def _model_ref(ref, default_namespace: str) -> str:
     if isinstance(ref, list):
         ref = ref[0]  # a weighted variant list; take the first
     model = ref.get("model", "") if isinstance(ref, dict) else str(ref)
-    return model.split("/")[-1]
+    canonical = resources.canonical_resource_location(model, default_namespace)
+    namespace, path = resources.split_resource_location(canonical)
+    if namespace == "minecraft":
+        return path.split("/")[-1]
+    return canonical
 
 
-def _variant_to_part(entry: dict) -> ModelPart:
+def _variant_to_part(entry: dict, default_namespace: str) -> ModelPart:
     if isinstance(entry, list):
         entry = entry[0]
     return ModelPart(
-        model=_bare_model(entry),
+        model=_model_ref(entry, default_namespace),
         x=int(entry.get("x", 0)) % 360,
         y=int(entry.get("y", 0)) % 360,
     )
@@ -87,19 +98,38 @@ def resolve_parts(name: str, state: dict[str, str]) -> list[ModelPart] | None:
     if data is None:
         return None
 
+    default_namespace, _ = resources.split_resource_location(name)
+
     if "variants" in data:
         variants = data["variants"]
         # exact match first, then any key whose listed props all match
         for key, entry in variants.items():
             if _variant_key_matches(key, state):
-                return [_variant_to_part(entry)]
+                return [_variant_to_part(entry, default_namespace)]
         return []
 
     if "multipart" in data:
         parts: list[ModelPart] = []
         for rule in data["multipart"]:
             if _when_matches(rule.get("when", {}), state):
-                parts.append(_variant_to_part(rule["apply"]))
+                parts.append(_variant_to_part(rule["apply"], default_namespace))
         return parts
 
+    return None
+
+
+def first_model(name: str) -> str | None:
+    """Return the first model reference from a blockstate, ignoring state conditions."""
+    data = _load_blockstate(name)
+    if data is None:
+        return None
+    default_namespace, _ = resources.split_resource_location(name)
+    variants = data.get("variants")
+    if isinstance(variants, dict) and variants:
+        return _model_ref(next(iter(variants.values())), default_namespace)
+    multipart = data.get("multipart")
+    if isinstance(multipart, list) and multipart:
+        first = multipart[0]
+        if isinstance(first, dict) and "apply" in first:
+            return _model_ref(first["apply"], default_namespace)
     return None

@@ -23,6 +23,7 @@ dependencies = [
 mcbuild = "mcbuild.cli:main"
 mcbuild-server = "mcbuild.server.ws_server:main"
 mcbuild-scan-mods = "mcbuild.mod_assets:main"
+mcbuild-import-mod-assets = "mcbuild.mod_asset_import:main"
 
 [project.optional-dependencies]
 dev = [

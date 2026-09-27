@@ -246,6 +246,45 @@ will import/cache those resources and teach the renderer to resolve namespaced m
 
 Set `MCBUILD_MODS_DIR` in `.env` if the mods directory is not the default location.
 
+Import the indexed resources into BuildAI's local resource-pack cache:
+
+```powershell
+uv run mcbuild-import-mod-assets
+```
+
+The importer verifies every indexed JAR against the SHA-256 recorded by the scanner. If a
+mod was updated after the scan, it stops and asks you to re-run `mcbuild-scan-mods`
+instead of mixing files from two versions. The default cache is:
+
+```text
+.mcbuild/resourcepack/
+  assets/
+    create/
+      blockstates/
+      models/block/
+      textures/block/
+    waystones/
+    ...
+```
+
+The renderer automatically reads this cache. Namespaced blocks can therefore resolve their
+real blockstate/model/texture resources, for example:
+
+```text
+create:andesite_casing
+  -> assets/create/blockstates/andesite_casing.json
+  -> assets/create/models/block/andesite_casing.json
+  -> assets/create/textures/block/andesite_casing.png
+```
+
+Architectural shapes already understood by BuildAI (stairs, slabs, walls, panes, doors,
+etc.) keep their template geometry while using mod textures. Unsupported complex models
+currently fall back to one correctly textured cube rather than disappearing; exact custom
+Create machinery geometry is a later renderer step.
+
+Use `MCBUILD_MOD_ASSET_INDEX` and `MCBUILD_MOD_ASSET_CACHE` to override the default
+manifest/cache paths.
+
 ### Static build gallery manifest
 
 Blueprint builds written under `generated/<build-id>/` refresh `generated/index.json`

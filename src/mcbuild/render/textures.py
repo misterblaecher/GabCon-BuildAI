@@ -13,6 +13,8 @@ from typing import cast
 
 from PIL import Image
 
+from mcbuild.render import resources
+
 TEXTURE_DIR = Path(__file__).resolve().parent.parent / "assets" / "textures" / "block"
 TEXTURE_SIZE = 16
 
@@ -44,29 +46,45 @@ def _load(path: Path) -> Image.Image | None:
 
 
 def _candidates(name: str, face: str) -> list[str]:
+    namespace, path = resources.split_resource_location(name)
+    if path.startswith("block/") or path.startswith("textures/"):
+        return [f"{namespace}:{path}"]
     if face == "top":
-        return [f"{name}_top", name]
-    if face == "bottom":
-        return [f"{name}_bottom", f"{name}_top", name]
-    return [f"{name}_side", name]
+        paths = [f"{path}_top", path]
+    elif face == "bottom":
+        paths = [f"{path}_bottom", f"{path}_top", path]
+    else:
+        paths = [f"{path}_side", path]
+    return [f"{namespace}:{candidate}" for candidate in paths]
 
 
 @cache
 def get_face_texture(name: str, face: str) -> Image.Image | None:
-    """face is 'top' or 'side'. Returns a 16x16 RGBA image, or None if untextured."""
+    """Return a 16x16 RGBA texture for a vanilla or namespaced mod resource."""
     for candidate in _candidates(name, face):
-        path = TEXTURE_DIR / f"{candidate}.png"
-        if path.exists():
-            img = _load(path)
-            if img is not None:
-                return img
+        path = resources.texture_path(candidate)
+        if path is None:
+            continue
+        img = _load(path)
+        if img is not None:
+            return img
     return None
 
 
+def configure_mod_asset_cache(path: str | Path | None) -> None:
+    """Point texture lookup at another imported mod resource-pack cache."""
+    resources.configure_cache_root(path)
+    _load.cache_clear()
+    get_face_texture.cache_clear()
+
+
 def needs_tint(name: str, face: str) -> bool:
-    if name in TINTED_ALL_FACES:
+    namespace, path = resources.split_resource_location(name)
+    if namespace != "minecraft":
+        return False
+    if path in TINTED_ALL_FACES:
         return True
-    return face == "top" and name in TINTED_TOP_ONLY
+    return face == "top" and path in TINTED_TOP_ONLY
 
 
 def apply_tint(img: Image.Image, rgb: tuple[int, int, int]) -> Image.Image:
