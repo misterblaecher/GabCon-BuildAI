@@ -129,7 +129,7 @@ public final class RegistryExportCommand {
         }
 
         JsonObject namespacesJson = new JsonObject();
-        namespaceCounts.forEach(namespacesJson::addProperty);
+        namespaceCounts.forEach((namespace, count) -> namespacesJson.addProperty(namespace, count));
 
         root.addProperty("block_count", ids.size());
         root.addProperty("state_count", stateCount);
