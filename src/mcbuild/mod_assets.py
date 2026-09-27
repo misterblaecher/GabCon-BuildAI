@@ -149,9 +149,7 @@ def _scan_jar(path: Path) -> dict[str, Any]:
             paths = sorted(kinds.get(kind, []))
             namespace_record[kind] = paths
             namespace_record[f"{kind}_count"] = len(paths)
-        namespace_record["render_asset_count"] = sum(
-            int(namespace_record[f"{kind}_count"]) for kind in _ASSET_KINDS
-        )
+        namespace_record["render_asset_count"] = sum(int(namespace_record[f"{kind}_count"]) for kind in _ASSET_KINDS)
         namespaces[namespace] = namespace_record
 
     return {
@@ -199,9 +197,7 @@ def scan_mod_directory(mods_dir: str | Path) -> dict[str, Any]:
             for kind in _ASSET_KINDS:
                 totals[kind] += int(namespace_data[f"{kind}_count"])
 
-    namespace_providers = {
-        namespace: sorted(files, key=str.lower) for namespace, files in sorted(providers.items())
-    }
+    namespace_providers = {namespace: sorted(files, key=str.lower) for namespace, files in sorted(providers.items())}
 
     return {
         "format_version": MANIFEST_VERSION,
@@ -254,10 +250,7 @@ def main() -> int:
         parser.error(str(exc))
 
     print(f"Mods directory: {manifest['mods_dir']}")
-    print(
-        f"JARs: {manifest['scanned_jar_count']}/{manifest['jar_count']} scanned"
-        f" ({manifest['error_count']} error(s))"
-    )
+    print(f"JARs: {manifest['scanned_jar_count']}/{manifest['jar_count']} scanned ({manifest['error_count']} error(s))")
     print(f"Namespaces with render assets: {manifest['namespace_count']}")
     print(f"Render assets indexed: {manifest['totals']['render_assets']:,}")
     print(f"Manifest: {output}")
