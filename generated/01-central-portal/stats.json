@@ -1,0 +1,73 @@
+{
+  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\01-central-portal.py",
+  "seed": 0,
+  "views": [
+    "yaw 0deg",
+    "yaw 90deg",
+    "yaw 180deg",
+    "yaw 270deg",
+    "top-down",
+    "yaw 90deg, cutaway z"
+  ],
+  "palette_warnings": [],
+  "dims": [
+    89,
+    89,
+    71
+  ],
+  "bounds": [
+    [
+      -44,
+      -1,
+      -38
+    ],
+    [
+      44,
+      87,
+      32
+    ]
+  ],
+  "block_count": 56441,
+  "top_materials": [
+    [
+      "stone_bricks",
+      28480
+    ],
+    [
+      "deepslate_bricks",
+      4856
+    ],
+    [
+      "cracked_stone_bricks",
+      4208
+    ],
+    [
+      "blue_stained_glass",
+      2711
+    ],
+    [
+      "oxidized_copper",
+      2600
+    ],
+    [
+      "andesite",
+      2532
+    ],
+    [
+      "deepslate_tiles",
+      2411
+    ],
+    [
+      "mossy_stone_bricks",
+      1604
+    ],
+    [
+      "light_blue_stained_glass",
+      1294
+    ],
+    [
+      "polished_deepslate",
+      1163
+    ]
+  ]
+}
