@@ -191,7 +191,13 @@ def _chain_neighbor_connects(grid: VoxelGrid, coord: Coord, connection_axis: str
     return other_part == "none" or _chain_connection_axis(state) == connection_axis
 
 
-def _validate_chain_drive_line(grid: VoxelGrid, block_id: str, coord: Coord, state: dict[str, str], errors: list[str]) -> None:
+def _validate_chain_drive_line(
+    grid: VoxelGrid,
+    block_id: str,
+    coord: Coord,
+    state: dict[str, str],
+    errors: list[str],
+) -> None:
     part = state.get("part")
     connection_axis = _chain_connection_axis(state)
     if part not in {"start", "middle", "end", "none"} or connection_axis is None:
@@ -216,7 +222,12 @@ def _validate_chain_drive_line(grid: VoxelGrid, block_id: str, coord: Coord, sta
 
 def _gantry_neighbor_connects(grid: VoxelGrid, coord: Coord, facing: str) -> bool:
     block, state = _block_state_at(grid, coord)
-    return block is not None and block.base_id == "create:gantry_shaft" and state is not None and state.get("facing") == facing
+    return (
+        block is not None
+        and block.base_id == "create:gantry_shaft"
+        and state is not None
+        and state.get("facing") == facing
+    )
 
 
 def _validate_gantry_line(grid: VoxelGrid, coord: Coord, state: dict[str, str], errors: list[str]) -> None:
@@ -290,11 +301,18 @@ def _validate_belt_chain(grid: VoxelGrid, coord: Coord, state: dict[str, str], e
         if back != coord:
             errors.append(
                 f"create:belt at {coord} points to {target}, but that segment does not point back "
-                f"(facing={other_state.get('facing')}, slope={other_state.get('slope')}, part={other_state.get('part')})."
+                f"(facing={other_state.get('facing')}, slope={other_state.get('slope')}, "
+                f"part={other_state.get('part')})."
             )
 
 
-def _validate_vanilla_piston(block_id: str, grid: VoxelGrid, coord: Coord, state: dict[str, str], errors: list[str]) -> None:
+def _validate_vanilla_piston(
+    block_id: str,
+    grid: VoxelGrid,
+    coord: Coord,
+    state: dict[str, str],
+    errors: list[str],
+) -> None:
     if state.get("extended") != "true":
         return
     facing = state.get("facing")
