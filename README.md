@@ -204,6 +204,17 @@ property values, and invalid state combinations are rejected before the schemati
 written. Successful generated builds record the Minecraft/DataVersion profile and
 compatibility result in `stats.json`.
 
+Blocks whose live registry exposes `half=lower|upper` are treated as true double-height
+structures when using `tools/build_blueprint.py`. Both halves must be placed explicitly.
+For example, a Waystone should be authored as:
+
+```python
+set_block(2, 1, 4, "waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]")
+set_block(2, 2, 4, "waystones:waystone[facing=north,half=upper,origin=player,waterlogged=false]")
+```
+
+This prevents WorldEdit/Minecraft neighbor updates from removing an orphaned half after paste.
+
 ### Scan mod JAR assets
 
 BuildAI can inventory the render-relevant assets shipped by the mods installed on the
