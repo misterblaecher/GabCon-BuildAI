@@ -3,8 +3,10 @@
 **Turn a sentence into a Minecraft build.** A from-scratch LLM agent that writes
 a blueprint program in a sandboxed Python DSL, interprets it into voxel data,
 renders labeled multi-view screenshots with a pure-software isometric renderer,
-and lets a vision-capable LLM critique its own renders and iterate via tool
-calls — until it produces a WorldEdit-ready `.schem` file, or (via a NeoForge
+and lets a vision-capable LLM iterate via tool calls. With a concept reference,
+a separate preflight vision pass extracts a persistent ReferenceSpec and a fresh
+independent critic compares high-resolution reference/build views after each edit
+— until it produces a WorldEdit-ready `.schem` file, or (via a NeoForge
 mod + WebSocket server) builds live inside a running Minecraft world.
 
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -20,18 +22,23 @@ one of the agent's own self-critique renders, unedited.*
 ## How it works
 
 ```
-prompt ──▶ LLM writes a blueprint (sandboxed Python DSL)
-             │
-             ▼
-        DSL interpreter ──▶ sparse voxel grid
-             │
-             ▼
-     isometric renderer ──▶ contact-sheet PNG of the views the LLM requested (rotations / top-down / cutaways)
-             │
-             ▼
-   vision LLM critiques the render, calls a tool to edit/query/finish
-             │
-             └──── loop until finish() ────▶ WorldEdit .schem + full run directory
+prompt ──▶ optional reference image ──▶ vision preflight ──▶ ReferenceSpec
+   │                                                     │
+   └──────────────────────────────▶ builder LLM ◀────────┘
+                                      │ writes blueprint (sandboxed Python DSL)
+                                      ▼
+                                 sparse voxel grid
+                                      │
+                                      ▼
+                               separate native renders
+                                      │
+                    ┌─────────────────┴─────────────────┐
+                    ▼                                   ▼
+             compact contact sheet              independent vision critic
+               (CLI display)                 (fresh context + reference)
+                                                        │
+                                                        ▼
+                              builder edits / queries / finishes ──▶ .schem
 ```
 
 ## Examples
@@ -87,6 +94,10 @@ mcbuild PROMPT
   --reference/--no-reference    Generate a concept-reference image first  [default: no-reference]
   --ref-model TEXT              [default: openai/gpt-image-2]
   --reasoning TEXT              off|low|medium|high  [default: medium]
+  --critic-model TEXT           ReferenceSpec/critic model; defaults to --model
+  --critic-reasoning TEXT       off|low|medium|high  [default: medium]
+  --reference-max-side INTEGER  Model-facing reference max edge [default: 1024]
+  --critic-view-max-side INTEGER Separate render max edge [default: 768]
   --stream/--no-stream          Stream reasoning/completion text live  [default: stream]
   --cost-ceiling FLOAT          Abort (keeping the best build so far) once usage cost reaches this many USD
   --registry TEXT               Exported server block registry JSON (or MCBUILD_SERVER_REGISTRY)
@@ -101,9 +112,13 @@ Each run writes to `runs/<timestamp>-<slug>/`:
 
 ```
 prompt.txt
-reference.png          (if --reference)
+reference.png          (if --reference; original generated concept)
+reference_model.png     (model-facing reference, max edge 1024 by default)
+reference_spec.json     (persistent architectural decomposition)
 iter_NN/blueprint.py
-iter_NN/render.png
+iter_NN/render.png      (compact contact sheet for display)
+iter_NN/view_01.png     (native individual render; more view_NN files as requested)
+iter_NN/critic.json     (independent reference critic, when a reference is active)
 iter_NN/stats.json
 final.schem
 final_blueprint.py
