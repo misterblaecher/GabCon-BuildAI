@@ -11,6 +11,7 @@ from pathlib import Path
 from mcbuild import palette
 from mcbuild.dsl.sandbox import run_blueprint
 from mcbuild.export.schem import export_schem
+from mcbuild.gallery import generate_index
 from mcbuild.profile import resolve_registry_path
 from mcbuild.render.views import build_contact_sheet
 from mcbuild.voxel import VoxelGrid
@@ -86,6 +87,9 @@ def build(blueprint_path: Path, out_dir: Path, seed: int, registry: Path | None 
         **stats,
     }
     stats_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
+    if out_dir.parent.name == "generated":
+        generate_index(out_dir.parent)
 
     return {
         "render": render_path,
