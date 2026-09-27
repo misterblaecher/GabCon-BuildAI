@@ -23,6 +23,12 @@ DEFAULT_OUT = Path("generated") / "03-global-registry-lab"
 DEFAULT_COLUMNS = 24
 SLOT_SPACING = 4
 
+_AIR_BLOCKS = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}
+_CREATE_TUNNELS = {"create:andesite_tunnel", "create:brass_tunnel"}
+_EXPECTED_SIDE_EFFECTS = {
+    "waystones:warp_plate": "A newly initialized warp plate may eject/create an Attuned Shard as part of its normal setup.",
+}
+
 DEFAULT_VIEWS = [
     {"yaw": 0},
     {"yaw": 1},
@@ -121,6 +127,7 @@ def _state_candidates(entry: dict[str, Any]) -> list[tuple[str, dict[str, str]]]
 
 _SAFE_PREFERENCES = {
     "attached": "false",
+    "attachment": "floor",
     "enabled": "true",
     "extended": "false",
     "face": "floor",
@@ -130,9 +137,12 @@ _SAFE_PREFERENCES = {
     "locked": "false",
     "occupied": "false",
     "open": "false",
+    "origin": "player",
     "powered": "false",
     "state": "retracted",
+    "status": "empty",
     "triggered": "false",
+    "wall": "false",
     "waterlogged": "false",
 }
 
@@ -159,6 +169,10 @@ def _matching_state(entry: dict[str, Any], source: str, changes: dict[str, str])
             return state
     candidate = _format_state(block_id, props)
     return candidate if candidate in entry["states"] else None
+
+
+def _is_air_block(block_id: str) -> bool:
+    return block_id in _AIR_BLOCKS
 
 
 def _is_flowing_fluid(entry: dict[str, Any]) -> bool:
@@ -204,7 +218,67 @@ def _state_support_offsets(block_id: str, state: str) -> list[Coord]:
     return offsets
 
 
-def _build_structure_states(block_id: str, entry: dict[str, Any]) -> tuple[list[tuple[Coord, str]], str | None]:
+def _build_structure_states(
+    profile: ServerProfile,
+    block_id: str,
+    entry: dict[str, Any],
+) -> tuple[list[tuple[Coord, str]], str | None]:
+    if block_id in {"minecraft:rail", "minecraft:powered_rail"}:
+        required = {"shape": "north_south", "waterlogged": "false"}
+        if block_id == "minecraft:powered_rail":
+            required["powered"] = "false"
+        state = _pick_state(entry, required)
+        if state is None:
+            return [], "could not find safe flat rail state"
+        return [((0, 0, 0), state)], None
+
+    if block_id == "create:hand_crank" or block_id.endswith("_valve_handle"):
+        state = _pick_state(entry, {"facing": "up", "waterlogged": "false"})
+        if state is None:
+            return [], "could not find upward floor-mounted crank/valve state"
+        return [((0, 0, 0), state)], None
+
+    if block_id in _CREATE_TUNNELS:
+        belt_entry = profile.blocks.get("create:belt")
+        if belt_entry is None:
+            return [], "Create belt tunnel requires create:belt in the server registry"
+        tunnel = _pick_state(entry, {"axis": "x", "shape": "straight"})
+        belt_start = _pick_state(
+            belt_entry,
+            {
+                "casing": "true",
+                "facing": "east",
+                "part": "start",
+                "slope": "horizontal",
+                "waterlogged": "false",
+            },
+        )
+        if tunnel is None or belt_start is None:
+            return [], "could not build cased horizontal belt fixture for tunnel"
+        belt_middle = _matching_state(belt_entry, belt_start, {"part": "middle"})
+        belt_end = _matching_state(belt_entry, belt_start, {"part": "end"})
+        if belt_middle is None or belt_end is None:
+            return [], "could not find matching cased belt middle/end states for tunnel"
+        return [
+            ((-1, 0, 0), belt_start),
+            ((0, 0, 0), belt_middle),
+            ((1, 0, 0), belt_end),
+            ((0, 1, 0), tunnel),
+        ], None
+
+    if block_id == "create:steam_whistle":
+        tank_entry = profile.blocks.get("create:fluid_tank")
+        if tank_entry is None:
+            return [], "steam whistle requires create:fluid_tank in the server registry"
+        whistle = _pick_state(
+            entry,
+            {"facing": "north", "powered": "false", "size": "medium", "wall": "false"},
+        )
+        tank = _pick_state(tank_entry, {"bottom": "true", "shape": "window", "top": "true"})
+        if whistle is None or tank is None:
+            return [], "could not build steam whistle + fluid tank fixture"
+        return [((0, 0, 0), tank), ((0, 1, 0), whistle)], None
+
     rules = classify_structure(block_id, entry)
     manual = [rule for rule in rules if rule["status"] == "manual_review"]
     if manual:
@@ -309,11 +383,14 @@ def build_registry_lab(
         col = 0
         for block_id in groups[namespace]:
             entry = profile.blocks[block_id]
+            if _is_air_block(block_id):
+                skipped.append({"block": block_id, "reason": "air-like block"})
+                continue
             if _is_flowing_fluid(entry):
                 skipped.append({"block": block_id, "reason": "flowing fluid block"})
                 continue
 
-            states, reason = _build_structure_states(block_id, entry)
+            states, reason = _build_structure_states(profile, block_id, entry)
             if reason is not None:
                 skipped.append({"block": block_id, "reason": reason})
                 continue
@@ -337,7 +414,14 @@ def build_registry_lab(
                     if support_coord != (wx, wy, wz):
                         grid.set(*support_coord, support_idx)
 
-                placed_states.append({"coord": [wx, wy, wz], "state": state, "renderable": block.renderable})
+                placed_states.append(
+                    {
+                        "coord": [wx, wy, wz],
+                        "state": state,
+                        "renderable": block.renderable,
+                        "fixture": block.base_id != block_id,
+                    }
+                )
 
             layout.append(
                 {
@@ -345,6 +429,7 @@ def build_registry_lab(
                     "namespace": namespace,
                     "origin": [x, 1, z],
                     "states": placed_states,
+                    "expected_side_effect": _EXPECTED_SIDE_EFFECTS.get(block_id),
                 }
             )
             tested_by_namespace[namespace] += 1
