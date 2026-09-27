@@ -60,7 +60,32 @@ class FakeLLM:
             system_text = " ".join(
                 str(m.get("content", "")) for m in messages if isinstance(m, dict) and m.get("role") == "system"
             ).lower()
-            if "architectural vision analyst" in system_text:
+            if "architectural requirements analyst" in system_text:
+                message = _FakeMessage(
+                    content=json.dumps(
+                        {
+                            "version": 1,
+                            "requested_typology": "small stone hut",
+                            "scale": "small",
+                            "hard_constraints": [{"requirement": "small stone building", "source": "a tiny stone hut"}],
+                            "target_dimensions": {"width": 5, "depth": 5, "height": 4},
+                            "footprint": "compact rectangle",
+                            "storeys": 1,
+                            "primary_materials": [{"role": "walls", "blocks": ["stone"], "required": True}],
+                            "roof": {"shape": "simple", "material": "stone", "required": False},
+                            "access_and_interior": {
+                                "entrance": "doorway",
+                                "vertical_access": "none",
+                                "must_be_walkable_inside": True,
+                                "required_spaces": ["single room"],
+                            },
+                            "optional_features": [],
+                            "avoid": ["large multi-wing massing"],
+                            "priority_constraints": ["compact stone mass", "walkable doorway"],
+                        }
+                    )
+                )
+            elif "architectural vision analyst" in system_text:
                 message = _FakeMessage(
                     content=json.dumps(
                         {

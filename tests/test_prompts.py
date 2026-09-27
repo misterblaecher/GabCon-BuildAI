@@ -32,3 +32,25 @@ def test_reference_critique_nudge_asks_for_discrepancies():
     n = prompts.build_reference_critique_nudge().lower()
     assert "discrepan" in n
     assert "reference" in n
+
+
+def test_user_prompt_with_target_spec_makes_constraints_non_negotiable():
+    p = prompts.build_user_prompt(
+        "a small stone tower",
+        seed=0,
+        has_reference=False,
+        target_spec={
+            "hard_constraints": [{"requirement": "stone walls"}],
+            "priority_constraints": ["small tower silhouette"],
+        },
+    ).lower()
+    assert "target spec" in p
+    assert "non-negotiable" in p
+    assert "stone walls" in p
+
+
+def test_system_prompt_says_examples_are_not_design_defaults():
+    sp = prompts.build_system_prompt().lower()
+    assert "design contract" in sp
+    assert "syntax, not preferred architecture" in sp
+    assert "never invent helper apis" in sp

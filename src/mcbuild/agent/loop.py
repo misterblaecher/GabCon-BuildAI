@@ -384,6 +384,7 @@ def run_agent(
     critic_model = config.critic_model or config.model
     model_reference_image: Image.Image | None = None
     reference_spec: dict | None = None
+    target_spec: dict | None = None
     if reference_image is not None:
         model_reference_image = reference.fit_image_for_model(reference_image, config.reference_max_side)
         rundir.save_image("reference_model.png", model_reference_image)
@@ -408,6 +409,24 @@ def run_agent(
             }
         rundir.write_json("reference_spec.json", reference_spec)
         emit("reference_spec", spec=reference_spec)
+    else:
+        try:
+            target_spec = reference.analyze_text_prompt(
+                llm,
+                critic_model,
+                prompt,
+                reasoning=config.critic_reasoning,
+            )
+        except Exception as exc:
+            target_spec = {
+                "version": reference.TARGET_SPEC_VERSION,
+                "parse_status": "error",
+                "error": str(exc),
+                "hard_constraints": [{"requirement": prompt, "source": prompt}],
+                "priority_constraints": [f"Build exactly this request before embellishing: {prompt}"],
+            }
+        rundir.write_json("target_spec.json", target_spec)
+        emit("target_spec", spec=target_spec)
 
     messages: list[dict] = [{"role": "system", "content": prompts.build_system_prompt()}]
     user_content: list[dict] = [
@@ -418,6 +437,7 @@ def run_agent(
                 config.seed,
                 reference_image is not None,
                 reference_spec=reference_spec,
+                target_spec=target_spec,
             ),
         }
     ]
@@ -503,6 +523,34 @@ def run_agent(
                         + "\nUse next_focus / the rank-1 discrepancy as the next visual correction. "
                         "Preserve the items listed under preserve. If the critic could not parse, "
                         "compare the attached views against the earlier ReferenceSpec yourself."
+                    ),
+                }
+            )
+        elif target_spec is not None:
+            try:
+                critic = reference.critique_text_prompt(
+                    llm,
+                    critic_model,
+                    prompt,
+                    target_spec,
+                    model_renderings,
+                    stats,
+                    reasoning=config.critic_reasoning,
+                )
+            except Exception as exc:
+                critic = {"parse_status": "error", "error": str(exc)}
+            rundir.write_json(f"iter_{iteration:02d}/critic.json", critic)
+            emit("prompt_critic", iteration=iteration, critique=critic)
+            content.append(
+                {
+                    "type": "text",
+                    "text": (
+                        "INDEPENDENT PROMPT CRITIC (fresh context; it did not author your build):\n"
+                        + json.dumps(critic, indent=2)
+                        + "\nTreat next_focus / the rank-1 discrepancy as the next correction. "
+                        "Explicit user constraints outrank decorative additions. Preserve the items "
+                        "listed under preserve. If an interior requirement is unverified, use a free "
+                        "cutaway/slice inspect or query before claiming it is satisfied."
                     ),
                 }
             )

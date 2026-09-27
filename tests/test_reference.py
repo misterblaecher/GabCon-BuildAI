@@ -3,7 +3,9 @@ from PIL import Image
 from mcbuild.agent.reference import (
     _extract_json_object,
     analyze_reference,
+    analyze_text_prompt,
     critique_reference,
+    critique_text_prompt,
     fit_image_for_model,
 )
 from mcbuild.llm.fake import FakeLLM
@@ -43,6 +45,29 @@ def test_reference_analysis_and_critic_are_stateless_for_fake_builder():
         spec,
         [("yaw 0deg", render)],
         {"dims": (20, 20, 20), "block_count": 100, "top_materials": []},
+    )
+    assert critique["parse_status"] == "ok"
+    assert "next_focus" in critique
+    assert llm._step == 0
+
+
+def test_text_target_analysis_and_critic_are_stateless_for_fake_builder():
+    llm = FakeLLM()
+
+    spec = analyze_text_prompt(llm, "fake/model", "a tiny stone tower with an accessible interior")
+    assert spec["parse_status"] == "ok"
+    assert spec["version"] == 1
+    assert spec["hard_constraints"]
+    assert llm._step == 0
+
+    render = Image.new("RGB", (640, 480), (40, 40, 40))
+    critique = critique_text_prompt(
+        llm,
+        "fake/model",
+        "a tiny stone tower with an accessible interior",
+        spec,
+        [("yaw 0deg", render)],
+        {"dims": (10, 12, 10), "block_count": 100, "top_materials": []},
     )
     assert critique["parse_status"] == "ok"
     assert "next_focus" in critique

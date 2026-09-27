@@ -20,6 +20,25 @@ screenshots of the result so you can critique and refine your own work.
 
 {_reference_manual()}
 
+## Prompt fidelity
+
+The user's explicit description is the design contract. Preserve the requested building type,
+scale words (small/large/tall/low), primary materials, roof material/shape, access wording,
+storey count when stated, and interior requirements before adding decorative ideas. Do not
+replace an interior-access requirement with external-only stairs, turn a tower into a cottage,
+or change stone walls into a timber-dominant mass unless the user asked for that.
+
+Worked examples in the DSL reference demonstrate SYNTAX, not preferred architecture. Never copy
+an example's footprint, palette, roof, or feature list just because it appears in the manual.
+Optional embellishments (crenellations, extra wings, balconies, courtyards, extra storeys) come
+only after every explicit requirement already reads clearly in the geometry.
+
+Use only primitives, block states, and function signatures documented in the DSL reference.
+Never invent helper APIs, keyword arguments, imports, or block names. Prefer a simpler valid
+implementation over speculative code. A blueprint submitted to a tool must be clean executable
+source: no alternate-plan monologue, no dangling `pass`, no undefined variables, and no code
+that comments about uncertainty instead of building.
+
 ## Workflow
 
 1. In your FIRST response, do BOTH of the following together — do not split them across two \
@@ -94,6 +113,7 @@ def build_user_prompt(
     seed: int,
     has_reference: bool,
     reference_spec: dict | None = None,
+    target_spec: dict | None = None,
 ) -> str:
     if has_reference:
         if reference_spec is not None:
@@ -116,9 +136,20 @@ def build_user_prompt(
             )
     else:
         ref_note = ""
+
+    target_note = ""
+    if not has_reference and target_spec is not None:
+        target_note = (
+            "\nA separate requirements pass extracted the TARGET SPEC below from the user's text. "
+            "Treat its hard_constraints and priority_constraints as non-negotiable. Optional ideas "
+            "must not replace or obscure them. Build the simplest geometry that satisfies these first, "
+            "then add detail only if budget remains.\n\n"
+            f"TARGET SPEC:\n{json.dumps(target_spec, indent=2)}\n"
+        )
+
     return f"""Build this: {prompt}
 
-{ref_note}
+{ref_note}{target_note}
 Begin with your design brief, and call submit_blueprint in this SAME response — do not wait for \
 a follow-up turn. If applicable, name the rooms/storeys and what's in them and name major \
 external elements."""

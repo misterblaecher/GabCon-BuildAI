@@ -85,7 +85,7 @@ def build(
     critic_model: str | None = typer.Option(
         None,
         "--critic-model",
-        help="Model for ReferenceSpec + independent visual critique (defaults to --model).",
+        help="Model for Target/Reference spec extraction + independent visual critique (defaults to --model).",
     ),
     critic_reasoning: str = typer.Option("medium", "--critic-reasoning", help="off|low|medium|high"),
     reference_max_side: int = typer.Option(
