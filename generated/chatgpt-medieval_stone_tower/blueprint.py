@@ -47,9 +47,10 @@ set_block(2, 6, -1, "spruce_fence")
 # A stone eave ring visually separates the body from the roof.
 cylinder(0, 0, 9, height=1, r=4.5, block="stone_bricks", hollow=True)
 
-# Tall coherent wooden cone, with a one-block overhang around the stone shell.
-cone(0, 0, 10, r=5, height=5, block="spruce_planks", hollow=True)
+# Taller, tighter wooden cone: enough overhang to protect the wall without
+# overwhelming the compact tower silhouette.
+cone(0, 0, 10, r=4.5, height=6, block="spruce_planks", hollow=True)
 
 # Timber roof finial.
-set_block(0, 15, 0, "spruce_log")
-set_block(0, 16, 0, "spruce_fence")
+set_block(0, 16, 0, "spruce_log")
+set_block(0, 17, 0, "spruce_fence")

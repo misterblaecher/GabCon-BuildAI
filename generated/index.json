@@ -511,12 +511,12 @@
       "blueprint": "generated/chatgpt-medieval_stone_tower/blueprint.py",
       "dims": [
         11,
-        17,
+        18,
         11
       ],
-      "block_count": 477,
+      "block_count": 481,
       "namespaces": {
-        "minecraft": 477
+        "minecraft": 481
       },
       "top_materials": [
         [
@@ -525,7 +525,7 @@
         ],
         [
           "spruce_planks",
-          151
+          155
         ],
         [
           "cracked_stone_bricks",
