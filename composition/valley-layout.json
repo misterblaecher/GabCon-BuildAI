@@ -1,0 +1,48 @@
+{
+  "output": "generated/00-full-valley",
+  "notes": "Provisional composition. Offsets will be refined after each module render is validated.",
+  "modules": [
+    {
+      "name": "central-portal",
+      "blueprint": "blueprints/01-central-portal.py",
+      "offset": [0, 64, 45],
+      "enabled": true
+    },
+    {
+      "name": "waterfront-city",
+      "blueprint": "blueprints/03-waterfront-city.py",
+      "offset": [0, 64, 45],
+      "enabled": false
+    },
+    {
+      "name": "cliffside-factory",
+      "blueprint": "blueprints/02-cliffside-factory.py",
+      "offset": [-165, 68, 20],
+      "enabled": false
+    },
+    {
+      "name": "railway-viaduct",
+      "blueprint": "blueprints/06-railway-viaduct.py",
+      "offset": [-60, 126, -120],
+      "enabled": false
+    },
+    {
+      "name": "observatory",
+      "blueprint": "blueprints/04-observatory.py",
+      "offset": [145, 112, -70],
+      "enabled": false
+    },
+    {
+      "name": "arcane-complex",
+      "blueprint": "blueprints/05-arcane-complex.py",
+      "offset": [175, 78, 25],
+      "enabled": false
+    },
+    {
+      "name": "mountain-castle",
+      "blueprint": "blueprints/07-mountain-castle.py",
+      "offset": [135, 160, -165],
+      "enabled": false
+    }
+  ]
+}
