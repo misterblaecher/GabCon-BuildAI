@@ -17,3 +17,6 @@ build/
 mod/.gradle/
 mod/run/
 mod/run-server/
+
+# Local generated asset manifests/caches
+.mcbuild/

@@ -204,6 +204,48 @@ property values, and invalid state combinations are rejected before the schemati
 written. Successful generated builds record the Minecraft/DataVersion profile and
 compatibility result in `stats.json`.
 
+### Scan mod JAR assets
+
+BuildAI can inventory the render-relevant assets shipped by the mods installed on the
+server. On the GabCon server layout, the default directory is already:
+
+```text
+A:\MinecraftServer\mods
+```
+
+Run:
+
+```powershell
+uv run mcbuild-scan-mods
+```
+
+or specify another directory explicitly:
+
+```powershell
+uv run mcbuild-scan-mods --mods-dir "A:\MinecraftServer\mods"
+```
+
+The scanner never extracts or modifies the JARs. It opens them as ZIP archives and writes
+a local manifest to:
+
+```text
+.mcbuild/mod-assets-index.json
+```
+
+For every JAR the manifest records its filename, size, SHA-256, NeoForge/Fabric mod
+metadata when available, asset namespaces, and exact resource paths for:
+
+- `assets/<namespace>/blockstates/**/*.json`
+- `assets/<namespace>/models/block/**/*.json`
+- `assets/<namespace>/textures/block/**/*.png`
+- animated texture metadata (`*.png.mcmeta`)
+
+It also records namespace-to-JAR providers, which is important for addons that contribute
+assets to another mod's namespace. This manifest is the input for the next phase that
+will import/cache those resources and teach the renderer to resolve namespaced mod assets.
+
+Set `MCBUILD_MODS_DIR` in `.env` if the mods directory is not the default location.
+
 ### Static build gallery manifest
 
 Blueprint builds written under `generated/<build-id>/` refresh `generated/index.json`
