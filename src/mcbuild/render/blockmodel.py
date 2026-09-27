@@ -149,7 +149,7 @@ def _base_texture(name: str) -> str | None:
             break
 
     for candidate in (path, base, base + "s", base + "_planks"):
-        ref = f"{namespace}:{candidate}"
+        ref = candidate if namespace == "minecraft" else f"{namespace}:{candidate}"
         if textures.get_face_texture(ref, "side") is not None or textures.get_face_texture(ref, "top") is not None:
             return ref
     return None
