@@ -300,6 +300,35 @@ The second schematic contains the complete build as before; the first is only a 
 pre-pass that prevents neighbor updates from breaking rails, plants and attached Create
 blocks during WorldEdit's placement sequence.
 
+#### Accepted lab exceptions
+
+A real GabCon 1.21.1 WorldEdit paste of the two-phase global lab still produced a small
+set of item drops. These are documented as accepted compatibility-lab exceptions rather
+than blockers for the general BuildAI schematic pipeline:
+
+```text
+Pumpkin Seeds
+Melon Seeds
+Azalea
+Big Dripleaf
+Cocoa Beans
+Lily of the Valley
+Amethyst Shard
+Bamboo
+Chorus Fruit
+Cactus
+Sugar Cane
+Pointed Dripstone
+Attuned Shard
+Flowering Azalea
+```
+
+Most of these blocks/items have growth, substrate, attachment, or special initialization
+semantics that are outside the current generic registry-only fixture model. The Attuned
+Shard is already annotated as an expected Warp Plate setup side effect. Future fixture
+work can narrow this list further without changing the structural-validation guarantees
+or the normal schematic export path.
+
 The default scope is all non-`minecraft` registry blocks plus a vanilla fixture suite for
 stairs/slabs/walls, doors/beds, redstone, pistons, signs and common BlockEntities. For an
 exhaustive registry pass including all vanilla blocks:
