@@ -503,84 +503,63 @@
       }
     },
     {
-      "id": "07-mountain-castle",
-      "name": "07 Mountain Castle",
-      "render": "generated/07-mountain-castle/render.png",
-      "schem": "generated/07-mountain-castle/final.schem",
-      "stats": "generated/07-mountain-castle/stats.json",
-      "blueprint": "generated/07-mountain-castle/blueprint.py",
+      "id": "chatgpt-medieval_stone_tower",
+      "name": "Medieval Stone Tower",
+      "render": "generated/chatgpt-medieval_stone_tower/render.png",
+      "schem": "generated/chatgpt-medieval_stone_tower/final.schem",
+      "stats": "generated/chatgpt-medieval_stone_tower/stats.json",
+      "blueprint": "generated/chatgpt-medieval_stone_tower/blueprint.py",
       "dims": [
-        129,
-        142,
-        99
+        11,
+        17,
+        11
       ],
-      "block_count": 159365,
+      "block_count": 477,
       "namespaces": {
-        "create": 1,
-        "minecraft": 159364
+        "minecraft": 477
       },
       "top_materials": [
         [
           "stone_bricks",
-          92586
+          251
         ],
         [
-          "deepslate_tiles",
-          18026
+          "spruce_planks",
+          151
         ],
         [
           "cracked_stone_bricks",
-          14564
+          48
         ],
         [
-          "andesite",
-          12222
+          "mossy_stone_bricks",
+          18
         ],
         [
-          "snow_block",
-          9459
+          "spruce_stairs",
+          4
         ],
         [
-          "polished_deepslate",
-          6143
+          "spruce_fence",
+          3
         ],
         [
-          "tuff_bricks",
-          6018
+          "stone_brick_stairs",
+          1
         ],
         [
-          "orange_stained_glass",
-          336
-        ],
-        [
-          "polished_blackstone",
-          5
-        ],
-        [
-          "lantern",
-          5
+          "spruce_log",
+          1
         ]
       ],
       "server_profile": {
-        "format_version": 1,
-        "minecraft_version": "1.21.1",
-        "data_version": 3955,
-        "generated_at": "2026-09-27T10:20:55.002381200Z",
-        "block_count": 1783,
-        "state_count": 62917,
-        "namespaces": {
-          "create": 643,
-          "create_dragons_plus": 19,
-          "create_enchantment_industry": 10,
-          "minecraft": 1060,
-          "sophisticatedbackpacks": 6,
-          "trading_floor": 1,
-          "waystones": 44
-        },
-        "source": "server-export"
+        "source": "legacy",
+        "minecraft_version": null,
+        "data_version": null
       },
       "compatibility": {
-        "valid": true,
+        "valid": null,
+        "status": "legacy-unchecked",
         "unknown_blocks": [],
         "invalid_states": []
       }
