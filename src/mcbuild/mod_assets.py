@@ -12,6 +12,8 @@ from collections import defaultdict
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from dotenv import load_dotenv
+
 DEFAULT_MODS_DIR = Path(r"A:\MinecraftServer\mods")
 MODS_DIR_ENV = "MCBUILD_MODS_DIR"
 MANIFEST_VERSION = 1
@@ -226,6 +228,7 @@ def write_manifest(manifest: dict[str, Any], output: str | Path) -> Path:
 
 
 def main() -> int:
+    load_dotenv()
     parser = argparse.ArgumentParser(
         description="Scan Minecraft mod JARs for blockstates, block models and block textures."
     )
