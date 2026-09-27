@@ -1,4 +1,4 @@
-"""OpenRouter chat client: tool calling + images + reasoning + usage/cost tracking."""
+"""OpenAI-compatible chat client: OpenRouter + Ollama tool calling, vision, and usage tracking."""
 
 from __future__ import annotations
 
@@ -188,22 +188,39 @@ def _is_retryable(exc: Exception) -> bool:
 
 
 class OpenRouterClient:
-    """Thin wrapper over the OpenAI SDK pointed at OpenRouter."""
+    """Thin wrapper over the OpenAI SDK pointed at OpenRouter or Ollama."""
 
     def __init__(
         self,
         api_key: str | None = None,
-        base_url: str = DEFAULT_BASE_URL,
+        base_url: str | None = None,
         session_id: str | None = None,
+        backend: str | None = None,
     ):
-        api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
-        if not api_key:
-            raise RuntimeError("OPENROUTER_API_KEY is not set. Put it in the environment or a .env file.")
+        backend = (backend or os.environ.get("MCBUILD_LLM_BACKEND") or "openrouter").strip().lower()
+        if backend not in {"openrouter", "ollama"}:
+            raise RuntimeError("MCBUILD_LLM_BACKEND must be either 'openrouter' or 'ollama'.")
+
+        base_url = (base_url or os.environ.get("MCBUILD_BASE_URL") or DEFAULT_BASE_URL).rstrip("/")
+        if backend == "ollama" and base_url == DEFAULT_BASE_URL:
+            base_url = "http://127.0.0.1:11434/v1"
+
+        api_key = api_key or os.environ.get("MCBUILD_API_KEY")
+        if backend == "ollama":
+            # The OpenAI SDK requires a non-empty API key. Ollama ignores it locally.
+            api_key = api_key or "ollama"
+        else:
+            api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
+            if not api_key:
+                raise RuntimeError("OPENROUTER_API_KEY is not set. Put it in the environment or a .env file.")
+
+        self.backend = backend
+        self.base_url = base_url
+        self.is_ollama = backend == "ollama"
         self._client = OpenAI(api_key=api_key, base_url=base_url)
         self.total_usage = Usage()
-        # A stable `user` id, sent with every request in this run, lets OpenRouter route
-        # repeat calls to the same upstream/provider instance — without it, requests can
-        # bounce between backends and lose the prompt-cache hits _with_prompt_caching relies on.
+        # A stable `user` id, sent only to OpenRouter, lets repeat calls in one run stay
+        # on the same upstream/provider instance so prompt caching remains effective.
         self.session_id = session_id or uuid.uuid4().hex
 
     def chat(
@@ -220,7 +237,13 @@ class OpenRouterClient:
             return self._chat_streaming(model, messages, tools, reasoning, max_retries, on_delta)
         return self._chat_blocking(model, messages, tools, reasoning, max_retries)
 
-    def _extra_body(self, reasoning: str) -> dict:
+    def _extra_body(self, reasoning: str, tools: list[dict] | None = None) -> dict:
+        if self.is_ollama:
+            # Qwen 3.5 on Ollama can emit tool calls as plain text while thinking is enabled.
+            # Explicitly disabling reasoning on tool-using turns keeps OpenAI-style tool_calls reliable.
+            effort = "none" if tools or not reasoning or reasoning == "off" else reasoning
+            return {"reasoning_effort": effort}
+
         extra_body: dict = {"usage": {"include": True}}
         if reasoning and reasoning != "off":
             extra_body["reasoning"] = {"effort": reasoning}
@@ -240,19 +263,21 @@ class OpenRouterClient:
     def _chat_blocking(
         self, model: str, messages: list[dict], tools: list[dict] | None, reasoning: str, max_retries: int
     ) -> ChatResult:
-        extra_body = self._extra_body(reasoning)
+        extra_body = self._extra_body(reasoning, tools)
 
         attempt = 0
         resp = None
         while True:
             try:
-                resp = self._client.chat.completions.create(
-                    model=model,
-                    messages=cast(Any, messages),
-                    tools=cast(Any, tools),
-                    user=self.session_id,
-                    extra_body=extra_body,
-                )
+                request_kwargs: dict[str, Any] = {
+                    "model": model,
+                    "messages": cast(Any, messages),
+                    "tools": cast(Any, tools),
+                    "extra_body": extra_body,
+                }
+                if not self.is_ollama:
+                    request_kwargs["user"] = self.session_id
+                resp = self._client.chat.completions.create(**request_kwargs)
                 break
             except Exception as e:
                 attempt += 1
@@ -274,20 +299,22 @@ class OpenRouterClient:
         max_retries: int,
         on_delta: OnDelta | None,
     ) -> ChatResult:
-        extra_body = self._extra_body(reasoning)
+        extra_body = self._extra_body(reasoning, tools)
 
         attempt = 0
         while True:
             try:
-                stream = self._client.chat.completions.create(
-                    model=model,
-                    messages=cast(Any, messages),
-                    tools=cast(Any, tools),
-                    user=self.session_id,
-                    extra_body=extra_body,
-                    stream=True,
-                    stream_options={"include_usage": True},
-                )
+                request_kwargs: dict[str, Any] = {
+                    "model": model,
+                    "messages": cast(Any, messages),
+                    "tools": cast(Any, tools),
+                    "extra_body": extra_body,
+                    "stream": True,
+                    "stream_options": {"include_usage": True},
+                }
+                if not self.is_ollama:
+                    request_kwargs["user"] = self.session_id
+                stream = self._client.chat.completions.create(**request_kwargs)
                 message, usage_obj = consume_stream(stream, on_delta)
                 break
             except Exception as e:
@@ -302,6 +329,9 @@ class OpenRouterClient:
 
     def generate_image(self, model: str, prompt: str) -> bytes | None:
         """Best-effort concept-reference image generation. Returns None on any failure."""
+        if self.is_ollama:
+            # The local Ollama backend is used here for vision/chat models, not image generation.
+            return None
         try:
             resp = self._client.chat.completions.create(
                 model=model,

@@ -10,6 +10,7 @@ mod + WebSocket server) builds live inside a running Minecraft world.
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![uv](https://img.shields.io/badge/managed%20with-uv-de5fe9)
 ![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-8a2be2)
+![Ollama](https://img.shields.io/badge/LLM-Ollama-black)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![Multi-view isometric render of an agent-built mansion](docs/images/mansion-hero.png)
@@ -61,12 +62,43 @@ Unedited iso-view renders from the agent's own run directories under `runs/`:
 uv sync --extra dev
 ```
 
-Set your OpenRouter key:
+Choose an LLM backend in `.env`.
+
+**OpenRouter (default):**
 
 ```bash
 cp .env.example .env
-# edit .env and set OPENROUTER_API_KEY=...
+# edit .env and set:
+OPENROUTER_API_KEY=...
 ```
+
+**Ollama (local or another machine on your LAN):**
+
+```dotenv
+MCBUILD_LLM_BACKEND=ollama
+MCBUILD_BASE_URL=http://OLLAMA_HOST_IP:11434/v1
+MCBUILD_API_KEY=ollama
+```
+
+The Ollama host must listen on the LAN (for example `OLLAMA_HOST=0.0.0.0:11434`)
+and TCP port 11434 must be allowed by the host firewall. Install a vision/tool-capable
+model on that host, for example:
+
+```bash
+ollama pull qwen3.5:9b
+```
+
+Then run mcbuild with that Ollama model id:
+
+```bash
+uv run mcbuild "a medieval watchtower with interior spiral stairs" --model qwen3.5:9b --reasoning off
+```
+
+For Qwen 3.5 on Ollama, mcbuild explicitly disables reasoning on turns that expose
+tools. This is intentional: it keeps Ollama's OpenAI-compatible response in structured
+`tool_calls` instead of allowing the model to print a tool-shaped JSON object as normal
+assistant text. Vision input still uses the same OpenAI-compatible `/v1/chat/completions`
+endpoint.
 
 ## Usage
 
@@ -79,7 +111,7 @@ uv run mcbuild "a medieval watchtower with interior spiral stairs"
 
 ```
 mcbuild PROMPT
-  --model TEXT                 Vision-capable OpenRouter model id [default: anthropic/claude-sonnet-5]
+  --model TEXT                 Vision-capable model id for the configured LLM backend [default: anthropic/claude-sonnet-5]
   --max-iters INTEGER          [default: 6]
   --seed INTEGER                [default: 0]
   --display TEXT                auto|sixel|ansi|off  [default: auto]
@@ -139,7 +171,7 @@ uv run mcbuild-server --model anthropic/claude-sonnet-5 --max-iters 8
 mcbuild-server
   --host TEXT           [default: 127.0.0.1]
   --port INTEGER        [default: 8765]
-  --model TEXT          Vision-capable OpenRouter model id [default: anthropic/claude-sonnet-5]
+  --model TEXT          Vision-capable model id for the configured LLM backend [default: anthropic/claude-sonnet-5]
   --max-iters INTEGER   [default: 6]
   --reasoning TEXT      off|low|medium|high  [default: medium]
   --cost-ceiling FLOAT  Abort a build (keeping its best build so far) once usage cost reaches this many USD
@@ -475,7 +507,7 @@ src/mcbuild/
   dsl/                sandbox, stdlib primitives, errors, REFERENCE.md
   render/             mesh rasterizer + free camera, iso contact sheet, sixel encoder,
                       block geometry (blockmodel/blockstate), textures
-  llm/                OpenRouter client, scripted offline FakeLLM
+  llm/                OpenAI-compatible OpenRouter/Ollama client, scripted offline FakeLLM
   agent/              orchestration loop, prompts, tool schemas, text query views
   export/             Sponge Schematic v3 (.schem) export
   server/             mcbuild-server WebSocket entry point, live-build session + grid diffing
