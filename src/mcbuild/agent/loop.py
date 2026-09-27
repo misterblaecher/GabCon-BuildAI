@@ -422,9 +422,7 @@ def run_agent(
         }
     ]
     if model_reference_image is not None:
-        user_content.append(
-            {"type": "image_url", "image_url": {"url": image_to_data_url(model_reference_image)}}
-        )
+        user_content.append({"type": "image_url", "image_url": {"url": image_to_data_url(model_reference_image)}})
     messages.append({"role": "user", "content": user_content})
 
     best_grid: VoxelGrid | None = None
@@ -466,8 +464,7 @@ def run_agent(
         messages.append(_tool_result(tc.id, result_text))
 
         model_renderings = [
-            (label, reference.fit_image_for_model(image, config.critic_view_max_side))
-            for label, image in renderings
+            (label, reference.fit_image_for_model(image, config.critic_view_max_side)) for label, image in renderings
         ]
         content: list[dict] = [
             {
