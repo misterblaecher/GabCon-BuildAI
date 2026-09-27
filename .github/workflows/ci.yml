@@ -34,3 +34,21 @@ jobs:
 
       - name: Test (pytest)
         run: uv run pytest
+
+
+  mod-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Build NeoForge mod
+        working-directory: mod
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon
