@@ -5,7 +5,7 @@ an unnamed root compound containing a child "Schematic" tag, with block data nes
 under "Blocks" (not the flat v2 layout). See:
 https://github.com/EngineHub/WorldEdit/blob/master/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/sponge/SpongeSchematicV3Reader.java
 
-DataVersion 3953 corresponds to Minecraft 1.21.1.
+DataVersion 3955 corresponds to Minecraft 1.21.1.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from nbtlib.tag import ByteArray, Compound, Int, IntArray, List, Short
 from mcbuild.palette import get_block_by_index
 from mcbuild.voxel import VoxelGrid
 
-DATA_VERSION = 3953
+DATA_VERSION = 3955
 
 
 def _varint(value: int) -> list[int]:
