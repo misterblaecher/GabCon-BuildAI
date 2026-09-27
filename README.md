@@ -244,6 +244,41 @@ This makes newly installed mods visible to the audit automatically instead of re
 a broad hard-coded allowlist while still encoding reviewed semantics for special state
 machines.
 
+### Global registry compatibility lab
+
+After the structural audit is clean, generate a paste-test covering every loaded modded
+block plus a focused vanilla geometry/BlockEntity fixture set:
+
+```powershell
+uv run mcbuild-global-test
+```
+
+The command reads `MCBUILD_SERVER_REGISTRY`, builds safe representative states, expands
+known paired structures (doors/Waystones, beds, belts, etc.), validates the complete grid,
+and writes:
+
+```text
+generated/03-global-registry-lab/
+  final.schem
+  render.png
+  layout.json
+  stats.json
+```
+
+`layout.json` maps every tested registry block ID to its test-cell coordinates and records
+states that the preview renderer cannot currently display. Flowing fluid blocks
+(`level=0..15`) are skipped deliberately so a WorldEdit paste cannot flood the test area.
+
+The default scope is all non-`minecraft` registry blocks plus a vanilla fixture suite for
+stairs/slabs/walls, doors/beds, redstone, pistons, signs and common BlockEntities. For an
+exhaustive registry pass including all vanilla blocks:
+
+```powershell
+uv run mcbuild-global-test --all-blocks
+```
+
+Use `--no-render` when only the schematic/report is needed.
+
 ### Scan mod JAR assets
 
 BuildAI can inventory the render-relevant assets shipped by the mods installed on the
