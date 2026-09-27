@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import typer
 from rich.console import Console
@@ -104,36 +104,40 @@ def render_blueprint_file(
 
 @app.command()
 def render(
-    blueprint: Path = typer.Argument(
-        ...,
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True,
-        help="Sandboxed mcbuild DSL blueprint (.py).",
-    ),
-    out: Path | None = typer.Option(
-        None,
-        "--out",
-        help="Artifact directory. Defaults to generated/<blueprint-stem>.",
-    ),
-    seed: int = typer.Option(0, "--seed"),
-    views_arg: str = typer.Option(
-        _DEFAULT_VIEWS,
-        "--views",
-        help="Comma-separated views: iso0,iso1,iso2,iso3,top,cutx,cutz.",
-    ),
-    name: str | None = typer.Option(None, "--name", help="Display name stored in stats/gallery metadata."),
-    registry: str | None = typer.Option(
-        None,
-        "--registry",
-        help="Server block-registry JSON. Defaults to MCBUILD_SERVER_REGISTRY.",
-    ),
-    update_gallery: bool = typer.Option(
-        True,
-        "--update-gallery/--no-update-gallery",
-        help="Refresh generated/index.json when the output lives under generated/.",
-    ),
+    blueprint: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+            help="Sandboxed mcbuild DSL blueprint (.py).",
+        ),
+    ],
+    out: Annotated[
+        Path | None,
+        typer.Option("--out", help="Artifact directory. Defaults to generated/<blueprint-stem>."),
+    ] = None,
+    seed: Annotated[int, typer.Option("--seed")] = 0,
+    views_arg: Annotated[
+        str,
+        typer.Option("--views", help="Comma-separated views: iso0,iso1,iso2,iso3,top,cutx,cutz."),
+    ] = _DEFAULT_VIEWS,
+    name: Annotated[
+        str | None,
+        typer.Option("--name", help="Display name stored in stats/gallery metadata."),
+    ] = None,
+    registry: Annotated[
+        str | None,
+        typer.Option("--registry", help="Server block-registry JSON. Defaults to MCBUILD_SERVER_REGISTRY."),
+    ] = None,
+    update_gallery: Annotated[
+        bool,
+        typer.Option(
+            "--update-gallery/--no-update-gallery",
+            help="Refresh generated/index.json when the output lives under generated/.",
+        ),
+    ] = True,
 ) -> None:
     """Render/export a blueprint without invoking any LLM."""
     registry_path = resolve_registry_path(registry)
