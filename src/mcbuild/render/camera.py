@@ -62,7 +62,7 @@ def _build_draw_faces(
         if idx is None:
             continue
         block = get_block_by_index(idx)
-        mesh = blockmodel.get_block_mesh(block.name, block.state)
+        mesh = blockmodel.get_block_mesh(block.base_id, block.state)
         if not mesh:
             continue
         for f in mesh:
