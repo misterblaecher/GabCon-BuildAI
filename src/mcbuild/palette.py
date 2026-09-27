@@ -478,6 +478,7 @@ def _confident_match(base_id: str) -> str | None:
     hits = _namespace_matches(base_id, n=1, cutoff=0.82)
     return hits[0] if hits else None
 
+
 def all_block_ids() -> list[str]:
     """Return canonical namespaced IDs from the configured registry."""
     return list(_IDS)
