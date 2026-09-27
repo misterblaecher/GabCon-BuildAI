@@ -53,6 +53,74 @@ class FakeLLM:
         return None
 
     def chat(self, model: str, messages: list[dict], tools=None, reasoning: str = "off", **kwargs) -> ChatResult:
+        # Reference preflight/critic calls are deliberately stateless and tool-free. Handle
+        # them without advancing the scripted builder turn counter so offline integration
+        # tests exercise the same orchestration shape as the real client.
+        if tools is None:
+            system_text = " ".join(
+                str(m.get("content", "")) for m in messages if isinstance(m, dict) and m.get("role") == "system"
+            ).lower()
+            if "architectural vision analyst" in system_text:
+                message = _FakeMessage(
+                    content=json.dumps(
+                        {
+                            "version": 1,
+                            "target_dimensions": {"width": 24, "depth": 24, "height": 18},
+                            "proportions": {
+                                "width_to_depth": 1.0,
+                                "height_to_width": 0.75,
+                                "vertical_emphasis": "medium",
+                            },
+                            "storeys": 1,
+                            "symmetry": "approximate bilateral",
+                            "primary_masses": [],
+                            "towers": [],
+                            "roof_system": ["simple roof"],
+                            "facade_rhythm": {
+                                "window_shape": "rectangular",
+                                "window_density": "sparse",
+                                "vertical_bays": "simple",
+                                "buttresses_or_piers": "none",
+                            },
+                            "palette": [
+                                {
+                                    "visual_material": "stone",
+                                    "minecraft_blocks": ["stone", "stone_bricks"],
+                                    "role": "walls",
+                                }
+                            ],
+                            "distinctive_features": ["compact stone mass"],
+                            "priority_constraints": ["preserve the compact silhouette"],
+                            "uncertainties": [],
+                        }
+                    )
+                )
+            elif "independent visual critic" in system_text:
+                message = _FakeMessage(
+                    content=json.dumps(
+                        {
+                            "same_build_read": "partial",
+                            "biggest_discrepancies": [
+                                {
+                                    "rank": 1,
+                                    "category": "massing",
+                                    "observation": "offline fake critic placeholder",
+                                    "evidence": "synthetic test view",
+                                    "suggested_change": "preserve the main mass",
+                                }
+                            ],
+                            "preserve": ["main footprint"],
+                            "next_focus": "verify silhouette",
+                        }
+                    )
+                )
+            else:
+                message = None
+            if message is not None:
+                usage = Usage(prompt_tokens=10, completion_tokens=10)
+                self.total_usage.add(usage)
+                return ChatResult(message=message, usage=usage, raw=None)
+
         step = self._script[min(self._step, len(self._script) - 1)]
         self._step += 1
         message = step()

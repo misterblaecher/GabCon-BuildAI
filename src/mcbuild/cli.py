@@ -78,6 +78,18 @@ def build(
     reference: bool = typer.Option(False, "--reference/--no-reference"),
     ref_model: str = typer.Option("openai/gpt-image-2", "--ref-model"),
     reasoning: str = typer.Option("medium", "--reasoning", help="off|low|medium|high"),
+    critic_model: str | None = typer.Option(
+        None,
+        "--critic-model",
+        help="Model for ReferenceSpec + independent visual critique (defaults to --model).",
+    ),
+    critic_reasoning: str = typer.Option("medium", "--critic-reasoning", help="off|low|medium|high"),
+    reference_max_side: int = typer.Option(
+        1024, "--reference-max-side", min=320, help="Max model-facing reference image edge in pixels."
+    ),
+    critic_view_max_side: int = typer.Option(
+        768, "--critic-view-max-side", min=320, help="Max edge for each separate render sent to vision."
+    ),
     stream: bool = typer.Option(True, "--stream/--no-stream", help="Stream reasoning/completion text live."),
     cost_ceiling: float | None = typer.Option(
         None, "--cost-ceiling", help="Abort (keeping the best build so far) once usage cost reaches this many USD."
@@ -126,6 +138,10 @@ def build(
         out_dir=out,
         reference=reference,
         reasoning=reasoning,
+        critic_model=critic_model,
+        critic_reasoning=critic_reasoning,
+        reference_max_side=reference_max_side,
+        critic_view_max_side=critic_view_max_side,
         stream=stream,
         cost_ceiling=cost_ceiling,
     )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 _REFERENCE_PATH = Path(__file__).resolve().parent.parent / "dsl" / "REFERENCE.md"
@@ -51,9 +52,11 @@ screenshots of the result so you can critique and refine your own work.
    of the build.
 3. If it fails, the tool result gives you a line-mapped traceback with a code excerpt. Fix the \
    bug and resubmit.
-4. If it succeeds, you'll receive build stats, then a follow-up message with a contact-sheet \
-   image containing exactly the views you asked for, labeled in order. Critique your own render \
-   against the prompt using this checklist:
+4. If it succeeds, you'll receive build stats, then the views you asked for. For ordinary \
+   prompts, critique them yourself against the prompt using this checklist. When a concept \
+   reference is active, an INDEPENDENT critic (a fresh vision call with no builder history) \
+   compares the high-resolution reference against your separate render views; treat its ranked \
+   discrepancies and next_focus as the visual QA signal instead of defending your previous design.
    - Does it match the prompt's description and scale?
    - Are the proportions and massing believable?
    - Do the materials/palette fit the theme?
@@ -86,17 +89,31 @@ shell → roof → openings → interior → weathering. Details matter.
 """
 
 
-def build_user_prompt(prompt: str, seed: int, has_reference: bool) -> str:
+def build_user_prompt(
+    prompt: str,
+    seed: int,
+    has_reference: bool,
+    reference_spec: dict | None = None,
+) -> str:
     if has_reference:
-        ref_note = (
-            "\nA concept-reference image is attached below. REPRODUCE it as closely as the DSL "
-            "allows — match its massing, storey count, roof shapes, opening rhythm, and palette; "
-            "take liberties only at the micro-detail level. Start your design brief with a "
-            "REFERENCE ANALYSIS: estimated proportions (width:depth:height), number of storeys, "
-            "roof type for each mass, the dominant materials mapped to specific Minecraft blocks, "
-            "and 3-5 distinctive features to reproduce. Commit these observations to text so you "
-            "can check each one against your renders later.\n"
-        )
+        if reference_spec is not None:
+            spec_text = json.dumps(reference_spec, indent=2)
+            ref_note = (
+                "\nA concept-reference image is attached below. REPRODUCE it as closely as the DSL "
+                "allows. A separate REFERENCE ANALYSIS has already extracted the persistent "
+                "ReferenceSpec below; use it as the source of truth for proportions, massing hierarchy, "
+                "roof shapes, opening rhythm, and palette instead of reinterpreting the image from scratch. "
+                "Spend the first successful edit on silhouette and major masses before micro-detail.\n\n"
+                f"REFERENCE SPEC:\n{spec_text}\n"
+            )
+        else:
+            ref_note = (
+                "\nA concept-reference image is attached below. REPRODUCE it as closely as the DSL "
+                "allows — match its massing, storey count, roof shapes, opening rhythm, and palette. "
+                "A REFERENCE ANALYSIS normally supplies a structured ReferenceSpec with storeys, roofs, "
+                "materials, proportions, towers, and distinctive features; if it is unavailable, infer "
+                "those conservatively from the image before building.\n"
+            )
     else:
         ref_note = ""
     return f"""Build this: {prompt}
@@ -116,7 +133,7 @@ def build_reference_image_prompt(building_prompt: str) -> str:
 
 def build_critique_nudge() -> str:
     return (
-        "Above is the contact sheet with the views you requested, labeled in order, with build "
+        "Above are the separate views you requested, labeled in order, with build "
         "stats below. Critique it against the prompt: does it match the prompt and scale? Are "
         "proportions and materials right? Does the interior make sense? What details are missing? "
         "If you didn't request a view that would answer that, ask for it (via `views` on your "

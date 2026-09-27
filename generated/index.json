@@ -3,6 +3,90 @@
   "repository": "misterblaecher/GabCon-BuildAI",
   "builds": [
     {
+      "id": "00-full-valley",
+      "name": "00 Full Valley",
+      "render": "generated/00-full-valley/render.png",
+      "schem": "generated/00-full-valley/final.schem",
+      "stats": "generated/00-full-valley/stats.json",
+      "blueprint": null,
+      "dims": [
+        95,
+        98,
+        86
+      ],
+      "block_count": 82287,
+      "namespaces": {
+        "create": 481,
+        "minecraft": 81802,
+        "trading_floor": 4
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          38583
+        ],
+        [
+          "deepslate_bricks",
+          9021
+        ],
+        [
+          "cracked_stone_bricks",
+          6506
+        ],
+        [
+          "deepslate_tiles",
+          5168
+        ],
+        [
+          "andesite",
+          3565
+        ],
+        [
+          "blue_stained_glass",
+          3318
+        ],
+        [
+          "polished_deepslate",
+          3109
+        ],
+        [
+          "oxidized_copper",
+          2864
+        ],
+        [
+          "mossy_stone_bricks",
+          2467
+        ],
+        [
+          "light_blue_stained_glass",
+          1512
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
       "id": "01-central-portal",
       "name": "01 Central Portal",
       "render": "generated/01-central-portal/render.png",
@@ -60,6 +144,421 @@
         [
           "light_blue_stained_glass",
           1512
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
+      "id": "02-cliffside-factory",
+      "name": "02 Cliffside Factory",
+      "render": "generated/02-cliffside-factory/render.png",
+      "schem": "generated/02-cliffside-factory/final.schem",
+      "stats": "generated/02-cliffside-factory/stats.json",
+      "blueprint": "generated/02-cliffside-factory/blueprint.py",
+      "dims": [
+        150,
+        119,
+        87
+      ],
+      "block_count": 130706,
+      "namespaces": {
+        "create": 788,
+        "minecraft": 129918
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          65179
+        ],
+        [
+          "cracked_stone_bricks",
+          13717
+        ],
+        [
+          "andesite",
+          10432
+        ],
+        [
+          "deepslate_bricks",
+          8889
+        ],
+        [
+          "deepslate_tiles",
+          8529
+        ],
+        [
+          "tuff_bricks",
+          5166
+        ],
+        [
+          "mossy_stone_bricks",
+          3477
+        ],
+        [
+          "orange_stained_glass",
+          2826
+        ],
+        [
+          "oxidized_copper",
+          2320
+        ],
+        [
+          "spruce_planks",
+          2202
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
+      "id": "04-observatory",
+      "name": "04 Observatory",
+      "render": "generated/04-observatory/render.png",
+      "schem": "generated/04-observatory/final.schem",
+      "stats": "generated/04-observatory/stats.json",
+      "blueprint": "generated/04-observatory/blueprint.py",
+      "dims": [
+        84,
+        89,
+        57
+      ],
+      "block_count": 34424,
+      "namespaces": {
+        "create": 450,
+        "minecraft": 33974
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          18123
+        ],
+        [
+          "deepslate_bricks",
+          3313
+        ],
+        [
+          "cracked_stone_bricks",
+          2631
+        ],
+        [
+          "andesite",
+          2613
+        ],
+        [
+          "oxidized_copper",
+          1785
+        ],
+        [
+          "tuff_bricks",
+          1474
+        ],
+        [
+          "deepslate_tiles",
+          1376
+        ],
+        [
+          "cut_copper",
+          1311
+        ],
+        [
+          "mossy_stone_bricks",
+          851
+        ],
+        [
+          "create:brass_casing",
+          434
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
+      "id": "05-arcane-complex",
+      "name": "05 Arcane Complex",
+      "render": "generated/05-arcane-complex/render.png",
+      "schem": "generated/05-arcane-complex/final.schem",
+      "stats": "generated/05-arcane-complex/stats.json",
+      "blueprint": "generated/05-arcane-complex/blueprint.py",
+      "dims": [
+        105,
+        123,
+        78
+      ],
+      "block_count": 73678,
+      "namespaces": {
+        "create": 1005,
+        "minecraft": 72673
+      },
+      "top_materials": [
+        [
+          "deepslate_bricks",
+          29866
+        ],
+        [
+          "stone_bricks",
+          21698
+        ],
+        [
+          "polished_deepslate",
+          5660
+        ],
+        [
+          "tuff_bricks",
+          4812
+        ],
+        [
+          "deepslate_tiles",
+          3424
+        ],
+        [
+          "cracked_stone_bricks",
+          2373
+        ],
+        [
+          "oxidized_copper",
+          2232
+        ],
+        [
+          "create:copper_casing",
+          769
+        ],
+        [
+          "blue_stained_glass",
+          626
+        ],
+        [
+          "water",
+          546
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
+      "id": "06-railway-viaduct",
+      "name": "06 Railway Viaduct",
+      "render": "generated/06-railway-viaduct/render.png",
+      "schem": "generated/06-railway-viaduct/final.schem",
+      "stats": "generated/06-railway-viaduct/stats.json",
+      "blueprint": "generated/06-railway-viaduct/blueprint.py",
+      "dims": [
+        135,
+        73,
+        21
+      ],
+      "block_count": 40343,
+      "namespaces": {
+        "create": 22,
+        "minecraft": 40321
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          29518
+        ],
+        [
+          "cracked_stone_bricks",
+          3133
+        ],
+        [
+          "andesite",
+          2100
+        ],
+        [
+          "smooth_stone",
+          1622
+        ],
+        [
+          "deepslate_tiles",
+          1294
+        ],
+        [
+          "tuff_bricks",
+          1083
+        ],
+        [
+          "mossy_stone_bricks",
+          688
+        ],
+        [
+          "spruce_planks",
+          288
+        ],
+        [
+          "stone_brick_wall",
+          250
+        ],
+        [
+          "rail",
+          242
+        ]
+      ],
+      "server_profile": {
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        },
+        "source": "server-export"
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
+      "id": "07-mountain-castle",
+      "name": "07 Mountain Castle",
+      "render": "generated/07-mountain-castle/render.png",
+      "schem": "generated/07-mountain-castle/final.schem",
+      "stats": "generated/07-mountain-castle/stats.json",
+      "blueprint": "generated/07-mountain-castle/blueprint.py",
+      "dims": [
+        129,
+        142,
+        99
+      ],
+      "block_count": 159365,
+      "namespaces": {
+        "create": 1,
+        "minecraft": 159364
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          92586
+        ],
+        [
+          "deepslate_tiles",
+          18026
+        ],
+        [
+          "cracked_stone_bricks",
+          14564
+        ],
+        [
+          "andesite",
+          12222
+        ],
+        [
+          "snow_block",
+          9459
+        ],
+        [
+          "polished_deepslate",
+          6143
+        ],
+        [
+          "tuff_bricks",
+          6018
+        ],
+        [
+          "orange_stained_glass",
+          336
+        ],
+        [
+          "polished_blackstone",
+          5
+        ],
+        [
+          "lantern",
+          5
         ]
       ],
       "server_profile": {

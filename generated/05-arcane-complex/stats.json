@@ -1,0 +1,100 @@
+{
+  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\05-arcane-complex.py",
+  "seed": 0,
+  "views": [
+    "yaw 0deg",
+    "yaw 90deg",
+    "yaw 180deg",
+    "yaw 270deg",
+    "top-down",
+    "yaw 90deg, cutaway z"
+  ],
+  "palette_warnings": [],
+  "server_profile": {
+    "format_version": 1,
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "generated_at": "2026-09-27T10:20:55.002381200Z",
+    "block_count": 1783,
+    "state_count": 62917,
+    "namespaces": {
+      "create": 643,
+      "create_dragons_plus": 19,
+      "create_enchantment_industry": 10,
+      "minecraft": 1060,
+      "sophisticatedbackpacks": 6,
+      "trading_floor": 1,
+      "waystones": 44
+    },
+    "source": "server-export"
+  },
+  "compatibility": {
+    "valid": true,
+    "unknown_blocks": [],
+    "invalid_states": []
+  },
+  "dims": [
+    105,
+    123,
+    78
+  ],
+  "bounds": [
+    [
+      -52,
+      0,
+      -38
+    ],
+    [
+      52,
+      122,
+      39
+    ]
+  ],
+  "block_count": 73678,
+  "namespaces": {
+    "create": 1005,
+    "minecraft": 72673
+  },
+  "top_materials": [
+    [
+      "deepslate_bricks",
+      29866
+    ],
+    [
+      "stone_bricks",
+      21698
+    ],
+    [
+      "polished_deepslate",
+      5660
+    ],
+    [
+      "tuff_bricks",
+      4812
+    ],
+    [
+      "deepslate_tiles",
+      3424
+    ],
+    [
+      "cracked_stone_bricks",
+      2373
+    ],
+    [
+      "oxidized_copper",
+      2232
+    ],
+    [
+      "create:copper_casing",
+      769
+    ],
+    [
+      "blue_stained_glass",
+      626
+    ],
+    [
+      "water",
+      546
+    ]
+  ]
+}

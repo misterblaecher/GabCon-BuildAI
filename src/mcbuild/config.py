@@ -16,6 +16,10 @@ class Config:
     out_dir: str = "runs"
     reference: bool = False
     reasoning: str = "medium"  # off|low|medium|high
+    critic_model: str | None = None  # defaults to model; fresh context, not a separate provider requirement
+    critic_reasoning: str = "medium"
+    reference_max_side: int = 1024
+    critic_view_max_side: int = 768
     cost_ceiling: float | None = None
     max_consecutive_failures: int = 10
     stream: bool = True
