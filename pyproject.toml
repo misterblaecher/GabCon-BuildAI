@@ -22,6 +22,7 @@ dependencies = [
 [project.scripts]
 mcbuild = "mcbuild.cli:main"
 mcbuild-render = "mcbuild.render_cli:main"
+mcbuild-dataset = "mcbuild.training_dataset:main"
 mcbuild-server = "mcbuild.server.ws_server:main"
 mcbuild-scan-mods = "mcbuild.mod_assets:main"
 mcbuild-import-mod-assets = "mcbuild.mod_asset_import:main"
