@@ -201,9 +201,13 @@ posts = [
 set_blocks(posts)
 ```
 
-**Flagship: an asymmetric L-shaped cottage (real buildings are rarely perfectly symmetric).**
+**Example: an asymmetric L-shaped cottage (only when the requested typology benefits from it).**
 
-Vary massing, opening rhythm, and materials between faces instead of mirroring everything:
+This example demonstrates the DSL syntax for offset masses and varied materials. It is NOT a
+default design template. Never copy its footprint, roof system, or palette unless they fit the
+user's requested building type. The user's requested silhouette and typology always take priority.
+
+Vary massing, opening rhythm, and materials between faces when that serves the requested design:
 
 ```python
 # main wing (long, low)
@@ -223,9 +227,12 @@ gable_roof(5, 2, 9, 11, 6, "dark_oak_planks", ridge_axis="z", overhang=1)
 scatter(0, 0, 0, 5, 4, 0, "mossy_cobblestone", density=0.15)
 ```
 
-Guidance: real buildings vary massing, openings, and materials between faces. Prefer irregular
-footprints (L / T / cross shapes), offset towers, and uneven window spacing over perfect mirror
-symmetry. Use `weighted_block`/`scatter` to weather large surfaces so they don't read as flat.
+Guidance: use asymmetry and irregular footprints only when they fit the prompt. Do not turn a
+tower, lighthouse, shrine, silo, keep, or other compact/axial typology into an L/T/cross-shaped
+building just because an example above uses that form. Circular, square, radial, or strongly
+symmetric massing is often correct for towers and similar structures. Treat every worked example
+as syntax documentation, never as a design default. Use `weighted_block`/`scatter` only after
+the requested primary massing, materials, roof, openings, and access are correct.
 
 NOTE:
 1. Do NOT use import statements — `math`, `rng`, and every primitive/transform listed above are
