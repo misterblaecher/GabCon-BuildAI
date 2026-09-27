@@ -1,8 +1,11 @@
 from pathlib import Path
 
 import pytest
+from typer.testing import CliRunner
 
-from mcbuild.render_cli import _parse_views, render_blueprint_file
+from mcbuild.render_cli import _parse_views, app, render_blueprint_file
+
+runner = CliRunner()
 
 
 def test_render_blueprint_file_writes_complete_artifacts(tmp_path: Path):
@@ -42,3 +45,26 @@ def test_render_blueprint_file_writes_complete_artifacts(tmp_path: Path):
 def test_parse_views_rejects_unknown_alias():
     with pytest.raises(ValueError, match="Unknown view"):
         _parse_views("iso0,sideways")
+
+
+def test_render_cli_entrypoint(tmp_path: Path):
+    blueprint = tmp_path / "simple.py"
+    blueprint.write_text("set_block(0, 0, 0, 'stone_bricks')", encoding="utf-8")
+    out_dir = tmp_path / "artifact"
+
+    result = runner.invoke(
+        app,
+        [
+            str(blueprint),
+            "--out",
+            str(out_dir),
+            "--views",
+            "iso0",
+            "--no-update-gallery",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Rendered:" in result.output
+    assert (out_dir / "render.png").is_file()
+    assert (out_dir / "final.schem").is_file()
