@@ -453,17 +453,30 @@ def _same_namespace_ids(base_id: str) -> list[str]:
     return [candidate for candidate in _IDS if candidate.startswith(prefix)]
 
 
+def _namespace_matches(base_id: str, n: int, cutoff: float) -> list[str]:
+    """Fuzzy-match only the namespace-local path.
+
+    Comparing full IDs artificially inflates similarity because every candidate
+    shares the namespace prefix, which can turn excluded/unknown blocks into
+    unsafe auto-corrections.
+    """
+    _, path = base_id.split(":", 1)
+    candidates = _same_namespace_ids(base_id)
+    by_path = {candidate.split(":", 1)[1]: candidate for candidate in candidates}
+    path_hits = difflib.get_close_matches(path, list(by_path), n=n, cutoff=cutoff)
+    return [by_path[path_hit] for path_hit in path_hits]
+
+
 def suggest(name: str, n: int = 3) -> list[str]:
     base_id, _ = _parse_name(name)
-    hits = difflib.get_close_matches(base_id, _same_namespace_ids(base_id), n=n, cutoff=0.4)
+    hits = _namespace_matches(base_id, n=n, cutoff=0.4)
     return [_display_base_id(hit) for hit in hits]
 
 
 def _confident_match(base_id: str) -> str | None:
-    """A single close match in the same namespace at a strict cutoff."""
-    hits = difflib.get_close_matches(base_id, _same_namespace_ids(base_id), n=1, cutoff=0.82)
+    """A single close path match in the same namespace at a strict cutoff."""
+    hits = _namespace_matches(base_id, n=1, cutoff=0.82)
     return hits[0] if hits else None
-
 
 def all_block_ids() -> list[str]:
     """Return canonical namespaced IDs from the configured registry."""
