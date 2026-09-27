@@ -1,0 +1,113 @@
+{
+  "dims": [
+    11,
+    18,
+    11
+  ],
+  "bounds": [
+    [
+      -5,
+      0,
+      -5
+    ],
+    [
+      5,
+      17,
+      5
+    ]
+  ],
+  "block_count": 481,
+  "namespaces": {
+    "minecraft": 481
+  },
+  "top_materials": [
+    [
+      "stone_bricks",
+      251
+    ],
+    [
+      "spruce_planks",
+      155
+    ],
+    [
+      "cracked_stone_bricks",
+      48
+    ],
+    [
+      "mossy_stone_bricks",
+      18
+    ],
+    [
+      "spruce_stairs",
+      4
+    ],
+    [
+      "spruce_fence",
+      3
+    ],
+    [
+      "stone_brick_stairs",
+      1
+    ],
+    [
+      "spruce_log",
+      1
+    ]
+  ],
+  "name": "Medieval Stone Tower",
+  "source_blueprint": "builds/chatgpt/medieval_stone_tower.py",
+  "seed": 0,
+  "views": [
+    {
+      "file": "view_01.png",
+      "label": "yaw 0deg",
+      "spec": {
+        "yaw": 0
+      }
+    },
+    {
+      "file": "view_02.png",
+      "label": "yaw 90deg",
+      "spec": {
+        "yaw": 1
+      }
+    },
+    {
+      "file": "view_03.png",
+      "label": "yaw 180deg",
+      "spec": {
+        "yaw": 2
+      }
+    },
+    {
+      "file": "view_04.png",
+      "label": "yaw 270deg",
+      "spec": {
+        "yaw": 3
+      }
+    },
+    {
+      "file": "view_05.png",
+      "label": "top-down",
+      "spec": {
+        "mode": "top-down"
+      }
+    },
+    {
+      "file": "view_06.png",
+      "label": "yaw 180deg, cutaway x",
+      "spec": {
+        "yaw": 2,
+        "cutaway": "x"
+      }
+    },
+    {
+      "file": "view_07.png",
+      "label": "yaw 90deg, cutaway z",
+      "spec": {
+        "yaw": 1,
+        "cutaway": "z"
+      }
+    }
+  ]
+}
