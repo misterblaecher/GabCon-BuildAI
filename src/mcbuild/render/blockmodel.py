@@ -9,11 +9,12 @@ the existing texture set (we don't ship the vanilla model JSONs).
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass
 from functools import cache, lru_cache
 
-from mcbuild.render import blockstate, textures
+from mcbuild.render import blockstate, resources, textures
 
 # A box is (x0, y0, z0, x1, y1, z1) in 0..16 model space.
 Box = tuple[float, float, float, float, float, float]
@@ -123,7 +124,7 @@ def _template_boxes(model: str) -> list[Box] | None:
     return None
 
 
-# --- base texture resolution (no model JSON, so heuristic from the block name) ---
+# --- texture/model resolution ---
 
 _SUFFIXES = (
     "_stairs",
@@ -140,14 +141,101 @@ _SUFFIXES = (
 
 @cache
 def _base_texture(name: str) -> str | None:
-    base = name
-    for suf in _SUFFIXES:
-        if base.endswith(suf):
-            base = base[: -len(suf)]
+    namespace, path = resources.split_resource_location(name)
+    base = path
+    for suffix in _SUFFIXES:
+        if base.endswith(suffix):
+            base = base[: -len(suffix)]
             break
-    for cand in (name, base, base + "s", base + "_planks"):
-        if textures.get_face_texture(cand, "side") is not None or textures.get_face_texture(cand, "top") is not None:
-            return cand
+
+    for candidate in (path, base, base + "s", base + "_planks"):
+        ref = f"{namespace}:{candidate}"
+        if textures.get_face_texture(ref, "side") is not None or textures.get_face_texture(ref, "top") is not None:
+            return ref
+    return None
+
+
+@cache
+def _load_model(model_ref: str) -> dict | None:
+    path = resources.model_path(model_ref)
+    if path is None:
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+@cache
+def _model_texture_variables(model_ref: str) -> dict[str, str]:
+    data = _load_model(model_ref)
+    if data is None:
+        return {}
+
+    result: dict[str, str] = {}
+    parent = data.get("parent")
+    if isinstance(parent, str) and parent:
+        parent_ref = resources.canonical_resource_location(parent)
+        result.update(_model_texture_variables(parent_ref))
+
+    values = data.get("textures")
+    if isinstance(values, dict):
+        result.update({str(key): str(value) for key, value in values.items() if isinstance(value, str)})
+    return result
+
+
+def _resolve_texture_variable(value: str, variables: dict[str, str]) -> str | None:
+    seen: set[str] = set()
+    current = value
+    while current.startswith("#"):
+        key = current[1:]
+        if key in seen:
+            return None
+        seen.add(key)
+        current = variables.get(key, "")
+        if not current:
+            return None
+    return resources.canonical_resource_location(current)
+
+
+@cache
+def _model_face_textures(model_ref: str) -> dict[str, str]:
+    variables = _model_texture_variables(model_ref)
+    if not variables:
+        return {}
+
+    preferred = {
+        "top": ("top", "up", "end", "all", "side", "particle"),
+        "bottom": ("bottom", "down", "end", "all", "side", "particle"),
+        "side": ("side", "north", "front", "all", "particle"),
+    }
+    result: dict[str, str] = {}
+    for kind, keys in preferred.items():
+        for key in keys:
+            value = variables.get(key)
+            if value is None:
+                continue
+            resolved = _resolve_texture_variable(value, variables)
+            if resolved is not None and resources.texture_path(resolved) is not None:
+                result[kind] = resolved
+                break
+    return result
+
+
+@cache
+def representative_texture(name: str) -> str | None:
+    """Find one usable texture for palette color derivation and cube fallback."""
+    direct = _base_texture(name)
+    if direct is not None:
+        return direct
+
+    model = blockstate.first_model(name)
+    if model is None:
+        return None
+    face_textures = _model_face_textures(model)
+    for kind in ("side", "top", "bottom"):
+        if kind in face_textures:
+            return face_textures[kind]
     return None
 
 
@@ -166,47 +254,76 @@ def _faces_from_boxes(boxes, ax, ay, tex, tint) -> list[Face]:
             rc = tuple(_rot_corner(c, ax, ay) for c in corners)
             rn = _rot(normal[0] + 8, normal[1] + 8, normal[2] + 8, ax, ay)
             rn = (rn[0] - 8.0, rn[1] - 8.0, rn[2] - 8.0)
+            kind = _classify(rn)
+            texture = tex.get(kind) if isinstance(tex, dict) else tex
+            if texture is None and isinstance(tex, dict):
+                texture = tex.get("side") or tex.get("top") or tex.get("bottom")
+            if texture is None:
+                continue
             out.append(
                 Face(
                     corners=rc,
                     normal=rn,
                     uvs=tuple(uvs),
-                    texture=tex,
-                    kind=_classify(rn),
+                    texture=texture,
+                    kind=kind,
                     tint=tint,
                 )
             )
     return out
 
 
+def configure_mod_asset_cache(path) -> None:
+    resources.configure_cache_root(path)
+    _base_texture.cache_clear()
+    _load_model.cache_clear()
+    _model_texture_variables.cache_clear()
+    _model_face_textures.cache_clear()
+    representative_texture.cache_clear()
+    get_block_mesh.cache_clear()
+
+
 @lru_cache(maxsize=4096)
 def get_block_mesh(name: str, state_items: tuple = ()) -> list[Face] | None:
     """Return the block's faces in a 0..1 cell, or None if it should not render.
 
-    `state_items` is a sorted tuple of (prop, value) pairs (hashable for caching).
+    Mod model JSON is used to choose real namespaced textures. Geometry that does
+    not match a supported architectural template intentionally falls back to one
+    textured full cube instead of disappearing from the preview.
     """
-    tex = _base_texture(name)
-    if tex is None:
-        return None
-    tint = textures.needs_tint(name, "side") or textures.needs_tint(name, "top")
     state = dict(state_items)
-
     parts = blockstate.resolve_parts(name, state)
+    base_tex = _base_texture(name)
+    tint = textures.needs_tint(name, "side") or textures.needs_tint(name, "top")
+
     if not parts:
-        # no blockstate / no match → full cube
+        tex = base_tex or representative_texture(name)
+        if tex is None:
+            return None
         return _faces_from_boxes(_FULL_CUBE, 0, 0, tex, tint)
 
     faces: list[Face] = []
     matched_template = False
+    first_texture = None
     for part in parts:
+        model_textures = _model_face_textures(part.model)
+        tex = model_textures or base_tex
+        if not tex:
+            continue
+        if first_texture is None:
+            first_texture = tex
+
         boxes = _template_boxes(part.model)
         if boxes is None:
-            boxes = _FULL_CUBE
-        else:
-            matched_template = True
+            continue
+
+        matched_template = True
         faces.extend(_faces_from_boxes(boxes, part.x, part.y, tex, tint))
 
-    if not matched_template and len(parts) == 1:
-        # a plain full-block model (e.g. oak_planks) — one clean cube
-        return _faces_from_boxes(_FULL_CUBE, 0, 0, tex, tint)
-    return faces
+    if matched_template:
+        return faces
+
+    tex = first_texture or base_tex or representative_texture(name)
+    if tex is None:
+        return None
+    return _faces_from_boxes(_FULL_CUBE, 0, 0, tex, tint)
