@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from functools import cache, lru_cache
 from pathlib import Path
 
+from mcbuild.profile import ServerProfile
+
 REGISTRY_PATH = Path(__file__).resolve().parent / "assets" / "minecraft_block_registry.json"
 
 # Present in the registry but not meaningfully placeable as a build voxel.
@@ -336,9 +338,13 @@ def _resolve(base_id: str) -> tuple[tuple[int, int, int], bool] | None:
     return None
 
 
-_IDS = _load_registry_ids()
+_DEFAULT_IDS = _load_registry_ids()
+_IDS = _DEFAULT_IDS
 _ID_TO_INDEX: dict[str, int] = {base_id: i for i, base_id in enumerate(_IDS)}
 _N_BASE = len(_IDS)
+_ACTIVE_PROFILE: ServerProfile | None = None
+_STATE_PROPERTIES: dict[str, dict[str, frozenset[str]]] = {}
+_VALID_STATE_PAIRS: dict[str, tuple[frozenset[tuple[str, str]], ...]] = {}
 
 # Stateful blocks ("oak_stairs[facing=north,...]") get indices allocated above the base
 # registry range, on first use.
@@ -398,6 +404,96 @@ def _base_block(index: int) -> Block:
     return _build_block(index, _IDS[index], ())
 
 
+def configure_server_profile(profile: ServerProfile | None) -> None:
+    """Switch palette validation to an exported live-server registry profile."""
+    global _ACTIVE_PROFILE, _IDS, _ID_TO_INDEX, _N_BASE, _STATE_PROPERTIES, _VALID_STATE_PAIRS
+
+    if profile is None:
+        ids = _DEFAULT_IDS
+        properties: dict[str, dict[str, frozenset[str]]] = {}
+        valid_states: dict[str, tuple[frozenset[tuple[str, str]], ...]] = {}
+    else:
+        ids_list: list[str] = []
+        properties = {}
+        valid_states = {}
+        for base_id, entry in profile.blocks.items():
+            namespace, path = base_id.split(":", 1)
+            if namespace == "minecraft" and path in _EXCLUDED_NAMES:
+                continue
+
+            ids_list.append(base_id)
+            properties[base_id] = {
+                key: frozenset(str(value) for value in values)
+                for key, values in entry["properties"].items()
+            }
+            valid_states[base_id] = tuple(
+                frozenset(_parse_name(state_name)[1]) for state_name in entry["states"]
+            )
+        ids = tuple(ids_list)
+
+    _ACTIVE_PROFILE = profile
+    _IDS = ids
+    _ID_TO_INDEX = {base_id: i for i, base_id in enumerate(_IDS)}
+    _N_BASE = len(_IDS)
+    _STATE_PROPERTIES = properties
+    _VALID_STATE_PAIRS = valid_states
+    _dynamic_index.clear()
+    _index_block.clear()
+    _base_block.cache_clear()
+
+
+def configure_server_registry(path: str | Path) -> ServerProfile:
+    """Load an exported registry JSON and make it the active palette source."""
+    profile = ServerProfile.load(path)
+    configure_server_profile(profile)
+    return profile
+
+
+def registry_metadata() -> dict:
+    """Describe the active palette source without exposing local filesystem paths."""
+    if _ACTIVE_PROFILE is None:
+        return {
+            "source": "bundled",
+            "block_count": len(_IDS),
+            "minecraft_version": None,
+            "data_version": None,
+            "namespaces": {"minecraft": len(_IDS)},
+        }
+    metadata = _ACTIVE_PROFILE.metadata()
+    metadata.pop("source", None)
+    metadata["source"] = "server-export"
+    return metadata
+
+
+def _validate_state(base_id: str, state: tuple[tuple[str, str], ...]) -> None:
+    if _ACTIVE_PROFILE is None or not state:
+        return
+
+    properties = _STATE_PROPERTIES.get(base_id, {})
+    seen: set[str] = set()
+    for key, value in state:
+        if key in seen:
+            raise PaletteError(f"Duplicate block-state property '{key}' for '{base_id}'.")
+        seen.add(key)
+
+        allowed = properties.get(key)
+        if allowed is None:
+            known = ", ".join(sorted(properties)) or "(none)"
+            raise PaletteError(
+                f"Invalid state property '{key}' for '{base_id}'. Valid properties: {known}."
+            )
+        if value not in allowed:
+            choices = ", ".join(sorted(allowed))
+            raise PaletteError(
+                f"Invalid value '{value}' for '{base_id}[{key}=...]'. Valid values: {choices}."
+            )
+
+    requested = frozenset(state)
+    valid_states = _VALID_STATE_PAIRS.get(base_id, ())
+    if valid_states and not any(requested.issubset(candidate) for candidate in valid_states):
+        raise PaletteError(f"Invalid block-state combination for '{_mc_id(base_id, state)}'.")
+
+
 def get_block(name: str) -> Block:
     """Look up a block by name with optional state.
 
@@ -428,6 +524,8 @@ def get_block(name: str) -> Block:
             suggestions = suggest(base_id)
             hint = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
             raise PaletteError(f"Unknown block '{_display_base_id(base_id)}'.{hint}")
+
+    _validate_state(base_id, state)
 
     if not state:
         return _base_block(index)
