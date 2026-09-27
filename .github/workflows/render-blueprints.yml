@@ -1,0 +1,105 @@
+name: Render blueprints
+
+on:
+  push:
+    paths:
+      - "builds/**/*.py"
+  workflow_dispatch:
+    inputs:
+      blueprint_path:
+        description: "Blueprint path, e.g. builds/chatgpt/medieval_tower.py"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install project
+        run: uv sync
+
+      - name: Select changed blueprints
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            printf '%s\n' "${{ inputs.blueprint_path }}" > /tmp/blueprints.txt
+          else
+            before="${{ github.event.before }}"
+            if [[ "$before" =~ ^0+$ ]]; then
+              find builds -type f -name '*.py' | sort > /tmp/blueprints.txt
+            else
+              git diff --name-only "$before" "${{ github.sha }}" -- 'builds/**/*.py' > /tmp/blueprints.txt
+            fi
+          fi
+
+          if [[ ! -s /tmp/blueprints.txt ]]; then
+            echo "No blueprint files selected."
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          while IFS= read -r file; do
+            [[ -f "$file" ]] || { echo "Missing blueprint: $file" >&2; exit 1; }
+            [[ "$file" == builds/*.py || "$file" == builds/*/*.py || "$file" == builds/*/*/*.py ]] || {
+              echo "Blueprint must live under builds/: $file" >&2
+              exit 1
+            }
+            echo "Selected: $file"
+          done < /tmp/blueprints.txt
+
+          echo "has_files=true" >> "$GITHUB_OUTPUT"
+
+      - name: Render and export
+        if: steps.select.outputs.has_files == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r file; do
+            rel="${file#builds/}"
+            build_id="${rel%.py}"
+            build_id="${build_id//\//-}"
+            echo "::group::Rendering $file -> generated/$build_id"
+            uv run mcbuild-render "$file" --out "generated/$build_id"
+            echo "::endgroup::"
+          done < /tmp/blueprints.txt
+          uv run python tools/generate_build_index.py
+
+      - name: Commit generated previews
+        if: steps.select.outputs.has_files == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add generated
+          if git diff --cached --quiet; then
+            echo "Generated artifacts are unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Render blueprint previews [skip ci]"
+          git push
+
+      - name: Upload generated artifacts
+        if: steps.select.outputs.has_files == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcbuild-generated-${{ github.run_id }}
+          path: generated/
+          if-no-files-found: error
