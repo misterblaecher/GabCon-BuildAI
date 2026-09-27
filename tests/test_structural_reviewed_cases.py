@@ -60,7 +60,7 @@ def test_create_chain_drive_pair_passes():
         ),
         "create:encased_chain_drive": _entry(
             "create:encased_chain_drive",
-            {"axis": ["y"], "axis_along_first": ["true"], "part": ["end"]},
+            {"axis": ["y"], "axis_along_first": ["true", "false"], "part": ["start", "middle", "end", "none"]},
             ["create:encased_chain_drive[axis=y,axis_along_first=true,part=end]"],
         ),
     }
@@ -80,7 +80,11 @@ def test_create_chain_drive_missing_neighbor_is_rejected():
             {
                 block_id: _entry(
                     block_id,
-                    {"axis": ["y"], "axis_along_first": ["true"], "part": ["start"]},
+                    {
+                        "axis": ["y"],
+                        "axis_along_first": ["true", "false"],
+                        "part": ["start", "middle", "end", "none"],
+                    },
                     [state],
                 )
             }
@@ -131,8 +135,8 @@ def test_create_belt_upward_pair_passes():
                     {
                         "casing": ["false"],
                         "facing": ["east"],
-                        "part": ["start", "middle", "end", "single"],
-                        "slope": ["upward"],
+                        "part": ["start", "middle", "end", "pulley"],
+                        "slope": ["horizontal", "upward", "downward", "vertical", "sideways"],
                         "waterlogged": ["false"],
                     },
                     [start, end],
@@ -158,8 +162,8 @@ def test_create_belt_missing_end_is_rejected():
                     {
                         "casing": ["false"],
                         "facing": ["east"],
-                        "part": ["start", "middle", "end", "none"],
-                        "slope": ["horizontal"],
+                        "part": ["start", "middle", "end", "pulley"],
+                        "slope": ["horizontal", "upward", "downward", "vertical", "sideways"],
                         "waterlogged": ["false"],
                     },
                     [start],
