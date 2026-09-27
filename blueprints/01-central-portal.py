@@ -82,7 +82,9 @@ def crystal_cluster(cx, cy, cz, scale=1):
 
 
 def lantern_post(x, y, z, height=4, soul=False):
-    block = "soul_lantern" if soul else "lantern"
+    # Floor-standing lantern: explicitly use hanging=false so Minecraft does not
+    # reinterpret the placement when WorldEdit pastes the schematic.
+    block = "soul_lantern[hanging=false]" if soul else "lantern[hanging=false]"
     fill(x, y, z, x, y + height - 1, z, "polished_blackstone")
     set_block(x, y + height, z, block)
 
@@ -107,8 +109,9 @@ def market_stall(cx, y, z, awning):
     fill(cx - 3, y + 4, z - 2, cx + 3, y + 4, z + 2, awning)
     fill(cx - 2, y + 1, z + 1, cx + 2, y + 1, z + 1, "barrel")
     set_block(cx, y + 1, z, TRADING_DEPOT)
-    set_block(cx - 3, y + 3, z, "lantern")
-    set_block(cx + 3, y + 3, z, "lantern")
+    # These lamps hang from the stall roof.
+    set_block(cx - 3, y + 3, z, "lantern[hanging=true]")
+    set_block(cx + 3, y + 3, z, "lantern[hanging=true]")
 
 
 def tower(cx, cz, base_y, body_h, radius=5):
@@ -358,7 +361,8 @@ for side in (-1, 1):
         line(cx - hw, 26, 7, cx, 34 + t, 7, "stone_bricks")
         line(cx + hw, 26, 7, cx, 34 + t, 7, "stone_bricks")
     clear(cx - 3, 15, 8, cx + 3, 26, 12)
-    set_block(cx, 20, 8, "lantern")
+    fill(cx, 21, 8, cx, 25, 8, "chain")
+    set_block(cx, 20, 8, "lantern[hanging=true]")
     set_block(cx - 5, 25, 6, CREATE_COPPER)
     set_block(cx + 5, 25, 6, CREATE_COPPER)
 
@@ -401,12 +405,14 @@ for x in (-20, 20):
 # Hanging lamps around portal
 for x in (-15, -11, 11, 15):
     fill(x, 33, 4, x, 40, 4, "chain")
-    set_block(x, 32, 4, "soul_lantern")
+    set_block(x, 32, 4, "soul_lantern[hanging=true]")
 
 # Warm facade lights
 for x in (-39, -31, -24, -18, 18, 24, 31, 39):
     for y in (15, 22):
-        set_block(x, y, 6, "lantern")
+        # Wall-adjacent lanterns sit on a visible bracket instead of floating.
+        set_block(x, y - 1, 6, "polished_blackstone_wall")
+        set_block(x, y, 6, "lantern[hanging=false]")
 
 # Stone railings around upper terrace
 for x in range(-31, 32):
