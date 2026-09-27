@@ -70,7 +70,11 @@ def _display_image(img: Image.Image, display: str) -> None:
 @app.command()
 def build(
     prompt: str = typer.Argument(..., help="Natural-language description of the build."),
-    model: str = typer.Option("anthropic/claude-sonnet-5", "--model", help="Vision-capable model id for the configured LLM backend."),
+    model: str = typer.Option(
+        "anthropic/claude-sonnet-5",
+        "--model",
+        help="Vision-capable model id for the configured LLM backend.",
+    ),
     max_iters: int = typer.Option(6, "--max-iters"),
     seed: int = typer.Option(0, "--seed"),
     display: str = typer.Option("auto", "--display", help="auto|sixel|ansi|off"),
