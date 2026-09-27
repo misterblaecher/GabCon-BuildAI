@@ -423,8 +423,7 @@ def configure_server_profile(profile: ServerProfile | None) -> None:
 
             ids_list.append(base_id)
             properties[base_id] = {
-                key: frozenset(str(value) for value in values)
-                for key, values in entry["properties"].items()
+                key: frozenset(str(value) for value in values) for key, values in entry["properties"].items()
             }
             valid_states[base_id] = tuple(frozenset(_parse_name(state_name)[1]) for state_name in entry["states"])
         ids = tuple(ids_list)
