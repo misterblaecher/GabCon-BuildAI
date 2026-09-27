@@ -502,6 +502,27 @@ schematic, standardized view images, and metadata back to the same branch and re
 `generated/index.json`. This makes the repository a deterministic bridge between an
 external architect (for example ChatGPT) and the mcbuild renderer/exporter.
 
+### Export an image-to-build training dataset
+
+The deterministic render artifacts can be exported as a versioned JSONL dataset for
+vision-language fine-tuning:
+
+```powershell
+uv run mcbuild-dataset
+```
+
+This writes `training/image_build_v1.jsonl` plus a split summary. Each sample groups all
+standardized views of one build with the exact validated DSL source used to produce it:
+
+```text
+images[] -> prompt -> target mcbuild DSL
+```
+
+The train/validation/test assignment is deterministic **per build id**, so different camera
+views of the same structure never leak across splits. This v1 format intentionally targets
+DSL source; a later dataset version can target a smaller BuildSpec/component representation
+without changing the renderer data source.
+
 ### Static build gallery manifest
 
 Blueprint builds written under `generated/<build-id>/` refresh `generated/index.json`
