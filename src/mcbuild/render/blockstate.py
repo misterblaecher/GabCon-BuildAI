@@ -45,7 +45,11 @@ def _model_ref(ref, default_namespace: str) -> str:
     if isinstance(ref, list):
         ref = ref[0]  # a weighted variant list; take the first
     model = ref.get("model", "") if isinstance(ref, dict) else str(ref)
-    return resources.canonical_resource_location(model, default_namespace)
+    canonical = resources.canonical_resource_location(model, default_namespace)
+    namespace, path = resources.split_resource_location(canonical)
+    if namespace == "minecraft":
+        return path.split("/")[-1]
+    return canonical
 
 
 def _variant_to_part(entry: dict, default_namespace: str) -> ModelPart:
