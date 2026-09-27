@@ -610,10 +610,10 @@ def test_images_are_never_pruned(tmp_path):
         m
         for m in msgs
         if isinstance(m.get("content"), list)
-        and any(isinstance(p, dict) and "Renderings included below" in p.get("text", "") for p in m["content"])
+        and any(isinstance(p, dict) and "separate full views follow" in p.get("text", "") for p in m["content"])
     ]
-    assert sheet_msgs, "contact-sheet critique message not found"
-    assert _has_image(sheet_msgs[-1]["content"])  # latest sheet keeps its image
+    assert sheet_msgs, "separate-view critique message not found"
+    assert _has_image(sheet_msgs[-1]["content"])  # latest view set keeps its images
 
     inspect_msgs = [
         m
@@ -630,26 +630,53 @@ def test_images_are_never_pruned(tmp_path):
     )
 
 
-def test_reference_reattached_at_critique(tmp_path):
+def test_reference_pipeline_writes_spec_high_res_reference_views_and_critic(tmp_path):
     from PIL import Image as PILImage
 
-    ref = PILImage.new("RGB", (128, 128), (100, 140, 90))
+    ref = PILImage.new("RGB", (1600, 900), (100, 140, 90))
     llm = FakeLLM()
     config = Config(max_iters=6, seed=1)
     rundir = RunDir.create("hut", base=str(tmp_path))
     run_agent("hut", llm, config, rundir, reference_image=ref)
 
+    # The model-facing reference stays useful for visual comparison: capped at 1024,
+    # never crushed to the old 320px thumbnail.
+    model_ref = PILImage.open(rundir.root / "reference_model.png")
+    assert max(model_ref.size) == 1024
+    assert max(model_ref.size) > 320
+
+    spec = json.loads((rundir.root / "reference_spec.json").read_text())
+    assert spec["parse_status"] == "ok"
+    assert "priority_constraints" in spec
+
+    # Successful iteration stores each native render independently as well as the
+    # compact contact sheet used by the CLI.
+    assert (rundir.root / "iter_02" / "render.png").exists()
+    assert (rundir.root / "iter_02" / "view_01.png").exists()
+    assert (rundir.root / "iter_02" / "view_02.png").exists()
+    assert (rundir.root / "iter_02" / "view_03.png").exists()
+    critic = json.loads((rundir.root / "iter_02" / "critic.json").read_text())
+    assert critic["parse_status"] == "ok"
+    assert "next_focus" in critic
+
     msgs = _session_messages(rundir)
-    critique = [
+    critique_msgs = [
         m
         for m in msgs
         if isinstance(m.get("content"), list)
-        and any(isinstance(p, dict) and "REFERENCE" in p.get("text", "") for p in m["content"])
+        and any(
+            isinstance(p, dict) and "INDEPENDENT REFERENCE CRITIC" in p.get("text", "")
+            for p in m["content"]
+        )
     ]
-    assert critique, "reference-aware critique message not found"
-    # both the reference thumbnail and the build render are attached together
-    img_parts = [p for p in critique[-1]["content"] if isinstance(p, dict) and p.get("type") == "image_url"]
-    assert len(img_parts) == 2
+    assert critique_msgs, "reference-aware independent critic message not found"
+    # The builder receives the three requested render views as separate image parts.
+    img_parts = [
+        p
+        for p in critique_msgs[-1]["content"]
+        if isinstance(p, dict) and p.get("type") == "image_url"
+    ]
+    assert len(img_parts) == 3
 
 
 def test_inspect_free_camera_mode(tmp_path):
