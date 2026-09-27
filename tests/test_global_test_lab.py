@@ -131,7 +131,6 @@ def test_all_blocks_scope_adds_non_fixture_vanilla_blocks():
     assert manifest["scope"] == "all-registry-blocks"
 
 
-
 def _reported_failures_profile():
     belt_states = [
         f"create:belt[casing={casing},facing=east,part={part},slope=horizontal,waterlogged=false]"
