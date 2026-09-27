@@ -32,7 +32,12 @@ def _relative(path: Path, base: Path) -> str:
         return path.as_posix()
 
 
-def _sample_from_build(build_dir: Path, repository_root: Path) -> dict[str, Any] | None:
+def _samples_from_build(
+    build_dir: Path,
+    repository_root: Path,
+    *,
+    group_views: bool = False,
+) -> list[dict[str, Any]]:
     stats_path = build_dir / "stats.json"
     views_path = build_dir / "views.json"
     blueprint_path = build_dir / "blueprint.py"
@@ -40,15 +45,14 @@ def _sample_from_build(build_dir: Path, repository_root: Path) -> dict[str, Any]
 
     required = (stats_path, views_path, blueprint_path, schem_path)
     if not all(path.is_file() for path in required):
-        return None
+        return []
 
     stats = json.loads(stats_path.read_text(encoding="utf-8"))
     view_manifest = json.loads(views_path.read_text(encoding="utf-8"))
     if not isinstance(view_manifest, list):
-        return None
+        return []
 
-    images: list[str] = []
-    view_labels: list[str] = []
+    view_records: list[tuple[str, str]] = []
     for item in view_manifest:
         if not isinstance(item, dict):
             continue
@@ -58,34 +62,60 @@ def _sample_from_build(build_dir: Path, repository_root: Path) -> dict[str, Any]
         image_path = build_dir / filename
         if not image_path.is_file():
             continue
-        images.append(_relative(image_path, repository_root))
-        view_labels.append(str(item.get("label") or filename))
+        view_records.append(
+            (
+                _relative(image_path, repository_root),
+                str(item.get("label") or filename),
+            )
+        )
 
-    if not images:
-        return None
+    if not view_records:
+        return []
 
     build_id = build_dir.name
     target = blueprint_path.read_text(encoding="utf-8")
-
-    return {
-        "version": DATASET_VERSION,
-        "id": build_id,
-        "split": _split_for_id(build_id),
-        "task": "image_to_mcbuild_dsl",
-        "images": images,
-        "view_labels": view_labels,
-        "prompt": DEFAULT_PROMPT,
-        "target": target,
-        "metadata": {
-            "dims": stats.get("dims"),
-            "block_count": stats.get("block_count"),
-            "top_materials": stats.get("top_materials", []),
-            "namespaces": stats.get("namespaces", {}),
-            "stats": _relative(stats_path, repository_root),
-            "schematic": _relative(schem_path, repository_root),
-            "blueprint": _relative(blueprint_path, repository_root),
-        },
+    metadata = {
+        "source_build_id": build_id,
+        "dims": stats.get("dims"),
+        "block_count": stats.get("block_count"),
+        "top_materials": stats.get("top_materials", []),
+        "namespaces": stats.get("namespaces", {}),
+        "stats": _relative(stats_path, repository_root),
+        "schematic": _relative(schem_path, repository_root),
+        "blueprint": _relative(blueprint_path, repository_root),
     }
+
+    if group_views:
+        return [
+            {
+                "version": DATASET_VERSION,
+                "id": build_id,
+                "split": _split_for_id(build_id),
+                "task": "image_to_mcbuild_dsl",
+                "images": [path for path, _label in view_records],
+                "view_labels": [label for _path, label in view_records],
+                "prompt": DEFAULT_PROMPT,
+                "target": target,
+                "metadata": metadata,
+            }
+        ]
+
+    samples: list[dict[str, Any]] = []
+    for index, (image_path, label) in enumerate(view_records, start=1):
+        samples.append(
+            {
+                "version": DATASET_VERSION,
+                "id": f"{build_id}__view_{index:02d}",
+                "split": _split_for_id(build_id),
+                "task": "image_to_mcbuild_dsl",
+                "images": [image_path],
+                "view_labels": [label],
+                "prompt": DEFAULT_PROMPT,
+                "target": target,
+                "metadata": metadata,
+            }
+        )
+    return samples
 
 
 def export_dataset(
@@ -93,6 +123,7 @@ def export_dataset(
     output: str | Path = "training/image_build_v1.jsonl",
     *,
     repository_root: str | Path = ".",
+    group_views: bool = False,
 ) -> dict[str, int]:
     """Write one JSONL sample per complete generated build and return split counts."""
     root = Path(generated_root)
@@ -102,9 +133,13 @@ def export_dataset(
     samples: list[dict[str, Any]] = []
     if root.is_dir():
         for build_dir in sorted(path for path in root.iterdir() if path.is_dir()):
-            sample = _sample_from_build(build_dir.resolve(), repo)
-            if sample is not None:
-                samples.append(sample)
+            samples.extend(
+                _samples_from_build(
+                    build_dir.resolve(),
+                    repo,
+                    group_views=group_views,
+                )
+            )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as handle:
@@ -123,6 +158,7 @@ def export_dataset(
                 "task": "image_to_mcbuild_dsl",
                 "source": Path(generated_root).as_posix(),
                 "dataset": output_path.as_posix(),
+                "group_views": group_views,
                 "counts": counts,
             },
             indent=2,
@@ -137,9 +173,19 @@ def main() -> None:
     parser.add_argument("--generated", default="generated", help="Root containing generated/<build-id>/ directories.")
     parser.add_argument("--out", default="training/image_build_v1.jsonl", help="Output JSONL path.")
     parser.add_argument("--repo-root", default=".", help="Repository root used for relative paths.")
+    parser.add_argument(
+        "--group-views",
+        action="store_true",
+        help="Put all views of a build in one sample instead of the VRAM-friendly one-view default.",
+    )
     args = parser.parse_args()
 
-    counts = export_dataset(args.generated, args.out, repository_root=args.repo_root)
+    counts = export_dataset(
+        args.generated,
+        args.out,
+        repository_root=args.repo_root,
+        group_views=args.group_views,
+    )
     print(
         "Exported "
         f"{counts['total']} sample(s): "
