@@ -114,8 +114,7 @@ def _validate_vertical_pair(grid: VoxelGrid, block_id: str, lower_coord: Coord, 
     mismatches = _state_mismatches(lower_state, upper_state, {"half"})
     if mismatches:
         errors.append(
-            f"{block_id} halves at {lower_coord}/{upper_coord} disagree on state properties: "
-            f"{', '.join(mismatches)}."
+            f"{block_id} halves at {lower_coord}/{upper_coord} disagree on state properties: {', '.join(mismatches)}."
         )
 
 
@@ -166,8 +165,7 @@ def _validate_head_foot_pair(
     mismatches = _state_mismatches(foot_state, head_state, {"part"})
     if mismatches:
         errors.append(
-            f"{block_id} foot/head at {foot_coord}/{head_coord} disagree on state properties: "
-            f"{', '.join(mismatches)}."
+            f"{block_id} foot/head at {foot_coord}/{head_coord} disagree on state properties: {', '.join(mismatches)}."
         )
 
 
