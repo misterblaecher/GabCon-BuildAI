@@ -34,7 +34,8 @@ def test_schem_round_trip(tmp_path):
     schematic = root["Schematic"]
 
     assert int(schematic["Version"]) == 3
-    assert int(schematic["DataVersion"]) == DATA_VERSION
+    assert DATA_VERSION == 3955
+    assert int(schematic["DataVersion"]) == 3955
     assert int(schematic["Width"]) == 3
     assert int(schematic["Height"]) == 3
     assert int(schematic["Length"]) == 3
