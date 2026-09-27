@@ -10,58 +10,59 @@
       "stats": "generated/01-central-portal/stats.json",
       "blueprint": "generated/01-central-portal/blueprint.py",
       "dims": [
-        89,
-        89,
-        71
+        95,
+        98,
+        86
       ],
-      "block_count": 56441,
+      "block_count": 82271,
       "namespaces": {
-        "minecraft": 56441
+        "create": 481,
+        "minecraft": 81786,
+        "trading_floor": 4
       },
       "top_materials": [
         [
           "stone_bricks",
-          28480
+          38591
         ],
         [
           "deepslate_bricks",
-          4856
+          9021
         ],
         [
           "cracked_stone_bricks",
-          4208
-        ],
-        [
-          "blue_stained_glass",
-          2711
-        ],
-        [
-          "oxidized_copper",
-          2600
-        ],
-        [
-          "andesite",
-          2532
+          6506
         ],
         [
           "deepslate_tiles",
-          2411
+          5168
         ],
         [
-          "mossy_stone_bricks",
-          1604
+          "andesite",
+          3567
         ],
         [
-          "light_blue_stained_glass",
-          1294
+          "blue_stained_glass",
+          3318
         ],
         [
           "polished_deepslate",
-          1163
+          3109
+        ],
+        [
+          "oxidized_copper",
+          2864
+        ],
+        [
+          "mossy_stone_bricks",
+          2467
+        ],
+        [
+          "light_blue_stained_glass",
+          1512
         ]
       ],
       "server_profile": {
-        "source": "server-export",
         "format_version": 1,
         "minecraft_version": "1.21.1",
         "data_version": 3955,
@@ -76,7 +77,8 @@
           "sophisticatedbackpacks": 6,
           "trading_floor": 1,
           "waystones": 44
-        }
+        },
+        "source": "server-export"
       },
       "compatibility": {
         "valid": true,

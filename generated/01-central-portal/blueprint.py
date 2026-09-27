@@ -26,6 +26,12 @@ plaza_stone = weighted_block({
     "cracked_stone_bricks": 0.10,
 })
 
+# Confirmed against the GabCon 1.21.1 live registry and the modded-preview lab.
+CREATE_ANDESITE = "create:andesite_casing"
+CREATE_BRASS = "create:brass_casing"
+CREATE_COPPER = "create:copper_casing"
+TRADING_DEPOT = "trading_floor:trading_depot"
+
 
 def pointed_arch_frame(z, half_width, bottom, spring, apex, thickness, block):
     """Layered pointed arch in the x/y plane at fixed z."""
@@ -93,13 +99,14 @@ def planter(x1, z1, x2, z2, y):
 
 
 def market_stall(cx, y, z, awning):
-    # 7 x 5 footprint
+    # 7 x 5 footprint, with a real GabCon trading depot as the center counter.
     floor(cx - 3, z - 2, cx + 3, z + 2, y, "spruce_planks")
     for x in (cx - 3, cx + 3):
         for zz in (z - 2, z + 2):
             fill(x, y + 1, zz, x, y + 4, zz, "dark_oak_log")
     fill(cx - 3, y + 4, z - 2, cx + 3, y + 4, z + 2, awning)
-    fill(cx - 2, y + 1, z + 1, cx + 2, y + 2, z + 1, "barrel")
+    fill(cx - 2, y + 1, z + 1, cx + 2, y + 1, z + 1, "barrel")
+    set_block(cx, y + 1, z, TRADING_DEPOT)
     set_block(cx - 3, y + 3, z, "lantern")
     set_block(cx + 3, y + 3, z, "lantern")
 
@@ -108,21 +115,33 @@ def tower(cx, cz, base_y, body_h, radius=5):
     cylinder(cx, cz, base_y, body_h, radius, dark_stone, hollow=True)
     floor(cx - radius, cz - radius, cx + radius, cz + radius, base_y, "stone_bricks")
 
-    # Structural ribs
+    # Strong vertical ribs with mechanical Create casing nodes.
     for dx, dz in ((radius, 0), (-radius, 0), (0, radius), (0, -radius)):
-        fill(cx + dx, base_y, cz + dz, cx + dx, base_y + body_h + 1, cz + dz, "polished_deepslate")
+        fill(cx + dx, base_y, cz + dz, cx + dx, base_y + body_h + 4, cz + dz, "polished_deepslate")
+        for yy in (base_y + 8, base_y + 19, base_y + 30):
+            set_block(cx + dx, yy, cz + dz, CREATE_ANDESITE)
 
-    # Warm lower windows and cyan upper windows
-    for yy in (base_y + 9, base_y + 19, base_y + 28):
+    # Window bands.
+    for yy in (base_y + 10, base_y + 20, base_y + 31):
         set_block(cx - radius, yy, cz, "light_blue_stained_glass")
         set_block(cx + radius, yy, cz, "light_blue_stained_glass")
         set_block(cx, yy, cz - radius, "light_blue_stained_glass")
 
-    # Collar and roof
+    # Open crystal belfry.
+    chamber_y = base_y + body_h - 10
+    clear(cx - 2, chamber_y, cz - 2, cx + 2, base_y + body_h + 2, cz + 2)
+    for yy in range(chamber_y, base_y + body_h + 3):
+        set_block(cx - radius, yy, cz, CREATE_COPPER)
+        set_block(cx + radius, yy, cz, CREATE_COPPER)
+    crystal_cluster(cx, chamber_y + 1, cz, 1)
+
+    # Heavy collar, brass mechanical ring and oxidized copper spire.
     cylinder(cx, cz, base_y + body_h - 2, 3, radius + 1, "stone_bricks", hollow=False)
-    cone(cx, cz, base_y + body_h + 1, radius + 1, 10, "oxidized_copper", hollow=False)
-    fill(cx, base_y + body_h + 10, cz, cx, base_y + body_h + 13, cz, "polished_blackstone")
-    set_block(cx, base_y + body_h + 14, cz, "sea_lantern")
+    for x in range(cx - radius, cx + radius + 1):
+        set_block(x, base_y + body_h + 1, cz - radius - 1, CREATE_BRASS)
+    cone(cx, cz, base_y + body_h + 2, radius + 1, 11, "oxidized_copper", hollow=False)
+    fill(cx, base_y + body_h + 13, cz, cx, base_y + body_h + 17, cz, "polished_blackstone")
+    set_block(cx, base_y + body_h + 18, cz, "sea_lantern")
 
 
 # ---------------------------------------------------------------------------
@@ -148,15 +167,23 @@ for step in range(5):
 floor(-34, -7, 34, 4, 4, plaza_stone)
 fill(-34, 0, -7, 34, 3, 4, "stone_bricks")
 
-# Grand main staircase to portal terrace
-for step in range(8):
+# Grand main staircase to portal terrace: broader, more monumental and closer
+# to the schematic concept art.
+for step in range(10):
     y = 4 + step
-    z1 = -7 + step
-    fill(-13 + step // 3, y, z1, 13 - step // 3, y, z1 + 1, "stone_bricks")
+    z1 = -8 + step
+    fill(-16 + step // 2, y, z1, 16 - step // 2, y, z1 + 1, "stone_bricks")
 
-# Portal terrace
-floor(-31, 1, 31, 13, 12, plaza_stone)
-fill(-31, 4, 1, 31, 11, 13, stone)
+# Side flanking stairs.
+for step in range(6):
+    y = 4 + step
+    z1 = -6 + step
+    fill(-27, y, z1, -19, y, z1 + 1, "stone_bricks")
+    fill(19, y, z1, 27, y, z1 + 1, "stone_bricks")
+
+# Portal terrace.
+floor(-34, 1, 34, 17, 14, plaza_stone)
+fill(-34, 4, 1, 34, 13, 17, stone)
 
 # Side terraces for markets
 floor(-43, -29, -19, -8, 2, plaza_stone)
@@ -208,130 +235,157 @@ market_stall(34, 3, -16, "orange_wool")
 
 
 # ---------------------------------------------------------------------------
-# 2) Main cathedral massing
+# 2) Main cathedral massing - V2 server palette
 # ---------------------------------------------------------------------------
 
-# Central hall
-walls(-23, 10, 23, 30, 12, 61, stone, thickness=2)
-floor(-23, 10, 23, 30, 12, "stone_bricks")
-floor(-21, 12, 21, 28, 59, "deepslate_bricks")
-gable_roof(-23, 10, 23, 30, 61, "deepslate_tiles", ridge_axis="z", overhang=2)
+# Taller and deeper central hall.
+walls(-25, 10, 25, 36, 14, 69, stone, thickness=2)
+floor(-25, 10, 25, 36, 14, "stone_bricks")
+gable_roof(-25, 10, 25, 36, 69, "deepslate_tiles", ridge_axis="z", overhang=2)
 
-# Side wings
+# Rear upper mass creates a cathedral silhouette instead of a flat wall.
+walls(-15, 31, 15, 46, 22, 58, dark_stone, thickness=2)
+floor(-15, 31, 15, 46, 22, "deepslate_bricks")
+gable_roof(-15, 31, 15, 46, 58, "deepslate_tiles", ridge_axis="z", overhang=1)
+
+# Side wings.
 for side in (-1, 1):
-    x1 = 23 * side
-    x2 = 40 * side
-    xa, xb = sorted((x1, x2))
-    walls(xa, 9, xb, 28, 12, 34, stone, thickness=2)
-    floor(xa, 9, xb, 28, 12, "stone_bricks")
-    gable_roof(xa, 8, xb, 29, 35, "deepslate_tiles", ridge_axis="x", overhang=1)
+    xa, xb = sorted((25 * side, 43 * side))
+    walls(xa, 9, xb, 31, 14, 39, stone, thickness=2)
+    floor(xa, 9, xb, 31, 14, "stone_bricks")
+    gable_roof(xa, 8, xb, 32, 40, "deepslate_tiles", ridge_axis="x", overhang=1)
 
-# Main opening: carve through front wall and a few blocks inside
-carve_pointed_opening(8, 15, 11, 14, 38, 59)
+# Main opening.
+carve_pointed_opening(8, 18, 12, 16, 42, 67)
 
-# Deep portal cavity
-fill_pointed_opening(14, 17, 10, 14, 37, 57, "blue_stained_glass")
-fill_pointed_opening(12, 13, 9, 15, 37, 56, "light_blue_stained_glass")
-fill_pointed_opening(10, 11, 8, 16, 36, 54, "cyan_stained_glass")
+# Portal depth layers. The Create casings make the frame read as arcane machinery
+# rather than a purely vanilla stained-glass wall.
+fill_pointed_opening(16, 19, 11, 16, 41, 64, "blue_stained_glass")
+fill_pointed_opening(14, 15, 10, 17, 40, 62, "light_blue_stained_glass")
+fill_pointed_opening(12, 13, 9, 18, 39, 59, "cyan_stained_glass")
+fill_pointed_opening(20, 21, 8, 19, 38, 56, "cyan_stained_glass_pane")
+carve_pointed_opening(22, 28, 7, 20, 37, 54)
 
-# Hollow some of the center so the glow reads as depth
-carve_pointed_opening(18, 25, 8, 16, 35, 52)
+# Energy spine.
+fill(-1, 20, 16, 1, 53, 16, "sea_lantern")
+for yy in (26, 33, 40, 47):
+    fill(-5, yy, 16, 5, yy, 16, "light_blue_stained_glass")
+    set_block(0, yy, 15, "sea_lantern")
+for yy in range(22, 53, 4):
+    set_block(-4, yy, 15, "prismarine_bricks")
+    set_block(4, yy, 15, "prismarine_bricks")
 
-# Central energy column and glyph
-fill(-1, 18, 15, 1, 48, 15, "sea_lantern")
-for yy in (24, 31, 38, 45):
-    fill(-5, yy, 15, 5, yy, 15, "light_blue_stained_glass")
-    set_block(0, yy, 14, "sea_lantern")
-for yy in range(20, 50, 4):
-    set_block(-4, yy, 14, "prismarine_bricks")
-    set_block(4, yy, 14, "prismarine_bricks")
+# Layered gothic/mechanical arch.
+pointed_arch_frame(8, 16, 15, 43, 73, 3, "stone_bricks")
+pointed_arch_frame(7, 14, 16, 42, 70, 2, "polished_deepslate")
+pointed_arch_frame(6, 12, 17, 41, 66, 2, CREATE_COPPER)
+pointed_arch_frame(5, 10, 18, 40, 62, 1, CREATE_BRASS)
+pointed_arch_frame(4, 9, 19, 39, 59, 1, "sea_lantern")
 
-# Layered portal frames
-pointed_arch_frame(8, 14, 13, 39, 65, 3, "stone_bricks")
-pointed_arch_frame(7, 12, 14, 38, 62, 2, "polished_deepslate")
-pointed_arch_frame(6, 10, 15, 37, 58, 2, "prismarine_bricks")
-pointed_arch_frame(5, 9, 16, 36, 55, 1, "sea_lantern")
+# Mechanical portal pylons and buttresses.
+for x in (-21, -17, 17, 21):
+    fill(x, 14, 7, x, 63, 13, dark_stone)
+    for yy in (22, 35, 48, 59):
+        fill(x - 1, yy, 6, x + 1, yy + 2, 13, "stone_bricks")
+        set_block(x, yy + 1, 5, CREATE_ANDESITE)
+    set_block(x, 65, 9, CREATE_COPPER)
 
-# Deep buttresses framing the portal
-for x in (-19, -16, 16, 19):
-    fill(x, 12, 7, x, 58, 12, dark_stone)
-    for yy in (20, 32, 44):
-        fill(x - 1, yy, 6, x + 1, yy + 2, 12, "stone_bricks")
-    set_block(x, 60, 9, "sea_lantern")
+# Inner machinery columns.
+for x in (-10, 10):
+    fill(x, 17, 8, x, 64, 11, "polished_deepslate")
+    for yy in range(23, 64, 8):
+        set_block(x, yy, 7, CREATE_BRASS)
+        set_block(x, yy + 1, 7, "cyan_stained_glass")
 
-# Upper facade ribs and gothic crown
-line(-23, 47, 8, 0, 76, 8, "stone_bricks")
-line(23, 47, 8, 0, 76, 8, "stone_bricks")
-line(-20, 48, 7, 0, 73, 7, "polished_deepslate")
-line(20, 48, 7, 0, 73, 7, "polished_deepslate")
+# High facade ribs and crown.
+line(-25, 51, 8, 0, 82, 8, "stone_bricks")
+line(25, 51, 8, 0, 82, 8, "stone_bricks")
+line(-22, 52, 7, 0, 78, 7, "polished_deepslate")
+line(22, 52, 7, 0, 78, 7, "polished_deepslate")
 
-# Cyan vertical facade accents
-for x in (-18, -13, 13, 18):
-    fill(x, 27, 8, x, 54, 8, "cyan_stained_glass")
-    for yy in range(29, 54, 7):
+# Create casing crown nodes.
+for x in (-16, -8, 0, 8, 16):
+    set_block(x, 67 + (8 - abs(x)) // 4, 7, CREATE_COPPER)
+
+# Cyan vertical facade accents.
+for x in (-19, -14, 14, 19):
+    fill(x, 29, 8, x, 56, 8, "cyan_stained_glass")
+    for yy in range(31, 56, 7):
         set_block(x, yy, 7, "sea_lantern")
 
-# High central crystal crown
-crystal_cluster(0, 76, 11, 1)
+# High crystal crown.
+crystal_cluster(0, 82, 11, 1)
 
 
 # ---------------------------------------------------------------------------
-# 3) Towers, side chapels and flying connections
+# 3) Towers, side chapels and flying connections - V2
 # ---------------------------------------------------------------------------
 
-# Main outer towers
-tower(-34, 16, 12, 41, radius=6)
-tower(34, 16, 12, 41, radius=6)
+# Dominant outer crystal towers.
+tower(-36, 18, 14, 47, radius=6)
+tower(36, 18, 14, 47, radius=6)
 
-# Purple crystal chambers in outer towers
-for cx in (-34, 34):
-    clear(cx - 2, 28, 10, cx + 2, 44, 22)
-    fill(cx - 2, 28, 15, cx + 2, 44, 17, "purple_stained_glass")
-    crystal_cluster(cx, 30, 16, 1)
-    with translate(cx, 0, 0):
-        pointed_arch_frame(10, 4, 27, 39, 48, 1, "stone_bricks")
+# Rear inner turrets.
+for cx in (-26, 26):
+    cylinder(cx, 26, 33, 38, 4, "deepslate_bricks", hollow=True)
+    for yy in (42, 54, 65):
+        set_block(cx, yy, 22, CREATE_ANDESITE)
+    cone(cx, 26, 71, 5, 10, "oxidized_copper")
+    fill(cx, 81, 26, cx, 85, 26, "polished_blackstone")
+    set_block(cx, 86, 26, "sea_lantern")
 
-# Inner rear turrets
-for cx in (-25, 25):
-    cylinder(cx, 24, 30, 34, 4, "deepslate_bricks", hollow=True)
-    cone(cx, 24, 64, 5, 9, "oxidized_copper")
-    fill(cx, 73, 24, cx, 77, 24, "polished_blackstone")
-    set_block(cx, 78, 24, "sea_lantern")
+# Front lower corner pylons.
+for cx in (-43, 43):
+    cylinder(cx, 3, 6, 30, 3, stone, hollow=True)
+    set_block(cx, 18, 0, CREATE_BRASS)
+    cone(cx, 3, 36, 4, 8, "oxidized_copper")
+    set_block(cx, 45, 3, "sea_lantern")
 
-# Front lower corner towers
-for cx in (-40, 40):
-    cylinder(cx, 2, 5, 25, 3, stone, hollow=True)
-    cone(cx, 2, 30, 4, 7, "oxidized_copper")
-    set_block(cx, 38, 2, "sea_lantern")
-
-# Side chapel arches / entries
+# Side chapel masses beneath the towers.
 for side in (-1, 1):
-    cx = 27 * side
-    # local gothic entry
+    xa, xb = sorted((19 * side, 36 * side))
+    walls(xa, 6, xb, 22, 14, 31, stone, thickness=2)
+    floor(xa, 6, xb, 22, 14, "stone_bricks")
+    gable_roof(xa, 6, xb, 23, 32, "deepslate_tiles", ridge_axis="x", overhang=1)
+
+# Large side chapel entries.
+for side in (-1, 1):
+    cx = 28 * side
     for t in range(2):
         hw = 5 + t
-        line(cx - hw, 13, 7, cx - hw, 23, 7, "stone_bricks")
-        line(cx + hw, 13, 7, cx + hw, 23, 7, "stone_bricks")
-        line(cx - hw, 23, 7, cx, 30 + t, 7, "stone_bricks")
-        line(cx + hw, 23, 7, cx, 30 + t, 7, "stone_bricks")
-    clear(cx - 3, 13, 8, cx + 3, 23, 12)
-    set_block(cx, 17, 8, "lantern")
+        line(cx - hw, 15, 7, cx - hw, 26, 7, "stone_bricks")
+        line(cx + hw, 15, 7, cx + hw, 26, 7, "stone_bricks")
+        line(cx - hw, 26, 7, cx, 34 + t, 7, "stone_bricks")
+        line(cx + hw, 26, 7, cx, 34 + t, 7, "stone_bricks")
+    clear(cx - 3, 15, 8, cx + 3, 26, 12)
+    set_block(cx, 20, 8, "lantern")
+    set_block(cx - 5, 25, 6, CREATE_COPPER)
+    set_block(cx + 5, 25, 6, CREATE_COPPER)
 
-# Flying buttress-like connectors from center to towers
+# Flying buttresses with Create casing joints.
 for side in (-1, 1):
     sx = 20 * side
-    tx = 31 * side
-    line(sx, 42, 12, tx, 49, 14, "stone_bricks")
-    line(sx, 39, 13, tx, 46, 15, "polished_deepslate")
-    line(sx, 33, 15, tx, 37, 16, "stone_bricks")
+    tx = 33 * side
+    line(sx, 47, 12, tx, 56, 15, "stone_bricks")
+    line(sx, 43, 13, tx, 52, 16, "polished_deepslate")
+    line(sx, 38, 15, tx, 43, 17, "stone_bricks")
+    set_block(tx, 56, 15, CREATE_ANDESITE)
+    set_block(tx, 52, 16, CREATE_BRASS)
 
-# Upper bridges
+# Upper bridges.
 for side in (-1, 1):
-    x1, x2 = sorted((22 * side, 30 * side))
-    fill(x1, 51, 20, x2, 52, 22, "deepslate_bricks")
+    x1, x2 = sorted((23 * side, 32 * side))
+    fill(x1, 57, 20, x2, 58, 23, "deepslate_bricks")
     for x in range(x1, x2 + 1):
         if x % 2 == 0:
-            set_block(x, 53, 20, "stone_brick_wall")
+            set_block(x, 59, 20, "stone_brick_wall")
+            set_block(x, 59, 23, "stone_brick_wall")
+
+# Small mechanical galleries in front of the outer towers.
+for cx in (-36, 36):
+    fill(cx - 4, 24, 7, cx + 4, 24, 9, CREATE_ANDESITE)
+    set_block(cx - 3, 25, 8, CREATE_BRASS)
+    set_block(cx + 3, 25, 8, CREATE_BRASS)
 
 
 # ---------------------------------------------------------------------------
@@ -384,12 +438,19 @@ for cx in (-20, 20):
 scatter(-40, 10, 8, -23, 25, 30, "mossy_stone_bricks", density=0.025)
 scatter(23, 10, 8, 40, 25, 30, "mossy_stone_bricks", density=0.025)
 
-# Final cyan highlights at tower and portal tips
+# Create-powered portal machinery at the upper terrace.
+for x in (-23, -18, 18, 23):
+    set_block(x, 15, 3, CREATE_ANDESITE)
+    set_block(x, 16, 3, CREATE_COPPER)
+for x in (-12, -6, 6, 12):
+    set_block(x, 15, 2, CREATE_BRASS)
+
+# Final cyan highlights at tower and portal tips.
 for x, y, z in [
-    (0, 87, 11),
-    (-34, 67, 16),
-    (34, 67, 16),
-    (-25, 79, 24),
-    (25, 79, 24),
+    (0, 93, 11),
+    (-36, 79, 18),
+    (36, 79, 18),
+    (-26, 86, 26),
+    (26, 86, 26),
 ]:
     set_block(x, y, z, "sea_lantern")

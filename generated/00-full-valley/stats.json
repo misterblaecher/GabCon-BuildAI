@@ -1,15 +1,12 @@
 {
-  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\01-central-portal.py",
-  "seed": 0,
+  "layout": "composition\\valley-layout.json",
   "views": [
     "yaw 0deg",
     "yaw 90deg",
     "yaw 180deg",
     "yaw 270deg",
-    "top-down",
-    "yaw 90deg, cutaway z"
+    "top-down"
   ],
-  "palette_warnings": [],
   "server_profile": {
     "format_version": 1,
     "minecraft_version": "1.21.1",
@@ -28,6 +25,32 @@
     },
     "source": "server-export"
   },
+  "modules": [
+    {
+      "name": "central-portal",
+      "blueprint": "blueprints\\01-central-portal.py",
+      "offset": [
+        0,
+        64,
+        45
+      ],
+      "blocks": 82287,
+      "bounds": [
+        [
+          -47,
+          63,
+          7
+        ],
+        [
+          47,
+          160,
+          92
+        ]
+      ],
+      "collisions_overwritten": 0
+    }
+  ],
+  "collisions_overwritten": 0,
   "compatibility": {
     "valid": true,
     "unknown_blocks": [],
@@ -41,25 +64,25 @@
   "bounds": [
     [
       -47,
-      -1,
-      -38
+      63,
+      7
     ],
     [
       47,
-      96,
-      47
+      160,
+      92
     ]
   ],
-  "block_count": 82271,
+  "block_count": 82287,
   "namespaces": {
     "create": 481,
-    "minecraft": 81786,
+    "minecraft": 81802,
     "trading_floor": 4
   },
   "top_materials": [
     [
       "stone_bricks",
-      38591
+      38583
     ],
     [
       "deepslate_bricks",
@@ -75,7 +98,7 @@
     ],
     [
       "andesite",
-      3567
+      3565
     ],
     [
       "blue_stained_glass",
