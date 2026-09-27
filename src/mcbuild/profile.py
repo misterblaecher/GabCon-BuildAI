@@ -26,7 +26,7 @@ class ServerProfile:
     blocks: dict[str, dict[str, Any]]
 
     @classmethod
-    def load(cls, path: str | Path) -> "ServerProfile":
+    def load(cls, path: str | Path) -> ServerProfile:
         source = Path(path).expanduser().resolve()
         if not source.is_file():
             raise ProfileError(f"Server registry not found: {source}")
