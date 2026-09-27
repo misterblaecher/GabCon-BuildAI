@@ -74,5 +74,5 @@ def texture_path(texture_ref: str, default_namespace: str = "minecraft") -> Path
     if namespace == "minecraft":
         candidate = BUNDLED_ASSET_ROOT / relative
     else:
-        candidate = _cache_root / "assets" / namespace / relative
+        candidate = cache_root() / "assets" / namespace / relative
     return candidate if candidate.is_file() else None
