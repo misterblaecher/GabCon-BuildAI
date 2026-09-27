@@ -75,8 +75,7 @@ class ServerProfile:
 
         if raw.get("state_count") != computed_state_count:
             raise ProfileError(
-                f"Server registry state_count={raw.get('state_count')!r} but contains "
-                f"{computed_state_count} states."
+                f"Server registry state_count={raw.get('state_count')!r} but contains {computed_state_count} states."
             )
 
         namespaces = raw.get("namespaces")
