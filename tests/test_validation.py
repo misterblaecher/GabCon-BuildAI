@@ -70,9 +70,7 @@ def test_bare_waystone_uses_default_lower_half_for_validation(tmp_path):
 def test_complete_waystone_pair_passes(tmp_path):
     palette.configure_server_profile(_waystone_profile(tmp_path))
     grid = VoxelGrid()
-    lower = palette.get_block(
-        "waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]"
-    )
+    lower = palette.get_block("waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]")
     upper = palette.get_block("waystones:waystone[facing=north,half=upper,origin=player,waterlogged=false]")
     grid.set(2, 1, 4, lower.index)
     grid.set(2, 2, 4, upper.index)
