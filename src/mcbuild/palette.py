@@ -1,4 +1,4 @@
-"""Block palette: names validated against the authoritative Minecraft block registry.
+"""Block palette: namespaced block IDs validated against the configured block registry.
 
 Colors come from a curated hand-picked table where available, otherwise are
 derived lazily from the real block texture (averaging its opaque pixels), and
@@ -60,20 +60,27 @@ def pop_warnings() -> list[str]:
 class Block:
     """A single palette entry.
 
-    `name` is the bare base name (e.g. "oak_stairs"); `state` holds parsed block-state
-    props as sorted (key, value) pairs (e.g. (("facing","north"),("half","top"))), and
-    `mc_id` includes the `[state]` suffix for export. `renderable` is False only when no
+    `namespace` and `name` identify the base block (e.g. `minecraft` + `oak_stairs`);
+    `state` holds parsed block-state props as sorted (key, value) pairs, and `mc_id`
+    contains the canonical namespaced ID plus the optional `[state]` suffix for export.
+    `renderable` is False only when no
     color/texture can be resolved even from the base material (e.g. air) — such blocks are
     still placed/exported but skipped by the preview renderer.
     """
 
     index: int
-    name: str  # bare base name, e.g. "oak_stairs"
+    namespace: str  # e.g. "minecraft" or "create"
+    name: str  # namespace-local path, e.g. "oak_stairs" or "andesite_casing"
     mc_id: str  # e.g. "minecraft:oak_stairs[facing=north,half=top]"
     rgb: tuple[int, int, int]
     transparent: bool = False
     renderable: bool = True
     state: tuple[tuple[str, str], ...] = ()
+
+    @property
+    def base_id(self) -> str:
+        """Canonical namespaced block ID without block-state properties."""
+        return f"{self.namespace}:{self.name}"
 
 
 class PaletteError(Exception):
@@ -248,10 +255,40 @@ _CURATED: dict[str, tuple[tuple[int, int, int], bool]] = {
 }
 
 
+def _canonical_base_id(name: str) -> str:
+    """Normalize a registry/input block name to a canonical `namespace:path` ID."""
+    name = name.strip()
+    if not name:
+        raise ValueError("Block name must not be empty.")
+    if ":" not in name:
+        return f"minecraft:{name}"
+    namespace, path = name.split(":", 1)
+    namespace = namespace.strip()
+    path = path.strip()
+    if not namespace or not path:
+        raise ValueError(f"Invalid namespaced block ID: {name!r}")
+    return f"{namespace}:{path}"
+
+
+def _display_base_id(base_id: str) -> str:
+    """Keep vanilla names terse while preserving namespaces for modded blocks."""
+    return base_id.removeprefix("minecraft:")
+
+
 @lru_cache(maxsize=1)
-def _load_registry_names() -> tuple[str, ...]:
+def _load_registry_ids() -> tuple[str, ...]:
     raw = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
-    return tuple(name for name in raw if name not in _EXCLUDED_NAMES)
+    ids: list[str] = []
+    seen: set[str] = set()
+    for entry in raw:
+        base_id = _canonical_base_id(str(entry))
+        namespace, path = base_id.split(":", 1)
+        if namespace == "minecraft" and path in _EXCLUDED_NAMES:
+            continue
+        if base_id not in seen:
+            ids.append(base_id)
+            seen.add(base_id)
+    return tuple(ids)
 
 
 @cache
@@ -276,12 +313,15 @@ def _texture_derived_color(name: str) -> tuple[tuple[int, int, int], bool] | Non
     return rgb, transparent
 
 
-def _resolve(name: str) -> tuple[tuple[int, int, int], bool] | None:
+def _resolve(base_id: str) -> tuple[tuple[int, int, int], bool] | None:
     """Resolve (rgb, transparent) for a block, falling back to its base material.
 
-    Tries: curated color → the block's own texture → the base-material texture (so
-    shape variants like `oak_stairs` pick up `oak_planks`). None if nothing resolves.
+    Vanilla assets are bundled today. Non-minecraft namespaces remain valid for
+    placement/export but intentionally render as unknown until mod assets are imported.
     """
+    namespace, name = base_id.split(":", 1)
+    if namespace != "minecraft":
+        return None
     curated = _CURATED.get(name)
     if curated is not None:
         return curated
@@ -296,9 +336,9 @@ def _resolve(name: str) -> tuple[tuple[int, int, int], bool] | None:
     return None
 
 
-_NAMES = _load_registry_names()
-_NAME_TO_INDEX: dict[str, int] = {name: i for i, name in enumerate(_NAMES)}
-_N_BASE = len(_NAMES)
+_IDS = _load_registry_ids()
+_ID_TO_INDEX: dict[str, int] = {base_id: i for i, base_id in enumerate(_IDS)}
+_N_BASE = len(_IDS)
 
 # Stateful blocks ("oak_stairs[facing=north,...]") get indices allocated above the base
 # registry range, on first use.
@@ -307,9 +347,7 @@ _index_block: dict[int, Block] = {}
 
 
 def _parse_name(name: str) -> tuple[str, tuple[tuple[str, str], ...]]:
-    """Split "minecraft:oak_stairs[facing=north,half=top]" -> ("oak_stairs", sorted pairs)."""
-    if name.startswith("minecraft:"):
-        name = name[len("minecraft:") :]
+    """Split a block string into canonical base ID + sorted state properties."""
     if name.endswith("]") and "[" in name:
         base, rest = name.split("[", 1)
         pairs = []
@@ -319,61 +357,87 @@ def _parse_name(name: str) -> tuple[str, tuple[tuple[str, str], ...]]:
                 continue
             k, _, v = part.partition("=")
             pairs.append((k.strip(), v.strip()))
-        return base.strip(), tuple(sorted(pairs))
-    return name.strip(), ()
+        return _canonical_base_id(base), tuple(sorted(pairs))
+    return _canonical_base_id(name), ()
 
 
-def _mc_id(base: str, state: tuple[tuple[str, str], ...]) -> str:
+def _mc_id(base_id: str, state: tuple[tuple[str, str], ...]) -> str:
     if not state:
-        return f"minecraft:{base}"
+        return base_id
     props = ",".join(f"{k}={v}" for k, v in state)
-    return f"minecraft:{base}[{props}]"
+    return f"{base_id}[{props}]"
 
 
-def _build_block(index: int, base: str, state: tuple[tuple[str, str], ...]) -> Block:
-    resolved = _resolve(base)
+def _build_block(index: int, base_id: str, state: tuple[tuple[str, str], ...]) -> Block:
+    namespace, name = base_id.split(":", 1)
+    resolved = _resolve(base_id)
     if resolved is None:
-        return Block(index=index, name=base, mc_id=_mc_id(base, state), rgb=(0, 0, 0), renderable=False, state=state)
+        return Block(
+            index=index,
+            namespace=namespace,
+            name=name,
+            mc_id=_mc_id(base_id, state),
+            rgb=(0, 0, 0),
+            renderable=False,
+            state=state,
+        )
     rgb, transparent = resolved
-    return Block(index=index, name=base, mc_id=_mc_id(base, state), rgb=rgb, transparent=transparent, state=state)
+    return Block(
+        index=index,
+        namespace=namespace,
+        name=name,
+        mc_id=_mc_id(base_id, state),
+        rgb=rgb,
+        transparent=transparent,
+        state=state,
+    )
 
 
 @cache
 def _base_block(index: int) -> Block:
-    return _build_block(index, _NAMES[index], ())
+    return _build_block(index, _IDS[index], ())
 
 
 def get_block(name: str) -> Block:
-    """Look up a block by name, with optional block state, e.g. "oak_stairs[facing=north]".
+    """Look up a block by name with optional state.
 
-    Accepts a "minecraft:" prefix. The base name is validated against the registry; block
-    states are preserved for rendering and export but not individually validated.
+    Unqualified names remain backward-compatible aliases for the `minecraft`
+    namespace. Fully-qualified IDs such as `create:andesite_casing` are preserved
+    verbatim and validated against the configured registry.
     """
-    base, state = _parse_name(name)
-    aliased = ALIAS.get(base)
-    if aliased is not None:
-        _warnings.append(f"'{base}' is not a valid block name; substituted alias '{aliased}'.")
-        base = aliased
-    index = _NAME_TO_INDEX.get(base)
+    base_id, state = _parse_name(name)
+    namespace, path = base_id.split(":", 1)
+
+    if namespace == "minecraft":
+        aliased = ALIAS.get(path)
+        if aliased is not None:
+            _warnings.append(f"'{path}' is not a valid block name; substituted alias '{aliased}'.")
+            base_id = f"minecraft:{aliased}"
+
+    index = _ID_TO_INDEX.get(base_id)
     if index is None:
-        match = _confident_match(base)
+        match = _confident_match(base_id)
         if match is not None:
-            _warnings.append(f"Unknown block '{base}'; auto-corrected to close match '{match}'.")
-            base = match
-            index = _NAME_TO_INDEX[base]
+            _warnings.append(
+                f"Unknown block '{_display_base_id(base_id)}'; "
+                f"auto-corrected to close match '{_display_base_id(match)}'."
+            )
+            base_id = match
+            index = _ID_TO_INDEX[base_id]
         else:
-            suggestions = suggest(base)
+            suggestions = suggest(base_id)
             hint = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
-            raise PaletteError(f"Unknown block '{base}'.{hint}")
+            raise PaletteError(f"Unknown block '{_display_base_id(base_id)}'.{hint}")
+
     if not state:
         return _base_block(index)
 
-    key = _mc_id(base, state)
+    key = _mc_id(base_id, state)
     dyn = _dynamic_index.get(key)
     if dyn is None:
         dyn = _N_BASE + len(_dynamic_index)
         _dynamic_index[key] = dyn
-        _index_block[dyn] = _build_block(dyn, base, state)
+        _index_block[dyn] = _build_block(dyn, base_id, state)
     return _index_block[dyn]
 
 
@@ -383,15 +447,43 @@ def get_block_by_index(index: int) -> Block:
     return _index_block[index]
 
 
+def _same_namespace_ids(base_id: str) -> list[str]:
+    namespace = base_id.split(":", 1)[0]
+    prefix = f"{namespace}:"
+    return [candidate for candidate in _IDS if candidate.startswith(prefix)]
+
+
+def _namespace_matches(base_id: str, n: int, cutoff: float) -> list[str]:
+    """Fuzzy-match only the namespace-local path.
+
+    Comparing full IDs artificially inflates similarity because every candidate
+    shares the namespace prefix, which can turn excluded/unknown blocks into
+    unsafe auto-corrections.
+    """
+    _, path = base_id.split(":", 1)
+    candidates = _same_namespace_ids(base_id)
+    by_path = {candidate.split(":", 1)[1]: candidate for candidate in candidates}
+    path_hits = difflib.get_close_matches(path, list(by_path), n=n, cutoff=cutoff)
+    return [by_path[path_hit] for path_hit in path_hits]
+
+
 def suggest(name: str, n: int = 3) -> list[str]:
-    return difflib.get_close_matches(name, _NAMES, n=n, cutoff=0.4)
+    base_id, _ = _parse_name(name)
+    hits = _namespace_matches(base_id, n=n, cutoff=0.4)
+    return [_display_base_id(hit) for hit in hits]
 
 
-def _confident_match(name: str) -> str | None:
-    """A single close match at a strict cutoff — confident enough to auto-substitute."""
-    hits = difflib.get_close_matches(name, _NAMES, n=1, cutoff=0.82)
+def _confident_match(base_id: str) -> str | None:
+    """A single close path match in the same namespace at a strict cutoff."""
+    hits = _namespace_matches(base_id, n=1, cutoff=0.82)
     return hits[0] if hits else None
 
 
+def all_block_ids() -> list[str]:
+    """Return canonical namespaced IDs from the configured registry."""
+    return list(_IDS)
+
+
 def all_block_names() -> list[str]:
-    return list(_NAMES)
+    """Backward-compatible display names: bare vanilla paths, namespaced modded IDs."""
+    return [_display_base_id(base_id) for base_id in _IDS]
