@@ -53,7 +53,7 @@ def test_create_chain_drive_pair_passes():
             {
                 "axis": ["y"],
                 "axis_along_first": ["true"],
-                "part": ["start"],
+                "part": ["start", "middle", "end", "none"],
                 "powered": ["false"],
             },
             ["create:adjustable_chain_gearshift[axis=y,axis_along_first=true,part=start,powered=false]"],
@@ -104,7 +104,7 @@ def test_create_gantry_start_end_pair_passes():
                     block_id,
                     {
                         "facing": ["east"],
-                        "part": ["start", "end"],
+                        "part": ["start", "middle", "end", "single"],
                         "powered": ["false"],
                     },
                     [start, end],
@@ -131,7 +131,7 @@ def test_create_belt_upward_pair_passes():
                     {
                         "casing": ["false"],
                         "facing": ["east"],
-                        "part": ["start", "end"],
+                        "part": ["start", "middle", "end", "single"],
                         "slope": ["upward"],
                         "waterlogged": ["false"],
                     },
@@ -158,7 +158,7 @@ def test_create_belt_missing_end_is_rejected():
                     {
                         "casing": ["false"],
                         "facing": ["east"],
-                        "part": ["start"],
+                        "part": ["start", "middle", "end", "none"],
                         "slope": ["horizontal"],
                         "waterlogged": ["false"],
                     },
@@ -183,7 +183,7 @@ def test_create_sticker_extended_needs_no_companion_block():
                 block_id: _entry(
                     block_id,
                     {
-                        "extended": ["true"],
+                        "extended": ["true", "false"],
                         "facing": ["north"],
                         "powered": ["true"],
                     },
@@ -204,7 +204,7 @@ def test_vanilla_extended_piston_requires_matching_head():
     blocks = {
         "minecraft:piston": _entry(
             "minecraft:piston",
-            {"extended": ["true"], "facing": ["east"]},
+            {"extended": ["true", "false"], "facing": ["east"]},
             [piston],
         ),
         "minecraft:piston_head": _entry(
@@ -227,7 +227,7 @@ def test_sticky_piston_rejects_normal_head():
     blocks = {
         "minecraft:sticky_piston": _entry(
             "minecraft:sticky_piston",
-            {"extended": ["true"], "facing": ["east"]},
+            {"extended": ["true", "false"], "facing": ["east"]},
             [piston],
         ),
         "minecraft:piston_head": _entry(
@@ -255,7 +255,7 @@ def test_create_extended_mechanical_piston_with_pole_and_head_passes():
             {
                 "axis_along_first": ["true"],
                 "facing": ["east"],
-                "state": ["extended"],
+                "state": ["retracted", "moving", "extended"],
             },
             [piston],
         ),
@@ -289,7 +289,7 @@ def test_create_mechanical_piston_moving_state_is_rejected():
                     {
                         "axis_along_first": ["true"],
                         "facing": ["east"],
-                        "state": ["moving"],
+                        "state": ["retracted", "moving", "extended"],
                     },
                     [piston],
                 )
