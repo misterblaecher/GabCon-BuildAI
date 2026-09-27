@@ -96,13 +96,7 @@ def _validate_vertical_pair(grid: VoxelGrid, block_id: str, lower_coord: Coord, 
         errors.append(message)
 
 
-def _validate_head_foot_pair(
-    grid: VoxelGrid,
-    block_id: str,
-    foot_coord: Coord,
-    facing: str,
-    errors: list[str],
-) -> None:
+def _validate_head_foot_pair(grid: VoxelGrid, block_id: str, foot_coord: Coord, facing: str, errors: list[str]) -> None:
     offset = _CARDINAL_OFFSETS.get(facing)
     if offset is None:
         errors.append(f"{block_id} at {foot_coord} has unsupported facing={facing!r}.")
