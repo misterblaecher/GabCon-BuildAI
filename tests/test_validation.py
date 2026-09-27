@@ -18,9 +18,7 @@ def reset_profile():
 def _waystone_profile(tmp_path):
     states = []
     for half in ("lower", "upper"):
-        states.append(
-            f"waystones:waystone[facing=north,half={half},origin=player,waterlogged=false]"
-        )
+        states.append(f"waystones:waystone[facing=north,half={half},origin=player,waterlogged=false]")
     payload = {
         "format_version": 1,
         "minecraft_version": "1.21.1",
@@ -53,9 +51,7 @@ def _waystone_profile(tmp_path):
 def test_orphaned_waystone_lower_half_is_rejected(tmp_path):
     palette.configure_server_profile(_waystone_profile(tmp_path))
     grid = VoxelGrid()
-    lower = palette.get_block(
-        "waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]"
-    )
+    lower = palette.get_block("waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]")
     grid.set(2, 1, 4, lower.index)
 
     with pytest.raises(BuildValidationError, match="upper half is missing"):
@@ -77,9 +73,7 @@ def test_complete_waystone_pair_passes(tmp_path):
     lower = palette.get_block(
         "waystones:waystone[facing=north,half=lower,origin=player,waterlogged=false]"
     )
-    upper = palette.get_block(
-        "waystones:waystone[facing=north,half=upper,origin=player,waterlogged=false]"
-    )
+    upper = palette.get_block("waystones:waystone[facing=north,half=upper,origin=player,waterlogged=false]")
     grid.set(2, 1, 4, lower.index)
     grid.set(2, 2, 4, upper.index)
 
