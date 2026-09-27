@@ -664,18 +664,11 @@ def test_reference_pipeline_writes_spec_high_res_reference_views_and_critic(tmp_
         m
         for m in msgs
         if isinstance(m.get("content"), list)
-        and any(
-            isinstance(p, dict) and "INDEPENDENT REFERENCE CRITIC" in p.get("text", "")
-            for p in m["content"]
-        )
+        and any(isinstance(p, dict) and "INDEPENDENT REFERENCE CRITIC" in p.get("text", "") for p in m["content"])
     ]
     assert critique_msgs, "reference-aware independent critic message not found"
     # The builder receives the three requested render views as separate image parts.
-    img_parts = [
-        p
-        for p in critique_msgs[-1]["content"]
-        if isinstance(p, dict) and p.get("type") == "image_url"
-    ]
+    img_parts = [p for p in critique_msgs[-1]["content"] if isinstance(p, dict) and p.get("type") == "image_url"]
     assert len(img_parts) == 3
 
 
