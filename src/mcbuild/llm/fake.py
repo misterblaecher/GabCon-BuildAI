@@ -67,15 +67,11 @@ class FakeLLM:
                             "version": 1,
                             "requested_typology": "small stone hut",
                             "scale": "small",
-                            "hard_constraints": [
-                                {"requirement": "small stone building", "source": "a tiny stone hut"}
-                            ],
+                            "hard_constraints": [{"requirement": "small stone building", "source": "a tiny stone hut"}],
                             "target_dimensions": {"width": 5, "depth": 5, "height": 4},
                             "footprint": "compact rectangle",
                             "storeys": 1,
-                            "primary_materials": [
-                                {"role": "walls", "blocks": ["stone"], "required": True}
-                            ],
+                            "primary_materials": [{"role": "walls", "blocks": ["stone"], "required": True}],
                             "roof": {"shape": "simple", "material": "stone", "required": False},
                             "access_and_interior": {
                                 "entrance": "doorway",
