@@ -426,9 +426,7 @@ def configure_server_profile(profile: ServerProfile | None) -> None:
                 key: frozenset(str(value) for value in values)
                 for key, values in entry["properties"].items()
             }
-            valid_states[base_id] = tuple(
-                frozenset(_parse_name(state_name)[1]) for state_name in entry["states"]
-            )
+            valid_states[base_id] = tuple(frozenset(_parse_name(state_name)[1]) for state_name in entry["states"])
         ids = tuple(ids_list)
 
     _ACTIVE_PROFILE = profile
@@ -479,14 +477,10 @@ def _validate_state(base_id: str, state: tuple[tuple[str, str], ...]) -> None:
         allowed = properties.get(key)
         if allowed is None:
             known = ", ".join(sorted(properties)) or "(none)"
-            raise PaletteError(
-                f"Invalid state property '{key}' for '{base_id}'. Valid properties: {known}."
-            )
+            raise PaletteError(f"Invalid state property '{key}' for '{base_id}'. Valid properties: {known}.")
         if value not in allowed:
             choices = ", ".join(sorted(allowed))
-            raise PaletteError(
-                f"Invalid value '{value}' for '{base_id}[{key}=...]'. Valid values: {choices}."
-            )
+            raise PaletteError(f"Invalid value '{value}' for '{base_id}[{key}=...]'. Valid values: {choices}.")
 
     requested = frozenset(state)
     valid_states = _VALID_STATE_PAIRS.get(base_id, ())
