@@ -274,7 +274,8 @@ def _faces_from_boxes(boxes, ax, ay, tex, tint) -> list[Face]:
 
 
 def configure_mod_asset_cache(path) -> None:
-    resources.configure_cache_root(path)
+    textures.configure_mod_asset_cache(path)
+    blockstate.configure_mod_asset_cache(path)
     _base_texture.cache_clear()
     _load_model.cache_clear()
     _model_texture_variables.cache_clear()
