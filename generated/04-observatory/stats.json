@@ -1,0 +1,100 @@
+{
+  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\04-observatory.py",
+  "seed": 0,
+  "views": [
+    "yaw 0deg",
+    "yaw 90deg",
+    "yaw 180deg",
+    "yaw 270deg",
+    "top-down",
+    "yaw 90deg, cutaway z"
+  ],
+  "palette_warnings": [],
+  "server_profile": {
+    "format_version": 1,
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "generated_at": "2026-09-27T10:20:55.002381200Z",
+    "block_count": 1783,
+    "state_count": 62917,
+    "namespaces": {
+      "create": 643,
+      "create_dragons_plus": 19,
+      "create_enchantment_industry": 10,
+      "minecraft": 1060,
+      "sophisticatedbackpacks": 6,
+      "trading_floor": 1,
+      "waystones": 44
+    },
+    "source": "server-export"
+  },
+  "compatibility": {
+    "valid": true,
+    "unknown_blocks": [],
+    "invalid_states": []
+  },
+  "dims": [
+    84,
+    89,
+    57
+  ],
+  "bounds": [
+    [
+      -34,
+      0,
+      -27
+    ],
+    [
+      49,
+      88,
+      29
+    ]
+  ],
+  "block_count": 34424,
+  "namespaces": {
+    "create": 450,
+    "minecraft": 33974
+  },
+  "top_materials": [
+    [
+      "stone_bricks",
+      18123
+    ],
+    [
+      "deepslate_bricks",
+      3313
+    ],
+    [
+      "cracked_stone_bricks",
+      2631
+    ],
+    [
+      "andesite",
+      2613
+    ],
+    [
+      "oxidized_copper",
+      1785
+    ],
+    [
+      "tuff_bricks",
+      1474
+    ],
+    [
+      "deepslate_tiles",
+      1376
+    ],
+    [
+      "cut_copper",
+      1311
+    ],
+    [
+      "mossy_stone_bricks",
+      851
+    ],
+    [
+      "create:brass_casing",
+      434
+    ]
+  ]
+}

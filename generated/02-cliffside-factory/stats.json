@@ -1,0 +1,100 @@
+{
+  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\02-cliffside-factory.py",
+  "seed": 0,
+  "views": [
+    "yaw 0deg",
+    "yaw 90deg",
+    "yaw 180deg",
+    "yaw 270deg",
+    "top-down",
+    "yaw 90deg, cutaway z"
+  ],
+  "palette_warnings": [],
+  "server_profile": {
+    "format_version": 1,
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "generated_at": "2026-09-27T10:20:55.002381200Z",
+    "block_count": 1783,
+    "state_count": 62917,
+    "namespaces": {
+      "create": 643,
+      "create_dragons_plus": 19,
+      "create_enchantment_industry": 10,
+      "minecraft": 1060,
+      "sophisticatedbackpacks": 6,
+      "trading_floor": 1,
+      "waystones": 44
+    },
+    "source": "server-export"
+  },
+  "compatibility": {
+    "valid": true,
+    "unknown_blocks": [],
+    "invalid_states": []
+  },
+  "dims": [
+    150,
+    119,
+    87
+  ],
+  "bounds": [
+    [
+      -72,
+      0,
+      -43
+    ],
+    [
+      77,
+      118,
+      43
+    ]
+  ],
+  "block_count": 130706,
+  "namespaces": {
+    "create": 788,
+    "minecraft": 129918
+  },
+  "top_materials": [
+    [
+      "stone_bricks",
+      65179
+    ],
+    [
+      "cracked_stone_bricks",
+      13717
+    ],
+    [
+      "andesite",
+      10432
+    ],
+    [
+      "deepslate_bricks",
+      8889
+    ],
+    [
+      "deepslate_tiles",
+      8529
+    ],
+    [
+      "tuff_bricks",
+      5166
+    ],
+    [
+      "mossy_stone_bricks",
+      3477
+    ],
+    [
+      "orange_stained_glass",
+      2826
+    ],
+    [
+      "oxidized_copper",
+      2320
+    ],
+    [
+      "spruce_planks",
+      2202
+    ]
+  ]
+}
