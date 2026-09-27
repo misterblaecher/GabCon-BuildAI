@@ -167,8 +167,7 @@ def render(
     dims = stats.get("dims")
     dims_text = "x".join(str(v) for v in dims) if dims else "unknown"
     console.print(
-        f"[green]Rendered:[/green] {out_dir / 'render.png'}  "
-        f"dims={dims_text}  blocks={stats.get('block_count', 0)}"
+        f"[green]Rendered:[/green] {out_dir / 'render.png'}  dims={dims_text}  blocks={stats.get('block_count', 0)}"
     )
     console.print(f"[green]Schematic:[/green] {out_dir / 'final.schem'}")
 
