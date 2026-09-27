@@ -20,6 +20,7 @@ from mcbuild.llm.client import Usage, image_to_data_url
 from mcbuild.render import views
 from mcbuild.render.camera import Camera, CameraRenderError, render_from_camera
 from mcbuild.rundir import RunDir
+from mcbuild.validation import BuildValidationError, validate_structural_blocks
 from mcbuild.voxel import VoxelGrid
 
 EventCallback = Callable[[str, dict], None]
@@ -583,7 +584,8 @@ def run_agent(
                     grid = VoxelGrid()
                     try:
                         sandbox.run_blueprint(code, grid, seed=config.seed)
-                    except BlueprintError as e:
+                        validate_structural_blocks(grid)
+                    except (BlueprintError, BuildValidationError) as e:
                         consecutive_failures += 1
                         emit("blueprint_error", iteration=iteration, error=str(e))
                         messages.append(_tool_result(tc.id, f"Blueprint failed (this did NOT use an edit):\n{e}"))
@@ -638,7 +640,8 @@ def run_agent(
                         _clear_region(candidate, region)
                     try:
                         sandbox.run_blueprint(code, candidate, seed=config.seed)
-                    except BlueprintError as e:
+                        validate_structural_blocks(candidate)
+                    except (BlueprintError, BuildValidationError) as e:
                         consecutive_failures += 1
                         emit("blueprint_error", iteration=iteration, error=str(e))
                         messages.append(_tool_result(tc.id, f"{name} failed (this did NOT use an edit):\n{e}"))
@@ -740,7 +743,8 @@ def run_agent(
                     candidate = VoxelGrid()
                     try:
                         sandbox.run_blueprint(new_source, candidate, seed=config.seed)
-                    except BlueprintError as e:
+                        validate_structural_blocks(candidate)
+                    except (BlueprintError, BuildValidationError) as e:
                         consecutive_failures += 1
                         emit("blueprint_error", iteration=iteration, error=str(e))
                         messages.append(_tool_result(tc.id, f"str_replace failed (this did NOT use an edit):\n{e}"))
