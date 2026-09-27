@@ -50,6 +50,7 @@ def _state_mismatches(left: dict[str, str], right: dict[str, str], ignore: set[s
     return sorted(key for key in keys if left.get(key) != right.get(key))
 
 
+# fmt: off
 def _validate_vertical_pair(grid: VoxelGrid, block_id: str, lower_coord: Coord, errors: list[str]) -> None:
     upper_coord = _coord_add(lower_coord, (0, 1, 0))
     lower_idx = grid.get(*lower_coord)
@@ -146,6 +147,7 @@ def _validate_head_foot_pair(grid: VoxelGrid, block_id: str, foot_coord: Coord, 
         errors.append(message)
 
 
+# fmt: on
 def _collect_structural_errors(grid: VoxelGrid, allowed_rules: set[str] | None = None) -> list[str]:
     errors: list[str] = []
     checked: set[tuple[str, str, Coord]] = set()
