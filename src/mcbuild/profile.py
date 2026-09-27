@@ -37,9 +37,7 @@ class ServerProfile:
             raise ProfileError(f"Could not read server registry {source}: {exc}") from exc
 
         if raw.get("format_version") != 1:
-            raise ProfileError(
-                f"Unsupported server registry format_version={raw.get('format_version')!r}; expected 1."
-            )
+            raise ProfileError(f"Unsupported server registry format_version={raw.get('format_version')!r}; expected 1.")
 
         blocks = raw.get("blocks")
         if not isinstance(blocks, dict) or not blocks:
@@ -47,9 +45,7 @@ class ServerProfile:
 
         block_count = raw.get("block_count")
         if block_count != len(blocks):
-            raise ProfileError(
-                f"Server registry block_count={block_count!r} but contains {len(blocks)} block entries."
-            )
+            raise ProfileError(f"Server registry block_count={block_count!r} but contains {len(blocks)} block entries.")
 
         computed_state_count = 0
         namespace_counts: dict[str, int] = {}
