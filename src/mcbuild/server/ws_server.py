@@ -10,7 +10,9 @@ import json
 from dotenv import load_dotenv
 from websockets.asyncio.server import ServerConnection, serve
 
+from mcbuild import palette
 from mcbuild.config import Config
+from mcbuild.profile import ProfileError, resolve_registry_path
 from mcbuild.server import protocol
 from mcbuild.server.session import run_build_session
 
@@ -60,12 +62,30 @@ def main() -> None:
     parser.add_argument("--max-iters", type=int, default=Config.max_iters)
     parser.add_argument("--reasoning", default=Config.reasoning, help="off|low|medium|high")
     parser.add_argument(
+        "--registry",
+        default=None,
+        help="Server block-registry JSON. Defaults to MCBUILD_SERVER_REGISTRY.",
+    )
+    parser.add_argument(
         "--cost-ceiling",
         type=float,
         default=None,
         help="Abort a build (keeping its best build so far) once usage cost reaches this many USD.",
     )
     args = parser.parse_args()
+
+    registry_path = resolve_registry_path(args.registry)
+    if registry_path is not None:
+        try:
+            profile = palette.configure_server_registry(registry_path)
+        except ProfileError as exc:
+            parser.error(str(exc))
+        print(
+            f"server profile: Minecraft {profile.minecraft_version}, "
+            f"{len(profile.blocks):,} blocks, DataVersion {profile.data_version}"
+        )
+    else:
+        palette.configure_server_profile(None)
 
     config = Config(
         model=args.model,
