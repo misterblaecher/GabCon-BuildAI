@@ -27,8 +27,11 @@ def town_house(cx, cz, w, d, floors_count, roof_axis="x", civic=False):
     floor(x1, z1, x2, z2, base_y, "stone_bricks")
     # Stone ground floor.
     walls(x1, z1, x2, z2, base_y, base_y + 5, stone, thickness=1)
-    clear(cx - 1, base_y + 1, z1, cx + 1, base_y + 3, z1)
-    fill(cx - 1, base_y + 1, z1, cx + 1, base_y + 3, z1, "dark_oak_door")
+    # Explicit two-block door. Doors are multi-block structures and must not be
+    # filled as a rectangular volume, otherwise every placed cell defaults to half=lower.
+    clear(cx, base_y + 1, z1, cx, base_y + 2, z1)
+    set_block(cx, base_y + 1, z1, "dark_oak_door[half=lower]")
+    set_block(cx, base_y + 2, z1, "dark_oak_door[half=upper]")
 
     top = base_y + 5
     for level in range(1, floors_count):
