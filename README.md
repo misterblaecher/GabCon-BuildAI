@@ -162,6 +162,28 @@ authentication by design — this targets a local/trusted world, not a public se
 Run artifacts (`runs/<timestamp>-<slug>/`, including `final.schem`) are still written
 for debugging, same as the CLI.
 
+### Export the real server block registry
+
+The NeoForge mod can export the block registry that is actually loaded by the running
+server, including mod namespaces and every valid block-state combination. Run as an
+operator (permission level 2+):
+
+```text
+/mcbuild registry export
+```
+
+The command writes:
+
+```text
+config/mcbuild/server-block-registry.json
+```
+
+The export contains each canonical block ID (for example `minecraft:stone` or
+`create:andesite_casing`), its namespace/path, allowed property values, default state,
+and the full list of valid states exposed by Minecraft. This file is intended to become
+the source of truth for BuildAI server profiles instead of relying on a version-agnostic
+bundled block list.
+
 ## The blueprint DSL
 
 Blueprints are sandboxed Python — no imports, no `_`-prefixed attribute access,
