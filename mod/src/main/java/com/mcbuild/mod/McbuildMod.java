@@ -1,6 +1,7 @@
 package com.mcbuild.mod;
 
 import com.mcbuild.mod.command.BuildCommand;
+import com.mcbuild.mod.command.RegistryExportCommand;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -16,6 +17,7 @@ public class McbuildMod {
         @SubscribeEvent
         public static void onRegisterCommands(RegisterCommandsEvent event) {
             BuildCommand.register(event.getDispatcher());
+            RegistryExportCommand.register(event.getDispatcher());
         }
     }
 }
