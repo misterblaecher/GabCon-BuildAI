@@ -244,6 +244,101 @@ This makes newly installed mods visible to the audit automatically instead of re
 a broad hard-coded allowlist while still encoding reviewed semantics for special state
 machines.
 
+### Global registry compatibility lab
+
+After the structural audit is clean, generate a paste-test covering every loaded modded
+block plus a focused vanilla geometry/BlockEntity fixture set:
+
+```powershell
+uv run mcbuild-global-test
+```
+
+The command reads `MCBUILD_SERVER_REGISTRY`, builds safe representative states, expands
+known paired structures (doors/Waystones, beds, belts, etc.), validates the complete grid,
+and writes:
+
+```text
+generated/03-global-registry-lab/
+  supports.schem
+  final.schem
+  render.png
+  layout.json
+  stats.json
+```
+
+`layout.json` maps every tested registry block ID to its test-cell coordinates and records
+states that the preview renderer cannot currently display. Flowing fluid blocks
+(`level=0..15`) and non-build air variants such as `cave_air`/`void_air` are skipped
+deliberately.
+
+The lab also builds survival fixtures for blocks that cannot exist standalone: Create hand
+cranks, valve handles and Redstone Links are mounted on a solid face; Haunted/Peculiar
+Bells use their floor attachment; Andesite/Brass Tunnels sit on a cased horizontal belt;
+Steam Whistles sit on a Fluid Tank; Gantry Carriages get a compatible Gantry Shaft;
+Nozzles get an Encased Fan; and vanilla/Create rails use a flat `north_south` state.
+Waystones prefer `origin=player`; Warp Plates are annotated in `layout.json` because an
+Attuned Shard can be a normal placement/setup side effect rather than evidence that the
+block broke.
+
+For exhaustive vanilla testing, common survival substrates are also selected automatically:
+dirt for flowers/saplings, farmland for crops, Soul Sand for Nether Wart, matching Nylium
+for Nether fungi/roots, Mycelium for mushrooms, water for Lily Pads, ceiling support for
+Spore Blossoms, and wall support for Tripwire Hooks.
+
+Paste the generated lab in **two phases** so Minecraft never receives a fragile block before
+its support exists. Copy both schematics to WorldEdit, then paste them at the exact same
+clipboard origin/position:
+
+```text
+//schem load 03-global-registry-lab-supports
+//paste -a
+//schem load 03-global-registry-lab
+//paste -a
+```
+
+The second schematic contains the complete build as before; the first is only a support
+pre-pass that prevents neighbor updates from breaking rails, plants and attached Create
+blocks during WorldEdit's placement sequence.
+
+#### Accepted lab exceptions
+
+A real GabCon 1.21.1 WorldEdit paste of the two-phase global lab still produced a small
+set of item drops. These are documented as accepted compatibility-lab exceptions rather
+than blockers for the general BuildAI schematic pipeline:
+
+```text
+Pumpkin Seeds
+Melon Seeds
+Azalea
+Big Dripleaf
+Cocoa Beans
+Lily of the Valley
+Amethyst Shard
+Bamboo
+Chorus Fruit
+Cactus
+Sugar Cane
+Pointed Dripstone
+Attuned Shard
+Flowering Azalea
+```
+
+Most of these blocks/items have growth, substrate, attachment, or special initialization
+semantics that are outside the current generic registry-only fixture model. The Attuned
+Shard is already annotated as an expected Warp Plate setup side effect. Future fixture
+work can narrow this list further without changing the structural-validation guarantees
+or the normal schematic export path.
+
+The default scope is all non-`minecraft` registry blocks plus a vanilla fixture suite for
+stairs/slabs/walls, doors/beds, redstone, pistons, signs and common BlockEntities. For an
+exhaustive registry pass including all vanilla blocks:
+
+```powershell
+uv run mcbuild-global-test --all-blocks
+```
+
+Use `--no-render` when only the schematic/report is needed.
+
 ### Scan mod JAR assets
 
 BuildAI can inventory the render-relevant assets shipped by the mods installed on the

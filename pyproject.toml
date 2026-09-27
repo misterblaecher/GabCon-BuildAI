@@ -25,6 +25,7 @@ mcbuild-server = "mcbuild.server.ws_server:main"
 mcbuild-scan-mods = "mcbuild.mod_assets:main"
 mcbuild-import-mod-assets = "mcbuild.mod_asset_import:main"
 mcbuild-audit-structures = "mcbuild.registry_structures:main"
+mcbuild-global-test = "mcbuild.global_test_lab:main"
 
 [project.optional-dependencies]
 dev = [
