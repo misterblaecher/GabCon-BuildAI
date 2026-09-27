@@ -316,25 +316,22 @@ def _texture_derived_color(name: str) -> tuple[tuple[int, int, int], bool] | Non
 
 
 def _resolve(base_id: str) -> tuple[tuple[int, int, int], bool] | None:
-    """Resolve (rgb, transparent) for a block, falling back to its base material.
-
-    Vanilla assets are bundled today. Non-minecraft namespaces remain valid for
-    placement/export but intentionally render as unknown until mod assets are imported.
-    """
+    """Resolve (rgb, transparent) from bundled vanilla or imported mod resources."""
     namespace, name = base_id.split(":", 1)
-    if namespace != "minecraft":
-        return None
-    curated = _CURATED.get(name)
-    if curated is not None:
-        return curated
-    direct = _texture_derived_color(name)
+    if namespace == "minecraft":
+        curated = _CURATED.get(name)
+        if curated is not None:
+            return curated
+
+    direct = _texture_derived_color(base_id)
     if direct is not None:
         return direct
+
     from mcbuild.render import blockmodel  # local import: avoids an import cycle
 
-    base_tex = blockmodel._base_texture(name)
-    if base_tex is not None and base_tex != name:
-        return _texture_derived_color(base_tex)
+    representative = blockmodel.representative_texture(base_id)
+    if representative is not None and representative != base_id:
+        return _texture_derived_color(representative)
     return None
 
 
