@@ -12,17 +12,41 @@ from dotenv import load_dotenv
 
 from mcbuild.profile import ProfileError, ServerProfile, resolve_registry_path
 
-AUDIT_FORMAT_VERSION = 1
+AUDIT_FORMAT_VERSION = 2
 DEFAULT_AUDIT_PATH = Path(".mcbuild") / "structural-blocks.json"
 _CARDINAL = {"north", "south", "west", "east"}
+
+_CREATE_CHAIN_DRIVES = {
+    "create:adjustable_chain_gearshift",
+    "create:encased_chain_drive",
+}
+_CREATE_MECHANICAL_PISTONS = {
+    "create:mechanical_piston",
+    "create:sticky_mechanical_piston",
+}
+_VANILLA_PISTONS = {
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+}
+
+
+def _rule(block_id: str, name: str, property_name: str, parts: list[str], **extra: Any) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "block": block_id,
+        "rule": name,
+        "status": "validated",
+        "property": property_name,
+        "parts": parts,
+    }
+    result.update(extra)
+    return result
 
 
 def classify_structure(block_id: str, entry: dict[str, Any]) -> list[dict[str, Any]]:
     """Return registry-inferred structural rules/candidates for one block.
 
-    Only signatures whose placement relation is unambiguous are marked validated.
-    Other state shapes are emitted as manual_review so BuildAI does not guess at
-    mod-specific adjacency semantics.
+    Known Create/vanilla state machines are mapped to reviewed rules. Unknown
+    signatures remain manual_review rather than guessing mod-specific adjacency.
     """
     properties = entry.get("properties")
     if not isinstance(properties, dict):
@@ -33,32 +57,69 @@ def classify_structure(block_id: str, entry: dict[str, Any]) -> list[dict[str, A
     half_values = properties.get("half")
     if isinstance(half_values, list) and set(half_values) == {"lower", "upper"}:
         result.append(
-            {
-                "block": block_id,
-                "rule": "vertical_pair",
-                "status": "validated",
-                "property": "half",
-                "parts": ["lower", "upper"],
-                "offset": [0, 1, 0],
-            }
+            _rule(
+                block_id,
+                "vertical_pair",
+                "half",
+                ["lower", "upper"],
+                offset=[0, 1, 0],
+            )
         )
 
     part_values = properties.get("part")
+    handled_part = False
     if isinstance(part_values, list):
         parts = set(part_values)
         facing_values = properties.get("facing")
         if parts == {"head", "foot"} and isinstance(facing_values, list) and set(facing_values) >= _CARDINAL:
             result.append(
-                {
-                    "block": block_id,
-                    "rule": "horizontal_head_foot_pair",
-                    "status": "validated",
-                    "property": "part",
-                    "parts": ["foot", "head"],
-                    "direction_property": "facing",
-                }
+                _rule(
+                    block_id,
+                    "horizontal_head_foot_pair",
+                    "part",
+                    ["foot", "head"],
+                    direction_property="facing",
+                )
             )
-        elif {"start", "middle", "end"} <= parts:
+            handled_part = True
+        elif block_id in _CREATE_CHAIN_DRIVES and {"start", "middle", "end", "none"} <= parts:
+            result.append(
+                _rule(
+                    block_id,
+                    "create_chain_drive_line",
+                    "part",
+                    list(part_values),
+                    family=sorted(_CREATE_CHAIN_DRIVES),
+                    axis_property="axis",
+                    connection_selector_property="axis_along_first",
+                )
+            )
+            handled_part = True
+        elif block_id == "create:belt" and {"start", "middle", "end", "pulley"} <= parts:
+            result.append(
+                _rule(
+                    block_id,
+                    "create_belt_chain",
+                    "part",
+                    list(part_values),
+                    direction_property="facing",
+                    slope_property="slope",
+                )
+            )
+            handled_part = True
+        elif block_id == "create:gantry_shaft" and {"start", "middle", "end", "single"} <= parts:
+            result.append(
+                _rule(
+                    block_id,
+                    "create_gantry_shaft_line",
+                    "part",
+                    list(part_values),
+                    direction_property="facing",
+                )
+            )
+            handled_part = True
+
+        if not handled_part and {"start", "middle", "end"} <= parts:
             result.append(
                 {
                     "block": block_id,
@@ -71,30 +132,75 @@ def classify_structure(block_id: str, entry: dict[str, Any]) -> list[dict[str, A
             )
 
     extended_values = properties.get("extended")
+    handled_extended = False
     if isinstance(extended_values, list) and {"true", "false"} <= set(extended_values):
-        result.append(
-            {
-                "block": block_id,
-                "rule": "extension_state",
-                "status": "manual_review",
-                "property": "extended",
-                "parts": list(extended_values),
-                "reason": "An extended state can depend on a different companion block ID.",
-            }
-        )
+        if block_id == "create:sticker":
+            result.append(
+                _rule(
+                    block_id,
+                    "state_only_extension",
+                    "extended",
+                    list(extended_values),
+                    reason="Create Sticker extension is rendered by the same block and has no companion block.",
+                )
+            )
+            handled_extended = True
+        elif block_id in _VANILLA_PISTONS:
+            result.append(
+                _rule(
+                    block_id,
+                    "vanilla_piston",
+                    "extended",
+                    list(extended_values),
+                    direction_property="facing",
+                    companion_block="minecraft:piston_head",
+                    companion_type="sticky" if block_id == "minecraft:sticky_piston" else "normal",
+                )
+            )
+            handled_extended = True
+
+        if not handled_extended:
+            result.append(
+                {
+                    "block": block_id,
+                    "rule": "extension_state",
+                    "status": "manual_review",
+                    "property": "extended",
+                    "parts": list(extended_values),
+                    "reason": "An extended state can depend on a different companion block ID.",
+                }
+            )
 
     state_values = properties.get("state")
+    handled_state = False
     if isinstance(state_values, list) and {"retracted", "extended"} <= set(state_values):
-        result.append(
-            {
-                "block": block_id,
-                "rule": "extension_state",
-                "status": "manual_review",
-                "property": "state",
-                "parts": list(state_values),
-                "reason": "Moving/extended mod machinery requires mod-specific adjacency semantics.",
-            }
-        )
+        if block_id in _CREATE_MECHANICAL_PISTONS:
+            result.append(
+                _rule(
+                    block_id,
+                    "create_mechanical_piston",
+                    "state",
+                    list(state_values),
+                    direction_property="facing",
+                    pole_block="create:piston_extension_pole",
+                    companion_block="create:mechanical_piston_head",
+                    companion_type="sticky" if block_id == "create:sticky_mechanical_piston" else "normal",
+                    transient_states=["moving"],
+                )
+            )
+            handled_state = True
+
+        if not handled_state:
+            result.append(
+                {
+                    "block": block_id,
+                    "rule": "extension_state",
+                    "status": "manual_review",
+                    "property": "state",
+                    "parts": list(state_values),
+                    "reason": "Moving/extended mod machinery requires mod-specific adjacency semantics.",
+                }
+            )
 
     return result
 
