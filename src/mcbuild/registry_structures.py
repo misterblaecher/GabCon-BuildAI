@@ -47,7 +47,7 @@ def classify_structure(block_id: str, entry: dict[str, Any]) -> list[dict[str, A
     if isinstance(part_values, list):
         parts = set(part_values)
         facing_values = properties.get("facing")
-        if parts == {"head", "foot"} and isinstance(facing_values, list) and _CARDINAL <= set(facing_values):
+        if parts == {"head", "foot"} and isinstance(facing_values, list) and set(facing_values) >= _CARDINAL:
             result.append(
                 {
                     "block": block_id,
