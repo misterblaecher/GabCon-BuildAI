@@ -96,12 +96,12 @@
         4,
         9
       ],
-      "block_count": 102,
+      "block_count": 103,
       "namespaces": {
         "create": 88,
         "minecraft": 12,
         "trading_floor": 1,
-        "waystones": 1
+        "waystones": 2
       },
       "top_materials": [
         [
@@ -123,6 +123,10 @@
         [
           "stone_bricks",
           3
+        ],
+        [
+          "waystones:waystone",
+          1
         ],
         [
           "waystones:waystone",
