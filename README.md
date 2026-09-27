@@ -267,7 +267,15 @@ generated/03-global-registry-lab/
 
 `layout.json` maps every tested registry block ID to its test-cell coordinates and records
 states that the preview renderer cannot currently display. Flowing fluid blocks
-(`level=0..15`) are skipped deliberately so a WorldEdit paste cannot flood the test area.
+(`level=0..15`) and non-build air variants such as `cave_air`/`void_air` are skipped
+deliberately.
+
+The lab also builds survival fixtures for blocks that cannot exist standalone: Create hand
+cranks and valve handles are mounted on a solid face, Haunted Bells use their floor
+attachment, Andesite/Brass Tunnels sit on a cased horizontal belt, Steam Whistles sit on a
+Fluid Tank, and vanilla rails use a flat `north_south` state. Waystones prefer
+`origin=player`; Warp Plates are annotated in `layout.json` because an Attuned Shard can
+be a normal placement/setup side effect rather than evidence that the block broke.
 
 The default scope is all non-`minecraft` registry blocks plus a vanilla fixture suite for
 stairs/slabs/walls, doors/beds, redstone, pistons, signs and common BlockEntities. For an
