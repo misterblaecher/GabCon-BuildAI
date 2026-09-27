@@ -54,7 +54,7 @@ def model_path(model_ref: str, default_namespace: str = "minecraft") -> Path | N
         relative = f"models/block/{path}.json"
 
     if namespace == "minecraft":
-        candidate = BUNDLED_ASSET_ROOT / relative.removeprefix("models/")
+        candidate = BUNDLED_ASSET_ROOT / relative
     else:
         candidate = _cache_root / "assets" / namespace / relative
     return candidate if candidate.is_file() else None
@@ -70,7 +70,7 @@ def texture_path(texture_ref: str, default_namespace: str = "minecraft") -> Path
         relative = f"textures/block/{path}.png"
 
     if namespace == "minecraft":
-        candidate = BUNDLED_ASSET_ROOT / relative.removeprefix("textures/")
+        candidate = BUNDLED_ASSET_ROOT / relative
     else:
         candidate = _cache_root / "assets" / namespace / relative
     return candidate if candidate.is_file() else None
