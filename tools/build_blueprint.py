@@ -8,12 +8,15 @@ import json
 import shutil
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from mcbuild import palette
 from mcbuild.dsl.sandbox import run_blueprint
 from mcbuild.export.schem import export_schem
 from mcbuild.gallery import generate_index
 from mcbuild.profile import resolve_registry_path
 from mcbuild.render.views import build_contact_sheet
+from mcbuild.validation import validate_double_height_blocks
 from mcbuild.voxel import VoxelGrid
 
 DEFAULT_VIEWS = [
@@ -65,6 +68,8 @@ def build(blueprint_path: Path, out_dir: Path, seed: int, registry: Path | None 
     if len(grid) == 0:
         raise RuntimeError("Blueprint executed successfully but produced an empty build.")
 
+    validate_double_height_blocks(grid)
+
     out_dir.mkdir(parents=True, exist_ok=True)
 
     render_path = out_dir / "render.png"
@@ -101,6 +106,7 @@ def build(blueprint_path: Path, out_dir: Path, seed: int, registry: Path | None 
 
 
 def main() -> int:
+    load_dotenv()
     args = parse_args()
     blueprint_path: Path = args.blueprint
     out_dir = args.out or Path("generated") / blueprint_path.stem
