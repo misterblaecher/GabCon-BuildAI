@@ -11,7 +11,7 @@ from typing import Any
 
 from PIL import Image
 
-from mcbuild.agent import prompts, query, tools
+from mcbuild.agent import prompts, query, reference, tools
 from mcbuild.config import Config
 from mcbuild.dsl import sandbox
 from mcbuild.dsl.errors import BlueprintError
@@ -381,16 +381,50 @@ def run_agent(
         if on_event:
             on_event(event_type, data)
 
+    critic_model = config.critic_model or config.model
+    model_reference_image: Image.Image | None = None
+    reference_spec: dict | None = None
+    if reference_image is not None:
+        model_reference_image = reference.fit_image_for_model(reference_image, config.reference_max_side)
+        rundir.save_image("reference_model.png", model_reference_image)
+        try:
+            reference_spec = reference.analyze_reference(
+                llm,
+                critic_model,
+                prompt,
+                model_reference_image,
+                reasoning=config.critic_reasoning,
+            )
+        except Exception as exc:
+            # Reference analysis improves quality but should not make the ordinary build path
+            # unavailable when a provider has a transient vision/JSON failure.
+            reference_spec = {
+                "version": reference.REFERENCE_SPEC_VERSION,
+                "parse_status": "error",
+                "error": str(exc),
+                "priority_constraints": [
+                    "Match the reference silhouette, massing hierarchy, roof shapes, opening rhythm, and palette."
+                ],
+            }
+        rundir.write_json("reference_spec.json", reference_spec)
+        emit("reference_spec", spec=reference_spec)
+
     messages: list[dict] = [{"role": "system", "content": prompts.build_system_prompt()}]
     user_content: list[dict] = [
-        {"type": "text", "text": prompts.build_user_prompt(prompt, config.seed, reference_image is not None)}
+        {
+            "type": "text",
+            "text": prompts.build_user_prompt(
+                prompt,
+                config.seed,
+                reference_image is not None,
+                reference_spec=reference_spec,
+            ),
+        }
     ]
-    ref_thumb_url: str | None = None
-    if reference_image is not None:
-        user_content.append({"type": "image_url", "image_url": {"url": image_to_data_url(reference_image)}})
-        thumb = reference_image.copy()
-        thumb.thumbnail((320, 320))
-        ref_thumb_url = image_to_data_url(thumb)
+    if model_reference_image is not None:
+        user_content.append(
+            {"type": "image_url", "image_url": {"url": image_to_data_url(model_reference_image)}}
+        )
     messages.append({"role": "user", "content": user_content})
 
     best_grid: VoxelGrid | None = None
@@ -415,9 +449,13 @@ def run_agent(
         return view_specs
 
     def report_success(grid: VoxelGrid, iteration: int, iter_dir, tc, view_specs: list[dict], note: str = "") -> dict:
-        """Render/save/export a successful build and queue the critique image. Returns stats."""
-        sheet, labels, stats = views.build_contact_sheet(grid, view_specs)
+        """Render/save/export a build and queue separate vision views plus reference QA."""
+        renderings, stats = views.build_renderings(grid, view_specs)
+        labels = [label for label, _ in renderings]
+        sheet = views.compose_contact_sheet(renderings)
         rundir.save_image(f"iter_{iteration:02d}/render.png", sheet)
+        for i, (_label, image) in enumerate(renderings, start=1):
+            rundir.save_image(f"iter_{iteration:02d}/view_{i:02d}.png", image)
         (iter_dir / "stats.json").write_text(json.dumps(stats, indent=2))
         if len(grid) > 0:
             export_schem(grid, str(iter_dir / "blueprint.schem"))
@@ -427,21 +465,60 @@ def run_agent(
             result_text += "\n" + note
         messages.append(_tool_result(tc.id, result_text))
 
-        views_line = "Renderings included below (left-to-right, top-to-bottom): " + ", ".join(
-            f"{i + 1}) {label}" for i, label in enumerate(labels)
-        )
+        model_renderings = [
+            (label, reference.fit_image_for_model(image, config.critic_view_max_side))
+            for label, image in renderings
+        ]
+        content: list[dict] = [
+            {
+                "type": "text",
+                "text": (
+                    "CURRENT BUILD — separate full views follow. Do not infer detail from a "
+                    "downscaled contact sheet; inspect each labeled image independently."
+                ),
+            }
+        ]
+        for i, (label, image) in enumerate(model_renderings, start=1):
+            content.append({"type": "text", "text": f"VIEW {i}: {label}"})
+            content.append({"type": "image_url", "image_url": {"url": image_to_data_url(image)}})
 
-        content: list[dict] = []
-        if ref_thumb_url is not None:
-            content.append({"type": "text", "text": "REFERENCE (reproduce this closely):"})
-            content.append({"type": "image_url", "image_url": {"url": ref_thumb_url}})
-            content.append({"type": "text", "text": "YOUR CURRENT BUILD:"})
-            content.append({"type": "image_url", "image_url": {"url": image_to_data_url(sheet)}})
-            content.append({"type": "text", "text": views_line + "\n" + prompts.build_reference_critique_nudge()})
+        if model_reference_image is not None and reference_spec is not None:
+            try:
+                critic = reference.critique_reference(
+                    llm,
+                    critic_model,
+                    model_reference_image,
+                    reference_spec,
+                    model_renderings,
+                    stats,
+                    reasoning=config.critic_reasoning,
+                )
+            except Exception as exc:
+                critic = {"parse_status": "error", "error": str(exc)}
+            rundir.write_json(f"iter_{iteration:02d}/critic.json", critic)
+            emit("reference_critic", iteration=iteration, critique=critic)
+            content.append(
+                {
+                    "type": "text",
+                    "text": (
+                        "INDEPENDENT REFERENCE CRITIC (fresh context; it did not author your build):\n"
+                        + json.dumps(critic, indent=2)
+                        + "\nUse next_focus / the rank-1 discrepancy as the next visual correction. "
+                        "Preserve the items listed under preserve. If the critic could not parse, "
+                        "compare the attached views against the earlier ReferenceSpec yourself."
+                    ),
+                }
+            )
         else:
-            content.append({"type": "text", "text": views_line})
-            content.append({"type": "image_url", "image_url": {"url": image_to_data_url(sheet)}})
-            content.append({"type": "text", "text": prompts.build_critique_nudge()})
+            content.append(
+                {
+                    "type": "text",
+                    "text": "Views above correspond to: "
+                    + ", ".join(f"{i + 1}) {label}" for i, label in enumerate(labels))
+                    + "\n"
+                    + prompts.build_critique_nudge(),
+                }
+            )
         messages.append({"role": "user", "content": content})
         return stats
 
