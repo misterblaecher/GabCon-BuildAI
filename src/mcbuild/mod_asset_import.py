@@ -136,9 +136,7 @@ def import_mod_assets(
 
             jar_path = mods_dir / filename
             if not jar_path.is_file():
-                raise ModAssetImportError(
-                    f"Indexed mod JAR is missing: {jar_path}. Re-run mcbuild-scan-mods."
-                )
+                raise ModAssetImportError(f"Indexed mod JAR is missing: {jar_path}. Re-run mcbuild-scan-mods.")
 
             actual_hash = _sha256(jar_path)
             if actual_hash != expected_hash:
@@ -154,8 +152,7 @@ def import_mod_assets(
                         safe = _safe_resource_path(resource)
                         if resource not in names:
                             raise ModAssetImportError(
-                                f"Indexed resource {resource!r} is missing from {filename}. "
-                                "Re-run mcbuild-scan-mods."
+                                f"Indexed resource {resource!r} is missing from {filename}. Re-run mcbuild-scan-mods."
                             )
 
                         payload = archive.read(resource)
@@ -199,11 +196,7 @@ def import_mod_assets(
         raise
 
     namespaces = sorted(
-        {
-            PurePosixPath(resource).parts[1]
-            for resource in imported_files
-            if len(PurePosixPath(resource).parts) >= 2
-        }
+        {PurePosixPath(resource).parts[1] for resource in imported_files if len(PurePosixPath(resource).parts) >= 2}
     )
     manifest = {
         "format_version": CACHE_FORMAT_VERSION,
