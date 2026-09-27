@@ -409,9 +409,7 @@ def write_registry_lab(
             "structural_validation": "passed",
         },
         "lab": {
-            key: value
-            for key, value in manifest.items()
-            if key not in {"layout", "skipped", "unrenderable_states"}
+            key: value for key, value in manifest.items() if key not in {"layout", "skipped", "unrenderable_states"}
         },
         **build_stats(grid),
     }
@@ -466,8 +464,7 @@ def parse_args() -> argparse.Namespace:
         "--all-blocks",
         action="store_true",
         help=(
-            "Test every registry block, including all vanilla blocks. "
-            "Default is all modded blocks + vanilla fixtures."
+            "Test every registry block, including all vanilla blocks. Default is all modded blocks + vanilla fixtures."
         ),
     )
     parser.add_argument(
