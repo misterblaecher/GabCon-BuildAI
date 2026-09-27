@@ -80,13 +80,13 @@ def render_view(grid: VoxelGrid, spec: dict) -> tuple[str, Image.Image]:
     return label, img
 
 
-def build_contact_sheet(grid: VoxelGrid, view_specs: list[dict]) -> tuple[Image.Image, list[str], dict]:
-    """Render exactly the views the model requested (at least one) into one contact sheet."""
-    stats = build_stats(grid)
+def build_renderings(grid: VoxelGrid, view_specs: list[dict]) -> tuple[list[tuple[str, Image.Image]], dict]:
+    """Render requested views individually at the renderer's native resolution."""
+    return [render_view(grid, spec) for spec in view_specs], build_stats(grid)
 
-    tiles = [render_view(grid, spec) for spec in view_specs]
-    labels = [label for label, _ in tiles]
 
+def compose_contact_sheet(tiles: list[tuple[str, Image.Image]]) -> Image.Image:
+    """Compose already-rendered views for CLI/user display without discarding originals."""
     cols = max(1, min(MAX_COLS, len(tiles)))
     rows = -(-len(tiles) // cols)  # ceil division
     cell_w, cell_h = THUMB + 20, THUMB + 20
@@ -103,4 +103,11 @@ def build_contact_sheet(grid: VoxelGrid, view_specs: list[dict]) -> tuple[Image.
         ratio = MAX_WIDTH / sheet.width
         sheet = sheet.resize((MAX_WIDTH, int(sheet.height * ratio)), Image.Resampling.LANCZOS)
 
-    return sheet, labels, stats
+    return sheet
+
+
+def build_contact_sheet(grid: VoxelGrid, view_specs: list[dict]) -> tuple[Image.Image, list[str], dict]:
+    """Render exactly the views requested and compose a compact display sheet."""
+    tiles, stats = build_renderings(grid, view_specs)
+    labels = [label for label, _ in tiles]
+    return compose_contact_sheet(tiles), labels, stats
