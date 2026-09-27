@@ -443,6 +443,13 @@ def configure_server_registry(path: str | Path) -> ServerProfile:
     return profile
 
 
+def registry_block_entry(base_id: str) -> dict | None:
+    """Return live server-registry metadata for one canonical block ID."""
+    if _ACTIVE_PROFILE is None:
+        return None
+    return _ACTIVE_PROFILE.blocks.get(_canonical_base_id(base_id))
+
+
 def registry_metadata() -> dict:
     """Describe the active palette source without exposing local filesystem paths."""
     if _ACTIVE_PROFILE is None:
