@@ -14,6 +14,7 @@ import nbtlib
 from nbtlib.tag import ByteArray, Compound, Int, IntArray, List, Short
 
 from mcbuild.palette import get_block_by_index
+from mcbuild.validation import validate_structural_blocks
 from mcbuild.voxel import VoxelGrid
 
 DATA_VERSION = 3955
@@ -39,6 +40,7 @@ def _to_signed_byte(b: int) -> int:
 
 def grid_to_schematic(grid: VoxelGrid) -> Compound:
     """Build the root NBT compound for a Sponge Schematic v3 file."""
+    validate_structural_blocks(grid)
     bounds = grid.bounds
     if bounds is None:
         raise ValueError("Cannot export an empty voxel grid.")

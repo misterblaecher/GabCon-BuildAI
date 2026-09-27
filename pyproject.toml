@@ -24,6 +24,7 @@ mcbuild = "mcbuild.cli:main"
 mcbuild-server = "mcbuild.server.ws_server:main"
 mcbuild-scan-mods = "mcbuild.mod_assets:main"
 mcbuild-import-mod-assets = "mcbuild.mod_asset_import:main"
+mcbuild-audit-structures = "mcbuild.registry_structures:main"
 
 [project.optional-dependencies]
 dev = [
@@ -52,3 +53,6 @@ quote-style = "double"
 [tool.ty.environment]
 python-version = "3.11"
 python-platform = "all"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
