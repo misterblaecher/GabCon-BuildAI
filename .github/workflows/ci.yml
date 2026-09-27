@@ -26,9 +26,7 @@ jobs:
         run: uv run ruff check src tests tools
 
       - name: Format check (ruff)
-        run: |
-          uv run ruff format --diff src/mcbuild/mod_assets.py
-          uv run ruff format --check src tests
+        run: uv run ruff format --check src tests
 
       - name: Type check (ty)
         continue-on-error: true
