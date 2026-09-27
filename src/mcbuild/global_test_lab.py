@@ -31,6 +31,36 @@ _EXPECTED_SIDE_EFFECTS = {
     ),
 }
 
+_DIRT_PLANTS = {
+    "allium",
+    "azure_bluet",
+    "blue_orchid",
+    "cornflower",
+    "dandelion",
+    "flowering_azalea",
+    "lilac",
+    "orange_tulip",
+    "oxeye_daisy",
+    "peony",
+    "pink_petals",
+    "pink_tulip",
+    "poppy",
+    "red_tulip",
+    "rose_bush",
+    "sunflower",
+    "torchflower",
+    "white_tulip",
+}
+_FARMLAND_PLANTS = {
+    "beetroots",
+    "carrots",
+    "pitcher_crop",
+    "pitcher_plant",
+    "potatoes",
+    "torchflower_crop",
+    "wheat",
+}
+
 DEFAULT_VIEWS = [
     {"yaw": 0},
     {"yaw": 1},
@@ -194,12 +224,73 @@ def _support_id(profile: ServerProfile, namespace: str) -> str:
     return next(iter(profile.blocks))
 
 
+def _profile_state(
+    profile: ServerProfile,
+    block_id: str,
+    required: dict[str, str] | None = None,
+) -> str | None:
+    entry = profile.blocks.get(block_id)
+    if entry is None:
+        return None
+    return _pick_state(entry, required)
+
+
+def _base_support_state(profile: ServerProfile, block_id: str, namespace: str) -> str:
+    path = block_id.split(":", 1)[1]
+
+    preferred: tuple[str, dict[str, str] | None] | None = None
+    if block_id == "minecraft:lily_pad":
+        preferred = ("minecraft:water", {"level": "0"})
+    elif block_id == "minecraft:nether_wart" or block_id == "minecraft:wither_rose":
+        preferred = ("minecraft:soul_sand", None)
+    elif block_id in {"minecraft:crimson_fungus", "minecraft:crimson_roots"}:
+        preferred = ("minecraft:crimson_nylium", None)
+    elif block_id in {"minecraft:warped_fungus", "minecraft:warped_roots"}:
+        preferred = ("minecraft:warped_nylium", None)
+    elif block_id in {"minecraft:red_mushroom", "minecraft:brown_mushroom"}:
+        preferred = ("minecraft:mycelium", None)
+    elif path in _FARMLAND_PLANTS:
+        preferred = ("minecraft:farmland", {"moisture": "7"})
+    elif path.endswith("_sapling") or path in _DIRT_PLANTS:
+        preferred = ("minecraft:dirt", None)
+
+    if preferred is not None:
+        state = _profile_state(profile, preferred[0], preferred[1])
+        if state is not None:
+            return state
+
+    return _support_id(profile, namespace)
+
+
+def _extra_support_states(
+    profile: ServerProfile,
+    block_id: str,
+    namespace: str,
+) -> list[tuple[Coord, str]]:
+    if block_id != "minecraft:lily_pad":
+        return []
+
+    solid = _support_id(profile, namespace)
+    return [
+        ((0, -1, 0), solid),
+        ((1, 0, 0), solid),
+        ((-1, 0, 0), solid),
+        ((0, 0, 1), solid),
+        ((0, 0, -1), solid),
+    ]
+
+
 def _state_support_offsets(block_id: str, state: str) -> list[Coord]:
     _, props = _parse_state(state)
     path = block_id.split(":", 1)[1]
     offsets: list[Coord] = []
 
-    if props.get("face") == "ceiling" or props.get("hanging") == "true" or path.endswith("_hanging_sign"):
+    if (
+        props.get("face") == "ceiling"
+        or props.get("hanging") == "true"
+        or path.endswith("_hanging_sign")
+        or block_id == "minecraft:spore_blossom"
+    ):
         offsets.append((0, 1, 0))
 
     wall_like = (
@@ -211,6 +302,7 @@ def _state_support_offsets(block_id: str, state: str) -> list[Coord]:
         or path.endswith("_wall_torch")
         or path.endswith("_ladder")
         or path == "ladder"
+        or path == "tripwire_hook"
     )
     facing = props.get("facing")
     if wall_like and facing in _DIRECTION:
@@ -225,10 +317,21 @@ def _build_structure_states(
     block_id: str,
     entry: dict[str, Any],
 ) -> tuple[list[tuple[Coord, str]], str | None]:
-    if block_id in {"minecraft:rail", "minecraft:powered_rail"}:
+    rail_blocks = {
+        "minecraft:activator_rail",
+        "minecraft:detector_rail",
+        "minecraft:powered_rail",
+        "minecraft:rail",
+        "create:controller_rail",
+    }
+    if block_id in rail_blocks:
         required = {"shape": "north_south", "waterlogged": "false"}
-        if block_id == "minecraft:powered_rail":
+        if "powered" in entry.get("properties", {}):
             required["powered"] = "false"
+        if "backwards" in entry.get("properties", {}):
+            required["backwards"] = "false"
+        if "power" in entry.get("properties", {}):
+            required["power"] = "0"
         state = _pick_state(entry, required)
         if state is None:
             return [], "could not find safe flat rail state"
@@ -239,6 +342,38 @@ def _build_structure_states(
         if state is None:
             return [], "could not find upward floor-mounted crank/valve state"
         return [((0, 0, 0), state)], None
+
+    if block_id in {"create:haunted_bell", "create:peculiar_bell"}:
+        state = _pick_state(entry, {"attachment": "floor", "facing": "north", "powered": "false"})
+        if state is None:
+            return [], "could not find floor-mounted bell state"
+        return [((0, 0, 0), state)], None
+
+    if block_id == "create:redstone_link":
+        state = _pick_state(entry, {"facing": "up", "powered": "false", "receiver": "false"})
+        if state is None:
+            return [], "could not find upward floor-mounted redstone link state"
+        return [((0, 0, 0), state)], None
+
+    if block_id == "create:gantry_carriage":
+        shaft_entry = profile.blocks.get("create:gantry_shaft")
+        if shaft_entry is None:
+            return [], "gantry carriage requires create:gantry_shaft in the server registry"
+        carriage = _pick_state(entry, {"axis_along_first": "false", "facing": "up"})
+        shaft = _pick_state(shaft_entry, {"facing": "east", "part": "single", "powered": "false"})
+        if carriage is None or shaft is None:
+            return [], "could not build gantry carriage + shaft fixture"
+        return [((0, 0, 0), shaft), ((0, 1, 0), carriage)], None
+
+    if block_id == "create:nozzle":
+        fan_entry = profile.blocks.get("create:encased_fan")
+        if fan_entry is None:
+            return [], "Create nozzle requires create:encased_fan in the server registry"
+        fan = _pick_state(fan_entry, {"facing": "up"})
+        nozzle = _pick_state(entry, {"facing": "up"})
+        if fan is None or nozzle is None:
+            return [], "could not build nozzle + encased fan fixture"
+        return [((0, 0, 0), fan), ((0, 1, 0), nozzle)], None
 
     if block_id in _CREATE_TUNNELS:
         belt_entry = profile.blocks.get("create:belt")
@@ -364,12 +499,13 @@ def build_registry_lab(
     *,
     all_blocks: bool = False,
     columns: int = DEFAULT_COLUMNS,
-) -> tuple[VoxelGrid, dict[str, Any]]:
+) -> tuple[VoxelGrid, VoxelGrid, dict[str, Any]]:
     if columns < 4:
         raise ValueError("columns must be at least 4")
 
     palette.configure_server_profile(profile)
     grid = VoxelGrid()
+    support_grid = VoxelGrid()
     layout: list[dict[str, Any]] = []
     skipped: list[dict[str, str]] = []
     tested_by_namespace: Counter[str] = Counter()
@@ -399,29 +535,46 @@ def build_registry_lab(
 
             x = col * SLOT_SPACING
             z = row * SLOT_SPACING
-            support_id = _support_id(profile, namespace)
-            support_idx = palette.get_block(support_id).index
+            solid_support_id = _support_id(profile, namespace)
+            solid_support_idx = palette.get_block(solid_support_id).index
             placed_states: list[dict[str, Any]] = []
 
             for (dx, dy, dz), state in states:
                 wx, wy, wz = x + dx, 1 + dy, z + dz
                 block = palette.get_block(state)
+                is_fixture = block.base_id != block_id
                 grid.set(wx, wy, wz, block.index)
-                grid.set(wx, 0, wz, support_idx)
+                if is_fixture:
+                    support_grid.set(wx, wy, wz, block.index)
+
+                support_state = _base_support_state(profile, block.base_id, namespace)
+                support_block = palette.get_block(support_state)
+                if wy > 0:
+                    grid.set(wx, 0, wz, support_block.index)
+                    support_grid.set(wx, 0, wz, support_block.index)
+
+                for (ex, ey, ez), extra_state in _extra_support_states(profile, block.base_id, namespace):
+                    extra = palette.get_block(extra_state)
+                    extra_coord = (wx + ex, ey, wz + ez)
+                    grid.set(*extra_coord, extra.index)
+                    support_grid.set(*extra_coord, extra.index)
+
                 if not block.renderable:
                     unrenderable.append(state)
 
-                for sx, sy, sz in _state_support_offsets(block_id, state):
+                for sx, sy, sz in _state_support_offsets(block.base_id, state):
                     support_coord = (wx + sx, wy + sy, wz + sz)
                     if support_coord != (wx, wy, wz):
-                        grid.set(*support_coord, support_idx)
+                        grid.set(*support_coord, solid_support_idx)
+                        support_grid.set(*support_coord, solid_support_idx)
 
                 placed_states.append(
                     {
                         "coord": [wx, wy, wz],
                         "state": state,
                         "renderable": block.renderable,
-                        "fixture": block.base_id != block_id,
+                        "fixture": is_fixture,
+                        "base_support": support_state,
                     }
                 )
 
@@ -448,7 +601,8 @@ def build_registry_lab(
     validate_structural_blocks(grid)
 
     manifest = {
-        "format_version": 1,
+        "format_version": 2,
+        "paste_order": ["supports.schem", "final.schem"],
         "scope": "all-registry-blocks" if all_blocks else "all-modded-plus-vanilla-fixtures",
         "minecraft_version": profile.minecraft_version,
         "data_version": profile.data_version,
@@ -464,7 +618,7 @@ def build_registry_lab(
         "slot_spacing": SLOT_SPACING,
         "layout": layout,
     }
-    return grid, manifest
+    return grid, support_grid, manifest
 
 
 def write_registry_lab(
@@ -475,14 +629,16 @@ def write_registry_lab(
     columns: int = DEFAULT_COLUMNS,
     render: bool = True,
 ) -> dict[str, Any]:
-    grid, manifest = build_registry_lab(profile, all_blocks=all_blocks, columns=columns)
+    grid, support_grid, manifest = build_registry_lab(profile, all_blocks=all_blocks, columns=columns)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    supports_path = out_dir / "supports.schem"
     schem_path = out_dir / "final.schem"
     stats_path = out_dir / "stats.json"
     layout_path = out_dir / "layout.json"
     render_path = out_dir / "render.png"
 
+    export_schem(support_grid, str(supports_path))
     export_schem(grid, str(schem_path))
     layout_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
@@ -514,7 +670,9 @@ def write_registry_lab(
 
     return {
         "grid": grid,
+        "support_grid": support_grid,
         "manifest": manifest,
+        "supports": supports_path,
         "schem": schem_path,
         "stats": stats_path,
         "layout": layout_path,
@@ -600,6 +758,7 @@ def main() -> int:
         print(f"Dimensions: {'x'.join(str(value) for value in dims)}")
     if result["render"] is not None:
         print(f"Render: {result['render']}")
+    print(f"Supports: {result['supports']}")
     print(f"Schematic: {result['schem']}")
     print(f"Layout: {result['layout']}")
     print(f"Stats: {result['stats']}")
