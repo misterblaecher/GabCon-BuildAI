@@ -511,17 +511,23 @@ vision-language fine-tuning:
 uv run mcbuild-dataset
 ```
 
-This writes `training/image_build_v1.jsonl` plus a split summary. Each sample groups all
-standardized views of one build with the exact validated DSL source used to produce it:
+This writes `training/image_build_v1.jsonl` plus a split summary. By default, each
+standardized view becomes its own VRAM-friendly sample with the exact validated DSL source
+used to produce the build:
 
 ```text
-images[] -> prompt -> target mcbuild DSL
+one image -> prompt -> target mcbuild DSL
 ```
 
-The train/validation/test assignment is deterministic **per build id**, so different camera
-views of the same structure never leak across splits. This v1 format intentionally targets
-DSL source; a later dataset version can target a smaller BuildSpec/component representation
-without changing the renderer data source.
+All views from the same structure still receive the same deterministic train/validation/test
+split, so camera variants never leak across splits. For later multi-view experiments:
+
+```powershell
+uv run mcbuild-dataset --group-views
+```
+
+This v1 format intentionally targets DSL source; a later dataset version can target a smaller
+BuildSpec/component representation without changing the renderer data source.
 
 ### Static build gallery manifest
 
