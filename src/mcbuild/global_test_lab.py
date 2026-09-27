@@ -23,7 +23,7 @@ DEFAULT_OUT = Path("generated") / "03-global-registry-lab"
 DEFAULT_COLUMNS = 24
 SLOT_SPACING = 4
 
-_AIR_BLOCKS = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}
+_AIR_BLOCKS = {"minecraft:air", "minecraft:cave_air", "minecraft:structure_void", "minecraft:void_air"}
 _CREATE_TUNNELS = {"create:andesite_tunnel", "create:brass_tunnel"}
 _EXPECTED_SIDE_EFFECTS = {
     "waystones:warp_plate": "A newly initialized warp plate may eject/create an Attuned Shard as part of its normal setup.",
