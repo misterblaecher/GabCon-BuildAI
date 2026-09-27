@@ -133,7 +133,7 @@ def build_reference_image_prompt(building_prompt: str) -> str:
 
 def build_critique_nudge() -> str:
     return (
-        "Above is the contact sheet with the views you requested, labeled in order, with build "
+        "Above are the separate views you requested, labeled in order, with build "
         "stats below. Critique it against the prompt: does it match the prompt and scale? Are "
         "proportions and materials right? Does the interior make sense? What details are missing? "
         "If you didn't request a view that would answer that, ask for it (via `views` on your "
