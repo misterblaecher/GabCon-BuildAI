@@ -228,14 +228,21 @@ uv run mcbuild-audit-structures
 
 The command writes `.mcbuild/structural-blocks.json` and separates patterns into:
 
-- `validated`: placement geometry can be inferred safely from registry states (currently
-  vertical `half=lower|upper` pairs and horizontal `part=foot|head` pairs);
-- `manual_review`: the registry indicates a multi-part/extension relationship but does
-  not contain enough information to infer adjacency safely (for example Create
-  `start/middle/end` machinery or piston-like extension states).
+- `validated`: placement semantics are known and enforced. This includes vertical
+  `half=lower|upper` pairs, beds, Create belts, chain drives/adjustable gearshifts,
+  gantry shafts, mechanical pistons, stickers, and vanilla piston heads;
+- `manual_review`: a newly installed or unknown block exposes a structural-looking
+  state pattern that BuildAI does not yet know how to interpret safely.
+
+For the current GabCon 1.21.1 registry, the previously identified nine manual-review
+cases are covered explicitly. Create `state=moving` mechanical pistons are rejected
+because that state requires a live moving contraption rather than a static schematic,
+while Sticker `extended=true` is accepted without a companion block because Create
+renders that extension from the Sticker block itself.
 
 This makes newly installed mods visible to the audit automatically instead of relying on
-a hand-maintained list of block IDs.
+a broad hard-coded allowlist while still encoding reviewed semantics for special state
+machines.
 
 ### Scan mod JAR assets
 

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from mcbuild.profile import ServerProfile
 from mcbuild.registry_structures import audit_server_profile, classify_structure
 
@@ -39,24 +41,84 @@ def test_classifies_bed_head_foot_pair():
     assert rules[0]["status"] == "validated"
 
 
-def test_linear_create_part_is_manual_review():
-    rules = classify_structure(
-        "create:belt",
-        _entry(
+@pytest.mark.parametrize(
+    ("block_id", "properties", "expected_rule"),
+    [
+        (
+            "create:adjustable_chain_gearshift",
+            {"axis": ["x"], "axis_along_first": ["true", "false"], "part": ["start", "middle", "end", "none"]},
+            "create_chain_drive_line",
+        ),
+        (
+            "create:encased_chain_drive",
+            {"axis": ["x"], "axis_along_first": ["true", "false"], "part": ["start", "middle", "end", "none"]},
+            "create_chain_drive_line",
+        ),
+        (
+            "create:belt",
             {
                 "facing": ["north", "south", "west", "east"],
                 "part": ["start", "middle", "end", "pulley"],
-            }
+                "slope": ["horizontal", "upward", "downward", "vertical", "sideways"],
+            },
+            "create_belt_chain",
         ),
+        (
+            "create:gantry_shaft",
+            {
+                "facing": ["north", "east", "south", "west", "up", "down"],
+                "part": ["start", "middle", "end", "single"],
+            },
+            "create_gantry_shaft_line",
+        ),
+        (
+            "create:mechanical_piston",
+            {"facing": ["north", "east", "south", "west", "up", "down"], "state": ["retracted", "moving", "extended"]},
+            "create_mechanical_piston",
+        ),
+        (
+            "create:sticky_mechanical_piston",
+            {"facing": ["north", "east", "south", "west", "up", "down"], "state": ["retracted", "moving", "extended"]},
+            "create_mechanical_piston",
+        ),
+        (
+            "create:sticker",
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]},
+            "state_only_extension",
+        ),
+        (
+            "minecraft:piston",
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]},
+            "vanilla_piston",
+        ),
+        (
+            "minecraft:sticky_piston",
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]},
+            "vanilla_piston",
+        ),
+    ],
+)
+def test_known_manual_review_cases_are_validated(block_id, properties, expected_rule):
+    rules = classify_structure(block_id, _entry(properties))
+
+    assert len(rules) == 1
+    assert rules[0]["rule"] == expected_rule
+    assert rules[0]["status"] == "validated"
+
+
+def test_unknown_linear_machine_stays_manual_review():
+    rules = classify_structure(
+        "example:linear_machine",
+        _entry({"part": ["start", "middle", "end", "none"]}),
     )
 
     assert rules[0]["rule"] == "linear_multipart"
     assert rules[0]["status"] == "manual_review"
 
 
-def test_extension_state_is_manual_review():
+def test_unknown_extension_machine_stays_manual_review():
     rules = classify_structure(
-        "minecraft:piston",
+        "example:pistonish",
         _entry({"extended": ["true", "false"], "facing": ["north", "south"]}),
     )
 
@@ -64,12 +126,42 @@ def test_extension_state_is_manual_review():
     assert rules[0]["status"] == "manual_review"
 
 
-def test_audit_summarizes_supported_and_manual_candidates():
+def test_audit_marks_current_nine_reviewed_cases_as_validated():
     blocks = {
-        "waystones:waystone": _entry({"half": ["upper", "lower"]}),
-        "minecraft:red_bed": _entry({"facing": ["north", "south", "west", "east"], "part": ["head", "foot"]}),
-        "create:belt": _entry({"part": ["start", "middle", "end", "pulley"]}),
-        "minecraft:piston": _entry({"extended": ["true", "false"]}),
+        "create:adjustable_chain_gearshift": _entry(
+            {"axis": ["x"], "axis_along_first": ["true", "false"], "part": ["start", "middle", "end", "none"]}
+        ),
+        "create:encased_chain_drive": _entry(
+            {"axis": ["x"], "axis_along_first": ["true", "false"], "part": ["start", "middle", "end", "none"]}
+        ),
+        "create:belt": _entry(
+            {
+                "facing": ["north", "south", "west", "east"],
+                "part": ["start", "middle", "end", "pulley"],
+                "slope": ["horizontal", "upward", "downward", "vertical", "sideways"],
+            }
+        ),
+        "create:gantry_shaft": _entry(
+            {
+                "facing": ["north", "east", "south", "west", "up", "down"],
+                "part": ["start", "middle", "end", "single"],
+            }
+        ),
+        "create:mechanical_piston": _entry(
+            {"facing": ["north", "east", "south", "west", "up", "down"], "state": ["retracted", "moving", "extended"]}
+        ),
+        "create:sticky_mechanical_piston": _entry(
+            {"facing": ["north", "east", "south", "west", "up", "down"], "state": ["retracted", "moving", "extended"]}
+        ),
+        "create:sticker": _entry(
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]}
+        ),
+        "minecraft:piston": _entry(
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]}
+        ),
+        "minecraft:sticky_piston": _entry(
+            {"extended": ["true", "false"], "facing": ["north", "east", "south", "west", "up", "down"]}
+        ),
     }
     profile = ServerProfile(
         path=Path("registry.json"),
@@ -83,11 +175,6 @@ def test_audit_summarizes_supported_and_manual_candidates():
 
     audit = audit_server_profile(profile)
 
-    assert audit["candidate_count"] == 4
-    assert audit["counts_by_status"] == {"manual_review": 2, "validated": 2}
-    assert audit["counts_by_rule"] == {
-        "extension_state": 1,
-        "horizontal_head_foot_pair": 1,
-        "linear_multipart": 1,
-        "vertical_pair": 1,
-    }
+    assert audit["candidate_count"] == 9
+    assert audit["counts_by_status"] == {"validated": 9}
+    assert "manual_review" not in audit["counts_by_status"]
