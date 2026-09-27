@@ -115,10 +115,11 @@ class FakeLLM:
                     )
                 )
             else:
-                message = _FakeMessage(content="{}")
-            usage = Usage(prompt_tokens=10, completion_tokens=10)
-            self.total_usage.add(usage)
-            return ChatResult(message=message, usage=usage, raw=None)
+                message = None
+            if message is not None:
+                usage = Usage(prompt_tokens=10, completion_tokens=10)
+                self.total_usage.add(usage)
+                return ChatResult(message=message, usage=usage, raw=None)
 
         step = self._script[min(self._step, len(self._script) - 1)]
         self._step += 1
