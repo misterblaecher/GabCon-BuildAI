@@ -32,12 +32,7 @@ def test_classifies_vertical_pair():
 def test_classifies_bed_head_foot_pair():
     rules = classify_structure(
         "minecraft:red_bed",
-        _entry(
-            {
-                "facing": ["north", "south", "west", "east"],
-                "part": ["head", "foot"],
-            }
-        ),
+        _entry({"facing": ["north", "south", "west", "east"], "part": ["head", "foot"]}),
     )
 
     assert rules[0]["rule"] == "horizontal_head_foot_pair"
@@ -72,9 +67,7 @@ def test_extension_state_is_manual_review():
 def test_audit_summarizes_supported_and_manual_candidates():
     blocks = {
         "waystones:waystone": _entry({"half": ["upper", "lower"]}),
-        "minecraft:red_bed": _entry(
-            {"facing": ["north", "south", "west", "east"], "part": ["head", "foot"]}
-        ),
+        "minecraft:red_bed": _entry({"facing": ["north", "south", "west", "east"], "part": ["head", "foot"]}),
         "create:belt": _entry({"part": ["start", "middle", "end", "pulley"]}),
         "minecraft:piston": _entry({"extended": ["true", "false"]}),
     }
