@@ -1,0 +1,90 @@
+{
+  "source": "C:\\Users\\miste\\Documents\\GitHub\\GabCon-BuildAI\\blueprints\\test_modded_preview.py",
+  "seed": 0,
+  "views": [
+    "yaw 0deg",
+    "yaw 90deg",
+    "yaw 180deg",
+    "yaw 270deg",
+    "top-down",
+    "yaw 90deg, cutaway z"
+  ],
+  "palette_warnings": [],
+  "server_profile": {
+    "format_version": 1,
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "generated_at": "2026-09-27T10:20:55.002381200Z",
+    "block_count": 1783,
+    "state_count": 62917,
+    "namespaces": {
+      "create": 643,
+      "create_dragons_plus": 19,
+      "create_enchantment_industry": 10,
+      "minecraft": 1060,
+      "sophisticatedbackpacks": 6,
+      "trading_floor": 1,
+      "waystones": 44
+    },
+    "source": "server-export"
+  },
+  "compatibility": {
+    "valid": true,
+    "unknown_blocks": [],
+    "invalid_states": []
+  },
+  "dims": [
+    9,
+    4,
+    9
+  ],
+  "bounds": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      3,
+      8
+    ]
+  ],
+  "block_count": 102,
+  "namespaces": {
+    "create": 88,
+    "minecraft": 12,
+    "trading_floor": 1,
+    "waystones": 1
+  },
+  "top_materials": [
+    [
+      "create:andesite_casing",
+      82
+    ],
+    [
+      "glass",
+      9
+    ],
+    [
+      "create:brass_casing",
+      3
+    ],
+    [
+      "create:copper_casing",
+      3
+    ],
+    [
+      "stone_bricks",
+      3
+    ],
+    [
+      "waystones:waystone",
+      1
+    ],
+    [
+      "trading_floor:trading_depot",
+      1
+    ]
+  ]
+}
