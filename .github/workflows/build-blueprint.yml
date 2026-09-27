@@ -1,0 +1,44 @@
+name: Build Minecraft Blueprint
+
+on:
+  workflow_dispatch:
+    inputs:
+      blueprint:
+        description: Blueprint file to build
+        required: true
+        default: blueprints/01-central-portal.py
+        type: string
+      seed:
+        description: Deterministic DSL seed
+        required: true
+        default: "0"
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install Python and dependencies
+        run: |
+          uv python install 3.11
+          uv sync
+
+      - name: Build blueprint
+        run: |
+          uv run python tools/build_blueprint.py "${{ inputs.blueprint }}" \
+            --seed "${{ inputs.seed }}" \
+            --out generated/action-build
+
+      - name: Upload render and schematic
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-build-${{ github.run_number }}
+          path: generated/action-build/
+          if-no-files-found: error
