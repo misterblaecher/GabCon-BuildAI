@@ -215,6 +215,28 @@ set_block(2, 2, 4, "waystones:waystone[facing=north,half=upper,origin=player,wat
 
 This prevents WorldEdit/Minecraft neighbor updates from removing an orphaned half after paste.
 
+BuildAI also validates horizontal paired structures such as beds (`part=foot|head`) using
+their `facing` direction. Structural validation now runs in the schematic exporter itself,
+so CLI builds, agent builds, live-server builds, and direct blueprint builds all share the
+same guard.
+
+You can audit the full live registry for structural state patterns:
+
+```powershell
+uv run mcbuild-audit-structures
+```
+
+The command writes `.mcbuild/structural-blocks.json` and separates patterns into:
+
+- `validated`: placement geometry can be inferred safely from registry states (currently
+  vertical `half=lower|upper` pairs and horizontal `part=foot|head` pairs);
+- `manual_review`: the registry indicates a multi-part/extension relationship but does
+  not contain enough information to infer adjacency safely (for example Create
+  `start/middle/end` machinery or piston-like extension states).
+
+This makes newly installed mods visible to the audit automatically instead of relying on
+a hand-maintained list of block IDs.
+
 ### Scan mod JAR assets
 
 BuildAI can inventory the render-relevant assets shipped by the mods installed on the
