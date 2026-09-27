@@ -58,7 +58,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="mcbuild live-build WebSocket server.")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--model", default=Config.model, help="Vision-capable OpenRouter model id.")
+    parser.add_argument("--model", default=Config.model, help="Vision-capable model id for the configured LLM backend.")
     parser.add_argument("--max-iters", type=int, default=Config.max_iters)
     parser.add_argument("--reasoning", default=Config.reasoning, help="off|low|medium|high")
     parser.add_argument(
