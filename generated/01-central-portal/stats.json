@@ -69,5 +69,31 @@
       "polished_deepslate",
       1163
     ]
-  ]
+  ],
+  "server_profile": {
+    "source": "server-export",
+    "format_version": 1,
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "generated_at": "2026-09-27T10:20:55.002381200Z",
+    "block_count": 1783,
+    "state_count": 62917,
+    "namespaces": {
+      "create": 643,
+      "create_dragons_plus": 19,
+      "create_enchantment_industry": 10,
+      "minecraft": 1060,
+      "sophisticatedbackpacks": 6,
+      "trading_floor": 1,
+      "waystones": 44
+    }
+  },
+  "compatibility": {
+    "valid": true,
+    "unknown_blocks": [],
+    "invalid_states": []
+  },
+  "namespaces": {
+    "minecraft": 56441
+  }
 }

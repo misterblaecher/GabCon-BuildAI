@@ -89,6 +89,7 @@ mcbuild PROMPT
   --reasoning TEXT              off|low|medium|high  [default: medium]
   --stream/--no-stream          Stream reasoning/completion text live  [default: stream]
   --cost-ceiling FLOAT          Abort (keeping the best build so far) once usage cost reaches this many USD
+  --registry TEXT               Exported server block registry JSON (or MCBUILD_SERVER_REGISTRY)
 ```
 
 `--display auto` probes the terminal for sixel support (via a DA1 query) and
@@ -142,6 +143,7 @@ mcbuild-server
   --max-iters INTEGER   [default: 6]
   --reasoning TEXT      off|low|medium|high  [default: medium]
   --cost-ceiling FLOAT  Abort a build (keeping its best build so far) once usage cost reaches this many USD
+  --registry TEXT       Exported server block registry JSON (or MCBUILD_SERVER_REGISTRY)
 ```
 
 These apply server-wide to every `/build` that connects — the mod only sends the prompt.
@@ -183,6 +185,37 @@ The export contains each canonical block ID (for example `minecraft:stone` or
 and the full list of valid states exposed by Minecraft. This file is intended to become
 the source of truth for BuildAI server profiles instead of relying on a version-agnostic
 bundled block list.
+
+Point BuildAI at that file once (recommended via `.env` on the machine running mcbuild):
+
+```dotenv
+MCBUILD_SERVER_REGISTRY=A:\\MinecraftServer\\config\\mcbuild\\server-block-registry.json
+```
+
+or per command:
+
+```powershell
+uv run mcbuild "a Create workshop" --registry "A:\\MinecraftServer\\config\\mcbuild\\server-block-registry.json"
+uv run python tools/build_blueprint.py blueprints/01-central-portal.py --registry "A:\\MinecraftServer\\config\\mcbuild\\server-block-registry.json"
+```
+
+When a server profile is active, unknown blocks, invalid state-property names, invalid
+property values, and invalid state combinations are rejected before the schematic is
+written. Successful generated builds record the Minecraft/DataVersion profile and
+compatibility result in `stats.json`.
+
+### Static build gallery manifest
+
+Blueprint builds written under `generated/<build-id>/` refresh `generated/index.json`
+automatically. You can also regenerate it explicitly:
+
+```bash
+uv run python tools/generate_build_index.py
+```
+
+The manifest contains preview/render paths, schematic download paths, dimensions,
+block counts, namespaces, server-profile metadata, and compatibility status. It is
+designed to be consumed directly by the companion `minecraft-website` static gallery.
 
 ## The blueprint DSL
 

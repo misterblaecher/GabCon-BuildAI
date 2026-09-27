@@ -13,12 +13,14 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.text import Text
 
+from mcbuild import palette
 from mcbuild.agent.loop import run_agent
 from mcbuild.agent.prompts import build_reference_image_prompt
 from mcbuild.config import Config
 from mcbuild.export.schem import export_schem
 from mcbuild.llm.client import OpenRouterClient
 from mcbuild.llm.fake import FakeLLM
+from mcbuild.profile import ProfileError, resolve_registry_path
 from mcbuild.render.sixel import encode_sixel, supports_sixel
 from mcbuild.rundir import RunDir
 
@@ -92,9 +94,28 @@ def build(
     fake_llm: bool = typer.Option(
         False, "--fake-llm", hidden=True, help="Use a scripted offline LLM (no network) for demos/tests."
     ),
+    registry: str | None = typer.Option(
+        None,
+        "--registry",
+        help="Server block-registry JSON. Defaults to the MCBUILD_SERVER_REGISTRY environment variable.",
+    ),
 ) -> None:
     """Turn a natural-language prompt into a Minecraft building (.schem)."""
     load_dotenv()
+
+    registry_path = resolve_registry_path(registry)
+    if registry_path is not None:
+        try:
+            profile = palette.configure_server_registry(registry_path)
+        except ProfileError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(2) from exc
+        console.print(
+            f"[green]Server profile:[/green] Minecraft {profile.minecraft_version}, "
+            f"{len(profile.blocks):,} blocks, DataVersion {profile.data_version}"
+        )
+    else:
+        palette.configure_server_profile(None)
 
     config = Config(
         model=model,

@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "repository": "misterblaecher/GabCon-BuildAI",
+  "builds": [
+    {
+      "id": "01-central-portal",
+      "name": "01 Central Portal",
+      "render": "generated/01-central-portal/render.png",
+      "schem": "generated/01-central-portal/final.schem",
+      "stats": "generated/01-central-portal/stats.json",
+      "blueprint": "generated/01-central-portal/blueprint.py",
+      "dims": [
+        89,
+        89,
+        71
+      ],
+      "block_count": 56441,
+      "namespaces": {
+        "minecraft": 56441
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          28480
+        ],
+        [
+          "deepslate_bricks",
+          4856
+        ],
+        [
+          "cracked_stone_bricks",
+          4208
+        ],
+        [
+          "blue_stained_glass",
+          2711
+        ],
+        [
+          "oxidized_copper",
+          2600
+        ],
+        [
+          "andesite",
+          2532
+        ],
+        [
+          "deepslate_tiles",
+          2411
+        ],
+        [
+          "mossy_stone_bricks",
+          1604
+        ],
+        [
+          "light_blue_stained_glass",
+          1294
+        ],
+        [
+          "polished_deepslate",
+          1163
+        ]
+      ],
+      "server_profile": {
+        "source": "server-export",
+        "format_version": 1,
+        "minecraft_version": "1.21.1",
+        "data_version": 3955,
+        "generated_at": "2026-09-27T10:20:55.002381200Z",
+        "block_count": 1783,
+        "state_count": 62917,
+        "namespaces": {
+          "create": 643,
+          "create_dragons_plus": 19,
+          "create_enchantment_industry": 10,
+          "minecraft": 1060,
+          "sophisticatedbackpacks": 6,
+          "trading_floor": 1,
+          "waystones": 44
+        }
+      },
+      "compatibility": {
+        "valid": true,
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    }
+  ]
+}
