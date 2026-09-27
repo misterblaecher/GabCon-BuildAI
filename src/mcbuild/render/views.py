@@ -20,7 +20,15 @@ def build_stats(grid: VoxelGrid) -> dict:
     for _, idx in grid.items():
         counts[idx] = counts.get(idx, 0) + 1
     top = sorted(counts.items(), key=lambda kv: -kv[1])[:10]
-    top_materials = [(get_block_by_index(idx).name, n) for idx, n in top]
+    top_materials = []
+    namespaces: dict[str, int] = {}
+    for idx, count in counts.items():
+        block = get_block_by_index(idx)
+        namespaces[block.namespace] = namespaces.get(block.namespace, 0) + count
+    for idx, count in top:
+        block = get_block_by_index(idx)
+        display_name = block.name if block.namespace == "minecraft" else block.base_id
+        top_materials.append((display_name, count))
     dims = None
     if bounds is not None:
         (minx, miny, minz), (maxx, maxy, maxz) = bounds
@@ -29,6 +37,7 @@ def build_stats(grid: VoxelGrid) -> dict:
         "dims": dims,
         "bounds": bounds,  # ((minx,miny,minz),(maxx,maxy,maxz)) or None
         "block_count": len(grid),
+        "namespaces": dict(sorted(namespaces.items())),
         "top_materials": top_materials,
     }
 
