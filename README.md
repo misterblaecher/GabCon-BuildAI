@@ -468,6 +468,40 @@ Create machinery geometry is a later renderer step.
 Use `MCBUILD_MOD_ASSET_INDEX` and `MCBUILD_MOD_ASSET_CACHE` to override the default
 manifest/cache paths.
 
+### Render a blueprint without an LLM
+
+For ChatGPT-authored, hand-authored, or training-data blueprints, use the deterministic
+renderer/exporter directly. It does **not** contact OpenRouter, Ollama, or any other LLM:
+
+```powershell
+uv run mcbuild-render .\builds\chatgpt\medieval_stone_tower.py
+```
+
+By default this writes `generated/<blueprint-stem>/` containing:
+
+```text
+blueprint.py
+render.png
+view_01.png ...
+views.json
+stats.json
+final.schem
+```
+
+The default view set is four isometric rotations, top-down, and two cutaways. Override it
+with aliases when needed:
+
+```powershell
+uv run mcbuild-render .\builds\chatgpt\medieval_stone_tower.py \
+  --views "iso0,iso2,top,cutx"
+```
+
+Blueprints committed under `builds/**/*.py` are rendered automatically by
+`.github/workflows/render-blueprints.yml`. The workflow commits the generated preview,
+schematic, standardized view images, and metadata back to the same branch and refreshes
+`generated/index.json`. This makes the repository a deterministic bridge between an
+external architect (for example ChatGPT) and the mcbuild renderer/exporter.
+
 ### Static build gallery manifest
 
 Blueprint builds written under `generated/<build-id>/` refresh `generated/index.json`
