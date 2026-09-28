@@ -565,6 +565,76 @@
       }
     },
     {
+      "id": "chatgpt-snowy_gothic_fortress",
+      "name": "Snowy Gothic Fortress",
+      "render": "generated/chatgpt-snowy_gothic_fortress/render.png",
+      "schem": "generated/chatgpt-snowy_gothic_fortress/final.schem",
+      "stats": "generated/chatgpt-snowy_gothic_fortress/stats.json",
+      "blueprint": "generated/chatgpt-snowy_gothic_fortress/blueprint.py",
+      "dims": [
+        149,
+        184,
+        119
+      ],
+      "block_count": 225550,
+      "namespaces": {
+        "minecraft": 225550
+      },
+      "top_materials": [
+        [
+          "stone_bricks",
+          128884
+        ],
+        [
+          "cracked_stone_bricks",
+          20244
+        ],
+        [
+          "andesite",
+          15349
+        ],
+        [
+          "dark_oak_planks",
+          14393
+        ],
+        [
+          "tuff_bricks",
+          13440
+        ],
+        [
+          "polished_andesite",
+          10351
+        ],
+        [
+          "snow_block",
+          9669
+        ],
+        [
+          "polished_deepslate",
+          6779
+        ],
+        [
+          "deepslate_tiles",
+          2803
+        ],
+        [
+          "orange_stained_glass",
+          2794
+        ]
+      ],
+      "server_profile": {
+        "source": "legacy",
+        "minecraft_version": null,
+        "data_version": null
+      },
+      "compatibility": {
+        "valid": null,
+        "status": "legacy-unchecked",
+        "unknown_blocks": [],
+        "invalid_states": []
+      }
+    },
+    {
       "id": "test_modded_preview",
       "name": "Test Modded Preview",
       "render": "generated/test_modded_preview/render.png",

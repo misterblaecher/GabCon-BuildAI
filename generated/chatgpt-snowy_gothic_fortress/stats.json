@@ -1,0 +1,121 @@
+{
+  "dims": [
+    149,
+    184,
+    119
+  ],
+  "bounds": [
+    [
+      -74,
+      0,
+      -60
+    ],
+    [
+      74,
+      183,
+      58
+    ]
+  ],
+  "block_count": 225550,
+  "namespaces": {
+    "minecraft": 225550
+  },
+  "top_materials": [
+    [
+      "stone_bricks",
+      128884
+    ],
+    [
+      "cracked_stone_bricks",
+      20244
+    ],
+    [
+      "andesite",
+      15349
+    ],
+    [
+      "dark_oak_planks",
+      14393
+    ],
+    [
+      "tuff_bricks",
+      13440
+    ],
+    [
+      "polished_andesite",
+      10351
+    ],
+    [
+      "snow_block",
+      9669
+    ],
+    [
+      "polished_deepslate",
+      6779
+    ],
+    [
+      "deepslate_tiles",
+      2803
+    ],
+    [
+      "orange_stained_glass",
+      2794
+    ]
+  ],
+  "name": "Snowy Gothic Fortress",
+  "source_blueprint": "builds/chatgpt/snowy_gothic_fortress.py",
+  "seed": 0,
+  "views": [
+    {
+      "file": "view_01.png",
+      "label": "yaw 0deg",
+      "spec": {
+        "yaw": 0
+      }
+    },
+    {
+      "file": "view_02.png",
+      "label": "yaw 90deg",
+      "spec": {
+        "yaw": 1
+      }
+    },
+    {
+      "file": "view_03.png",
+      "label": "yaw 180deg",
+      "spec": {
+        "yaw": 2
+      }
+    },
+    {
+      "file": "view_04.png",
+      "label": "yaw 270deg",
+      "spec": {
+        "yaw": 3
+      }
+    },
+    {
+      "file": "view_05.png",
+      "label": "top-down",
+      "spec": {
+        "mode": "top-down"
+      }
+    },
+    {
+      "file": "view_06.png",
+      "label": "yaw 180deg, cutaway x",
+      "spec": {
+        "yaw": 2,
+        "cutaway": "x"
+      }
+    },
+    {
+      "file": "view_07.png",
+      "label": "yaw 90deg, cutaway z",
+      "spec": {
+        "yaw": 1,
+        "cutaway": "z"
+      }
+    }
+  ]
+}
