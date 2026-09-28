@@ -5,6 +5,9 @@ on:
     branches: [feature/dataset-sourcing-pipeline]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   dataset-smoke:
     runs-on: ubuntu-latest
@@ -21,6 +24,17 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --extra dev
+
+      - name: Format dataset code
+        run: |
+          uv run ruff format src/mcbuild/dataset tests/test_dataset_*.py
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/mcbuild/dataset tests/test_dataset_*.py
+            git commit -m "style(dataset): format sourcing pipeline"
+            git push
+          fi
 
       - name: Dataset lint
         run: |
