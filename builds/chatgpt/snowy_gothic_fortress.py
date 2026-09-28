@@ -162,8 +162,7 @@ def flying_buttress(x_wall, z_wall, y_wall, x_pier, z_pier, y_pier):
 
 terraces = [
     (74, 58, 0),
-    (66, 52, 4),
-    (60, 47, 8),
+    (62, 49, 6),
     (54, 42, 12),
 ]
 for hx, hz, y in terraces:
