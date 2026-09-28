@@ -11,7 +11,6 @@ mod + WebSocket server) builds live inside a running Minecraft world.
 ![uv](https://img.shields.io/badge/managed%20with-uv-de5fe9)
 ![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-8a2be2)
 ![Ollama](https://img.shields.io/badge/LLM-Ollama-black)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![Multi-view isometric render of an agent-built mansion](docs/images/mansion-hero.png)
 
@@ -505,8 +504,7 @@ A machine-readable version for future importers, rights filtering, and lineage-a
 deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
 
 The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
-and records provenance, licensing/usage notes, lineage, formats, and technical suitability
-for GabCon.
+and records provenance, lineage, formats, scale, and technical suitability for GabCon.
 
 ## Project layout
 
@@ -577,9 +575,3 @@ co-written by an LLM agent under human direction and review. The renders
 throughout this README are unedited output from the agent described above,
 not hand-picked or touched-up examples.
 
-## License
-
-[MIT](LICENSE), except for the bundled Minecraft block textures/blockstates —
-see [`src/mcbuild/assets/NOTICE.md`](src/mcbuild/assets/NOTICE.md). Minecraft
-is a trademark of Mojang Studios / Microsoft; this project is not affiliated
-with or endorsed by them.
