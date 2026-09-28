@@ -495,18 +495,37 @@ reported alongside:
 
 ![Contact sheet: iso rotations, top-down, and cutaways](docs/images/mansion-contact-sheet.png)
 
-## Dataset & research sources
+## Dataset sourcing pipeline
 
-A maintained inventory of Minecraft build datasets, schematic collections, benchmarks,
-derivative research repositories, source websites, and format/tooling references
-is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
+The dataset inventory lives in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md)
+with its machine-readable registry in [`docs/dataset_sources.json`](docs/dataset_sources.json).
+The importer deliberately separates unique source builds from mirrors/forks/derivatives and
+preserves provenance/lineage instead of adding derivative row counts together.
 
-A machine-readable version for future importers, source filtering, and lineage-aware
-deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
+A resumable sourcing pipeline is available through `mcbuild-dataset`:
 
-The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
-and records provenance, lineage, formats, and technical suitability
-for GabCon.
+```bash
+uv run mcbuild-dataset list-sources
+uv run mcbuild-dataset source hack337 --workers 8
+uv run mcbuild-dataset source farhanwew --workers 4
+uv run mcbuild-dataset source fable --workers 8
+uv run mcbuild-dataset status
+uv run mcbuild-dataset dedup
+uv run mcbuild-dataset stats
+```
+
+Downloaded corpora stay under ignored `data/` paths. The pipeline stores raw files,
+safe archive extractions, canonical sparse structures, a resumable SQLite manifest, and
+a JSONL provenance manifest. Canonical structures retain native declared dimensions and
+full block-state strings; Farhan's 1.16.4 Parquet also retains its opaque numeric block
+state IDs so information is not invented or silently discarded. Exact, Y-rotation-aware,
+and occupancy-only hashes support global deduplication without forcing builds into 32³.
+
+The end-to-end format/readers currently cover Sponge `.schem` v2/v3, Litematica
+`.litematic`, vanilla structure `.nbt`, Hack337 blueprint JSON, ZIP/TAR containers,
+and the Farhan/rom1504-derived voxel Parquet. See
+[`docs/DATASET_PIPELINE.md`](docs/DATASET_PIPELINE.md) for storage layout, failure
+semantics, source status, and smoke-test details.
 
 ## Project layout
 
