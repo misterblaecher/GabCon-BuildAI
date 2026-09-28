@@ -504,10 +504,9 @@ is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
 A machine-readable version for future importers, rights filtering, and lineage-aware
 deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
 
-The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives.
-For this personal project, grades **C/D may be used in the local/private research workspace**
-when the original source terms permit that use, but **public redistribution is limited to
-verified A/B assets**. Source-specific licenses and terms always take precedence.
+The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
+and records provenance, licensing/usage notes, lineage, formats, and technical suitability
+for GabCon.
 
 ## Project layout
 
