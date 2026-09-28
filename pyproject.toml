@@ -3,6 +3,9 @@ name = "mcbuild"
 version = "0.1.0"
 description = "Text-to-Minecraft LLM building agent"
 readme = "README.md"
+authors = [
+    { name = "Harry Yu", email = "harryyunull@gmail.com" }
+]
 requires-python = ">=3.11"
 dependencies = [
     "openai>=1.50.0",
