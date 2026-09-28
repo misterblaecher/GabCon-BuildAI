@@ -57,25 +57,19 @@ class SourceRegistry:
         if catalog_path is None:
             catalog_path = Path(__file__).resolve().parents[3] / "docs" / "dataset_sources.json"
         raw = json.loads(catalog_path.read_text(encoding="utf-8"))
-        entries = raw.get(
-            "sources",
-            raw if isinstance(raw, list) else [],
-        )
+        entries = raw.get("sources", raw if isinstance(raw, list) else [])
         specs: list[SourceSpec] = []
         for entry in entries:
             catalog_id = str(entry["id"])
             specs.append(
                 SourceSpec(
                     catalog_id=catalog_id,
-                    source_id=_STORAGE_ALIASES.get(
-                        catalog_id,
-                        catalog_id,
-                    ),
+                    source_id=_STORAGE_ALIASES.get(catalog_id, catalog_id),
                     name=str(entry.get("name") or catalog_id),
                     source_type=str(entry.get("type") or "unknown"),
                     urls=tuple(str(url) for url in entry.get("urls", [])),
-                    lineage_root=(str(entry.get("lineage_root")) if entry.get("lineage_root") else None),
-                    parent=(str(entry.get("parent")) if entry.get("parent") else None),
+                    lineage_root=str(entry.get("lineage_root")) if entry.get("lineage_root") else None,
+                    parent=str(entry.get("parent")) if entry.get("parent") else None,
                     raw=dict(entry),
                 )
             )
@@ -90,10 +84,7 @@ class SourceRegistry:
         return spec
 
     def adapter(self, spec: SourceSpec) -> DatasetSource:
-        hf_url = next(
-            (url for url in spec.urls if _HF_RE.match(url)),
-            None,
-        )
+        hf_url = next((url for url in spec.urls if _HF_RE.match(url)), None)
         if hf_url:
             match = _HF_RE.match(hf_url)
             assert match is not None
@@ -109,18 +100,18 @@ class SourceRegistry:
                 include_prefixes=include_prefixes,
             )
 
-        github_url = next(
-            (url for url in spec.urls if _GITHUB_RE.match(url)),
-            None,
-        )
+        github_url = next((url for url in spec.urls if _GITHUB_RE.match(url)), None)
         if github_url:
             match = _GITHUB_RE.match(github_url)
             assert match is not None
+            extensions = ("data_with_voxel_names.parquet",) if spec.source_id == "farhanwew" else None
             return GitHubCollectionSource(
                 source_id=spec.source_id,
                 display_name=spec.name,
                 repository=match.group(1).removesuffix(".git"),
                 lineage_dataset=spec.lineage_root or spec.catalog_id,
                 lineage_parent=spec.parent,
+                extensions=extensions or (".schem", ".schematic", ".litematic", ".nbt", ".zip", ".tar.gz", ".tgz"),
+                container=spec.source_id == "farhanwew",
             )
         raise ValueError(f"No automated adapter is available for {spec.catalog_id}")

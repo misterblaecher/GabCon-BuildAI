@@ -15,6 +15,7 @@ class CanonicalBlock:
     y: int
     z: int
     state: str
+    source_state_id: int | str | None = None
 
     def as_row(self) -> list[int | str]:
         return [self.x, self.y, self.z, self.state]
@@ -40,10 +41,10 @@ class CanonicalStructure:
 
     @property
     def palette_size(self) -> int:
-        return len({block.state for block in self.blocks})
+        return len({(block.state, block.source_state_id) for block in self.blocks})
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "dimensions": list(self.dimensions),
             "block_count": self.block_count,
             "palette_size": self.palette_size,
@@ -51,6 +52,14 @@ class CanonicalStructure:
             "blocks": [block.as_row() for block in self.blocks],
             "metadata": self.metadata,
         }
+        source_state_ids = [
+            [block.x, block.y, block.z, block.source_state_id]
+            for block in self.blocks
+            if block.source_state_id is not None
+        ]
+        if source_state_ids:
+            payload["source_state_ids"] = source_state_ids
+        return payload
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +80,7 @@ class SourceItem:
     lineage_dataset: str | None = None
     lineage_parent: str | None = None
     images: tuple[str, ...] = ()
+    container: bool = False
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

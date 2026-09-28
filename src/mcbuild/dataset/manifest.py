@@ -55,6 +55,7 @@ class ManifestDB:
                     expected_size INTEGER,
                     expected_sha256 TEXT,
                     metadata_json TEXT NOT NULL DEFAULT '{}',
+                    is_container INTEGER NOT NULL DEFAULT 0,
                     status TEXT NOT NULL DEFAULT 'discovered',
                     raw_path TEXT,
                     file_sha256 TEXT,
@@ -99,15 +100,11 @@ class ManifestDB:
                 );
                 """
             )
+            columns = {row[1] for row in db.execute("PRAGMA table_info(items)")}
+            if "is_container" not in columns:
+                db.execute("ALTER TABLE items ADD COLUMN is_container INTEGER NOT NULL DEFAULT 0")
 
-    def register_source(
-        self,
-        source_id: str,
-        *,
-        name: str,
-        source_type: str,
-        lineage_root: str | None,
-    ) -> None:
+    def register_source(self, source_id: str, *, name: str, source_type: str, lineage_root: str | None) -> None:
         with self._connect() as db:
             db.execute(
                 """INSERT INTO sources(id, name, source_type, lineage_root, updated_at)
@@ -123,8 +120,8 @@ class ManifestDB:
                 """INSERT INTO items(
                     source, source_item_id, source_url, download_url, source_file, title, description,
                     tags_json, images_json, minecraft_version, lineage_dataset, lineage_parent,
-                    expected_size, expected_sha256, metadata_json, discovered_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    expected_size, expected_sha256, metadata_json, is_container, discovered_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(source, source_item_id) DO UPDATE SET
                     source_url=excluded.source_url, download_url=excluded.download_url,
                     source_file=excluded.source_file, title=COALESCE(excluded.title, items.title),
@@ -134,7 +131,7 @@ class ManifestDB:
                     lineage_dataset=excluded.lineage_dataset, lineage_parent=excluded.lineage_parent,
                     expected_size=COALESCE(excluded.expected_size, items.expected_size),
                     expected_sha256=COALESCE(excluded.expected_sha256, items.expected_sha256),
-                    metadata_json=excluded.metadata_json""",
+                    metadata_json=excluded.metadata_json, is_container=excluded.is_container""",
                 (
                     item.source,
                     item.source_item_id,
@@ -151,6 +148,7 @@ class ManifestDB:
                     item.expected_size,
                     item.expected_sha256,
                     json.dumps(item.metadata, ensure_ascii=False, sort_keys=True),
+                    int(item.container),
                     _now(),
                 ),
             )
@@ -158,36 +156,24 @@ class ManifestDB:
     def item_state(self, source: str, source_item_id: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                "SELECT * FROM items WHERE source=? AND source_item_id=?",
-                (source, source_item_id),
+                "SELECT * FROM items WHERE source=? AND source_item_id=?", (source, source_item_id)
             ).fetchone()
 
     def file_by_url(self, url: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                """SELECT * FROM items
-                WHERE download_url=? AND status IN ('downloaded','parsed')
-                ORDER BY downloaded_at LIMIT 1""",
+                "SELECT * FROM items WHERE download_url=? AND status IN ('downloaded','parsed','container') ORDER BY downloaded_at LIMIT 1",
                 (url,),
             ).fetchone()
 
     def file_by_hash(self, sha256: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                """SELECT * FROM items
-                WHERE file_sha256=? AND status IN ('downloaded','parsed')
-                ORDER BY downloaded_at LIMIT 1""",
+                "SELECT * FROM items WHERE file_sha256=? AND status IN ('downloaded','parsed','container') ORDER BY downloaded_at LIMIT 1",
                 (sha256,),
             ).fetchone()
 
-    def mark_downloaded(
-        self,
-        item: SourceItem,
-        *,
-        raw_path: Path,
-        sha256: str,
-        size: int,
-    ) -> None:
+    def mark_downloaded(self, item: SourceItem, *, raw_path: Path, sha256: str, size: int) -> None:
         with self._connect() as db:
             db.execute(
                 """UPDATE items SET status='downloaded', raw_path=?, file_sha256=?, file_size=?,
@@ -195,17 +181,17 @@ class ManifestDB:
                 (str(raw_path), sha256, size, _now(), item.source, item.source_item_id),
             )
 
-    def duplicate_for_rotation(
-        self,
-        rotation_hash: str,
-        *,
-        exclude_source: str,
-        exclude_item: str,
-    ) -> sqlite3.Row | None:
+    def mark_container_processed(self, item: SourceItem) -> None:
+        with self._connect() as db:
+            db.execute(
+                "UPDATE items SET status='container', parsed_at=?, error=NULL WHERE source=? AND source_item_id=?",
+                (_now(), item.source, item.source_item_id),
+            )
+
+    def duplicate_for_rotation(self, rotation_hash: str, *, exclude_source: str, exclude_item: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                """SELECT * FROM structures WHERE rotation_hash=?
-                AND NOT (source=? AND source_item_id=?)
+                """SELECT * FROM structures WHERE rotation_hash=? AND NOT (source=? AND source_item_id=?)
                 ORDER BY id LIMIT 1""",
                 (rotation_hash, exclude_source, exclude_item),
             ).fetchone()
@@ -219,9 +205,7 @@ class ManifestDB:
         canonical_path: Path,
     ) -> None:
         duplicate = self.duplicate_for_rotation(
-            hashes.rotation_hash,
-            exclude_source=item.source,
-            exclude_item=item.source_item_id,
+            hashes.rotation_hash, exclude_source=item.source, exclude_item=item.source_item_id
         )
         duplicate_of = duplicate["build_id"] if duplicate is not None else None
         with self._connect() as db:
@@ -256,27 +240,18 @@ class ManifestDB:
                 ),
             )
             db.execute(
-                """UPDATE items SET status='parsed', parsed_at=?, error=NULL
-                WHERE source=? AND source_item_id=?""",
+                "UPDATE items SET status='parsed', parsed_at=?, error=NULL WHERE source=? AND source_item_id=?",
                 (_now(), item.source, item.source_item_id),
             )
 
-    def mark_error(
-        self,
-        source: str,
-        source_item_id: str,
-        *,
-        stage: str,
-        message: str,
-    ) -> None:
+    def mark_error(self, source: str, source_item_id: str, *, stage: str, message: str) -> None:
         with self._connect() as db:
             db.execute(
                 "UPDATE items SET status='failed', error=? WHERE source=? AND source_item_id=?",
                 (f"{stage}: {message}", source, source_item_id),
             )
             db.execute(
-                """INSERT INTO errors(source, source_item_id, stage, message, created_at)
-                VALUES (?, ?, ?, ?, ?)""",
+                "INSERT INTO errors(source, source_item_id, stage, message, created_at) VALUES (?, ?, ?, ?, ?)",
                 (source, source_item_id, stage, message[:4000], _now()),
             )
 
@@ -288,11 +263,10 @@ class ManifestDB:
                     SUM(CASE WHEN i.downloaded_at IS NOT NULL THEN 1 ELSE 0 END) AS downloaded,
                     SUM(CASE WHEN i.status='parsed' THEN 1 ELSE 0 END) AS parsed,
                     SUM(CASE WHEN i.status='failed' THEN 1 ELSE 0 END) AS failed,
-                    COUNT(s.id)
-                        - SUM(CASE WHEN s.duplicate_of IS NOT NULL THEN 1 ELSE 0 END)
-                        AS unique_count
+                    COUNT(s.id) - SUM(CASE WHEN s.duplicate_of IS NOT NULL THEN 1 ELSE 0 END) AS unique_count
                 FROM items i LEFT JOIN structures s
                     ON s.source=i.source AND s.source_item_id=i.source_item_id
+                WHERE i.is_container=0
                 GROUP BY i.source ORDER BY i.source"""
             ).fetchall()
         return [dict(row) for row in rows]
@@ -306,10 +280,7 @@ class ManifestDB:
                 duplicate_of = first_by_rotation.get(row["rotation_hash"])
                 if duplicate_of is None:
                     first_by_rotation[row["rotation_hash"]] = row["build_id"]
-                db.execute(
-                    "UPDATE structures SET duplicate_of=? WHERE id=?",
-                    (duplicate_of, row["id"]),
-                )
+                db.execute("UPDATE structures SET duplicate_of=? WHERE id=?", (duplicate_of, row["id"]))
                 if duplicate_of is not None:
                     updates += 1
         return updates
@@ -318,10 +289,8 @@ class ManifestDB:
         with self._connect() as db:
             rows = db.execute(
                 """SELECT i.*, s.build_id, s.structure_hash, s.rotation_hash, s.occupancy_hash,
-                    s.canonical_path, s.dimensions_json, s.block_count, s.volume,
-                    s.palette_size, s.duplicate_of
-                FROM items i JOIN structures s
-                    ON s.source=i.source AND s.source_item_id=i.source_item_id
+                    s.canonical_path, s.dimensions_json, s.block_count, s.volume, s.palette_size, s.duplicate_of
+                FROM items i JOIN structures s ON s.source=i.source AND s.source_item_id=i.source_item_id
                 ORDER BY i.source, i.source_item_id"""
             ).fetchall()
         for row in rows:
@@ -349,15 +318,9 @@ class ManifestDB:
                     "block_count": row["block_count"],
                     "volume": row["volume"],
                     "palette_size": row["palette_size"],
-                    "formats": {
-                        "original": row["raw_path"],
-                        "canonical": row["canonical_path"],
-                    },
+                    "formats": {"original": row["raw_path"], "canonical": row["canonical_path"]},
                     "images": json.loads(row["images_json"]),
-                    "lineage": {
-                        "dataset": row["lineage_dataset"],
-                        "parent": row["lineage_parent"],
-                    },
+                    "lineage": {"dataset": row["lineage_dataset"], "parent": row["lineage_parent"]},
                     "duplicate_of": row["duplicate_of"],
                 }
                 handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")

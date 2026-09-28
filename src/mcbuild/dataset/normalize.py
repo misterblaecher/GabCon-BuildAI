@@ -44,27 +44,21 @@ def canonical_block_state(raw: str) -> str:
     return f"{namespace}:{path}[{rendered}]"
 
 
-def normalize_structure(
-    blocks: Iterable[tuple[int, int, int, str]],
+def _normalize_rows(
+    blocks: Iterable[tuple[int, int, int, str, int | str | None]],
     *,
     dimensions: tuple[int, int, int] | None = None,
     minecraft_version: str | None = None,
     metadata: dict | None = None,
     include_air: bool = False,
 ) -> CanonicalStructure:
-    """Translate the occupied bounding box to origin and deterministically sort blocks.
-
-    When ``dimensions`` is supplied it is preserved exactly, while coordinates are still
-    translated by their minimum observed coordinate. This is important for source formats
-    whose declared bounds intentionally contain empty border cells.
-    """
-    normalized_input: list[tuple[int, int, int, str]] = []
-    for x, y, z, state in blocks:
+    normalized_input: list[tuple[int, int, int, str, int | str | None]] = []
+    for x, y, z, state, source_state_id in blocks:
         if not all(isinstance(value, int) for value in (x, y, z)):
             raise ValueError("Block coordinates must be integers.")
         canonical = canonical_block_state(state)
         if include_air or canonical.split("[", 1)[0] not in AIR_IDS:
-            normalized_input.append((x, y, z, canonical))
+            normalized_input.append((x, y, z, canonical, source_state_id))
 
     if not normalized_input:
         raise ValueError("Structure contains no non-air blocks.")
@@ -82,12 +76,23 @@ def normalize_structure(
     elif any(not isinstance(value, int) or value <= 0 for value in dimensions):
         raise ValueError(f"Invalid declared dimensions: {dimensions!r}")
     elif any(occupied > declared for occupied, declared in zip(occupied_dimensions, dimensions, strict=True)):
-        raise ValueError(f"Occupied bounds {occupied_dimensions!r} exceed declared dimensions {dimensions!r}.")
+        raise ValueError(
+            f"Occupied bounds {occupied_dimensions!r} exceed declared dimensions {dimensions!r}."
+        )
 
     canonical_blocks = tuple(
         sorted(
-            (CanonicalBlock(x - minx, y - miny, z - minz, state) for x, y, z, state in normalized_input),
-            key=lambda block: (block.x, block.y, block.z, block.state),
+            (
+                CanonicalBlock(x - minx, y - miny, z - minz, state, source_state_id)
+                for x, y, z, state, source_state_id in normalized_input
+            ),
+            key=lambda block: (
+                block.x,
+                block.y,
+                block.z,
+                block.state,
+                str(block.source_state_id),
+            ),
         )
     )
     return CanonicalStructure(
@@ -95,4 +100,38 @@ def normalize_structure(
         dimensions=dimensions,
         minecraft_version=minecraft_version,
         metadata=dict(metadata or {}),
+    )
+
+
+def normalize_structure(
+    blocks: Iterable[tuple[int, int, int, str]],
+    *,
+    dimensions: tuple[int, int, int] | None = None,
+    minecraft_version: str | None = None,
+    metadata: dict | None = None,
+    include_air: bool = False,
+) -> CanonicalStructure:
+    """Normalize a structure while preserving declared dimensions and complete states."""
+    return _normalize_rows(
+        ((x, y, z, state, None) for x, y, z, state in blocks),
+        dimensions=dimensions,
+        minecraft_version=minecraft_version,
+        metadata=metadata,
+        include_air=include_air,
+    )
+
+
+def normalize_structure_with_state_ids(
+    blocks: Iterable[tuple[int, int, int, str, int | str]],
+    *,
+    dimensions: tuple[int, int, int] | None = None,
+    minecraft_version: str | None = None,
+    metadata: dict | None = None,
+) -> CanonicalStructure:
+    """Normalize blocks while retaining an opaque source block-state identifier."""
+    return _normalize_rows(
+        blocks,
+        dimensions=dimensions,
+        minecraft_version=minecraft_version,
+        metadata=metadata,
     )
