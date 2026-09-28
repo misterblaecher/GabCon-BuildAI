@@ -1,12 +1,10 @@
 name: Dataset sourcing smoke
 
 on:
-  push:
-    branches: [feature/dataset-sourcing-pipeline]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   dataset-smoke:
@@ -24,17 +22,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --extra dev
-
-      - name: Format dataset code and refresh lock
-        run: |
-          uv run ruff format src/mcbuild/dataset tests/test_dataset_*.py
-          if ! git diff --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/mcbuild/dataset tests/test_dataset_*.py uv.lock
-            git commit -m "style(dataset): format pipeline and refresh lock"
-            git push
-          fi
 
       - name: Dataset lint
         run: |
@@ -56,8 +43,12 @@ jobs:
           uv run python - <<'PY'
           import sqlite3
           db = sqlite3.connect('/tmp/mcbuild-hack337/manifests/downloads.sqlite')
-          parsed = db.execute("select count(*) from items where source='hack337' and status='parsed'").fetchone()[0]
-          assert parsed >= 1, f"expected at least one parsed Hack337 structure, got {parsed}"
+          parsed = db.execute(
+              "select count(*) from items where source='hack337' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Hack337 structure, got {parsed}"
+          )
           PY
 
       - name: Real Farhan import
@@ -67,8 +58,12 @@ jobs:
           uv run python - <<'PY'
           import sqlite3
           db = sqlite3.connect('/tmp/mcbuild-farhan/manifests/downloads.sqlite')
-          parsed = db.execute("select count(*) from items where source='farhanwew' and status='parsed'").fetchone()[0]
-          assert parsed >= 1, f"expected at least one parsed Farhan structure, got {parsed}"
+          parsed = db.execute(
+              "select count(*) from items where source='farhanwew' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Farhan structure, got {parsed}"
+          )
           PY
 
       - name: Real Fable import
@@ -78,6 +73,10 @@ jobs:
           uv run python - <<'PY'
           import sqlite3
           db = sqlite3.connect('/tmp/mcbuild-fable/manifests/downloads.sqlite')
-          parsed = db.execute("select count(*) from items where source='fable' and status='parsed'").fetchone()[0]
-          assert parsed >= 1, f"expected at least one parsed Fable structure, got {parsed}"
+          parsed = db.execute(
+              "select count(*) from items where source='fable' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Fable structure, got {parsed}"
+          )
           PY
