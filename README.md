@@ -495,6 +495,19 @@ reported alongside:
 
 ![Contact sheet: iso rotations, top-down, and cutaways](docs/images/mansion-contact-sheet.png)
 
+## Dataset & research sources
+
+A maintained inventory of Minecraft build datasets, schematic collections, benchmarks,
+derivative research repositories, source-site restrictions, and format/tooling references
+is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
+
+A machine-readable version for future importers, rights filtering, and lineage-aware
+deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
+
+The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
+and records a practical rights grade so restricted or non-commercial data cannot be mixed
+accidentally into a redistributable training release.
+
 ## Project layout
 
 ```
