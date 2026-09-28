@@ -573,53 +573,53 @@
       "blueprint": "generated/chatgpt-snowy_gothic_fortress/blueprint.py",
       "dims": [
         149,
-        184,
+        194,
         119
       ],
-      "block_count": 225550,
+      "block_count": 248889,
       "namespaces": {
-        "minecraft": 225550
+        "minecraft": 248889
       },
       "top_materials": [
         [
           "stone_bricks",
-          128884
+          143218
         ],
         [
           "cracked_stone_bricks",
-          20244
-        ],
-        [
-          "andesite",
-          15349
+          21340
         ],
         [
           "dark_oak_planks",
-          14393
+          16830
+        ],
+        [
+          "andesite",
+          16120
         ],
         [
           "tuff_bricks",
-          13440
+          14169
         ],
         [
           "polished_andesite",
-          10351
+          11450
         ],
         [
           "snow_block",
-          9669
+          11300
         ],
         [
           "polished_deepslate",
-          6779
-        ],
-        [
-          "deepslate_tiles",
-          2803
+          7088
         ],
         [
           "orange_stained_glass",
-          2794
+          4310
+        ],
+        [
+          "deepslate_tiles",
+          2512
         ]
       ],
       "server_profile": {

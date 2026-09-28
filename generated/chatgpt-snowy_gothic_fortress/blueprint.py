@@ -72,8 +72,7 @@ def lancet_side(x, cz, y0, width, height, glass=GLASS):
 
 
 def steep_square_roof(cx, cz, y, width, height, block=ROOF):
-    # Layered stepped roof. Using explicit shells produces a sharper Gothic profile
-    # than a single low pyramid and gives snow somewhere to catch.
+    # Layered stepped roof with a deliberately steep Gothic pitch.
     half = width // 2
     for dy in range(height):
         inset = min(half - 1, (dy * half) // max(1, height - 1))
@@ -86,11 +85,19 @@ def steep_square_roof(cx, cz, y, width, height, block=ROOF):
             set_block(cx - r, yy, z, block)
             set_block(cx + r, yy, z, block)
 
-        # Sparse snow ledges on lower shoulders.
-        if dy in (0, 2, 5) and r >= 3:
-            for x in range(cx - r, cx + r + 1, 3):
-                set_block(x, yy + 1, cz - r, SNOW)
-                set_block(x, yy + 1, cz + r, SNOW)
+    # Apply snow last so it remains visible as broken white bands on the roof.
+    for dy in (0, 3, 7):
+        if dy >= height:
+            continue
+        inset = min(half - 1, (dy * half) // max(1, height - 1))
+        r = max(1, half - inset)
+        yy = y + dy + 1
+        for x in range(cx - r, cx + r + 1, 2):
+            set_block(x, yy, cz - r, SNOW)
+            set_block(x, yy, cz + r, SNOW)
+        for z in range(cz - r + 1, cz + r, 2):
+            set_block(cx - r, yy, z, SNOW)
+            set_block(cx + r, yy, z, SNOW)
 
     set_block(cx, y + height, cz, DARK)
     set_block(cx, y + height + 1, cz, DARK)
@@ -136,7 +143,7 @@ def pinnacle(cx, cz, base_y, shaft_h=18, width=5, roof_h=9):
     half = width // 2
     walls(cx - half, cz - half, cx + half, cz + half, base_y, base_y + shaft_h, CLEAN)
     for yy in range(base_y + 5, base_y + shaft_h - 3, 8):
-        lancet_front(cx, cz - half - 1, yy, 1, 4, "yellow_stained_glass")
+        lancet_front(cx, cz - half - 1, yy, 1, 4, "orange_stained_glass")
     steep_square_roof(cx, cz, base_y + shaft_h + 1, width + 2, roof_h, DARK)
     set_block(cx, base_y + shaft_h + roof_h + 3, cz, "gold_block")
 
@@ -155,18 +162,21 @@ def flying_buttress(x_wall, z_wall, y_wall, x_pier, z_pier, y_pier):
 
 terraces = [
     (74, 58, 0),
-    (70, 55, 2),
-    (66, 52, 4),
     (62, 49, 6),
-    (59, 46, 8),
-    (56, 43, 10),
-    (53, 40, 12),
+    (54, 42, 12),
 ]
 for hx, hz, y in terraces:
     # Concentric cliff rings.  Avoid stacking huge solid plates: the renderer
     # works on exposed voxels and the rings preserve the stepped mountain shape
     # at a fraction of the surface budget.
     walls(-hx, -hz, hx, hz, y, y + 3, STONE, thickness=2)
+    # Broken snowy cornice on the exposed ledge.
+    for x in range(-hx + 2, hx - 1, 3):
+        set_block(x, y + 4, -hz, SNOW)
+        set_block(x, y + 4, hz, SNOW)
+    for z in range(-hz + 2, hz - 1, 3):
+        set_block(-hx, y + 4, z, SNOW)
+        set_block(hx, y + 4, z, SNOW)
 
 # Irregular cliff buttresses on the visible front and side edges.
 for x in range(-66, 67, 11):
@@ -177,7 +187,7 @@ for z in range(-48, 49, 13):
     fill(66, 0, z - 3, 72, 4 + ((abs(z) + 2) % 7), z + 3, STONE)
 
 # Snow shelf on the summit and broken snow shelves down the cliff.
-floor(-53, -40, 53, 40, 13, SNOW)
+floor(-52, -39, 52, 39, 13, SNOW)
 for x in range(-70, 71, 8):
     set_block(x, 3 + (abs(x) % 5), -58 + (abs(x) % 4), SNOW)
     set_block(x, 6 + (abs(x) % 4), 54 - (abs(x) % 5), SNOW)
@@ -221,8 +231,18 @@ for step in range(11):
 square_tower(-15, -36, 14, 11, 48, 16, window_levels=(14, 28), finial=True)
 square_tower(15, -36, 14, 11, 46, 15, window_levels=(14, 28), finial=True)
 
+# Monumental dark gate leaf on the facade; the tunnel remains carved behind it.
+for yy in range(16, 32):
+    hw = 6 if yy < 27 else max(1, 6 - (yy - 27))
+    for xx in range(-hw, hw + 1):
+        set_block(xx, yy, -44, "dark_oak_planks")
+for yy in (20, 25):
+    line(-5, yy, -45, 5, yy, -45, "polished_blackstone")
+set_block(-4, 22, -45, "lantern[hanging=false]")
+set_block(4, 22, -45, "lantern[hanging=false]")
+
 # Gatehouse upper chapel window.
-lancet_front(0, -44, 35, 5, 13, "yellow_stained_glass")
+lancet_front(0, -44, 35, 5, 13, "orange_stained_glass")
 
 
 # ---------------------------------------------------------------------------
@@ -267,22 +287,22 @@ frame(-15, 94, -9, 15, 98, 16, CLEAN)
 # Monumental front lancet.
 lancet_front(0, -9, 64, 7, 29, "orange_stained_glass")
 # Secondary high lancets on all faces.
-lancet_front(0, 16, 80, 4, 17, "yellow_stained_glass")
+lancet_front(0, 16, 80, 4, 17, "orange_stained_glass")
 lancet_side(-15, 3, 78, 4, 17)
 lancet_side(15, 3, 78, 4, 17)
 
 # Narrower upper belfry.
 walls(-11, -5, 11, 12, 105, 132, STONE, thickness=2)
 for cx in (-6, 0, 6):
-    lancet_front(cx, -6, 110, 2, 12, "yellow_stained_glass")
-lancet_side(-12, 3, 111, 3, 12, "yellow_stained_glass")
-lancet_side(12, 3, 111, 3, 12, "yellow_stained_glass")
+    lancet_front(cx, -6, 110, 2, 12, "orange_stained_glass")
+lancet_side(-12, 3, 111, 3, 12, "orange_stained_glass")
+lancet_side(12, 3, 111, 3, 12, "orange_stained_glass")
 
 # Crown stage and very tall spire.
-walls(-9, -3, 9, 10, 133, 143, CLEAN, thickness=2)
-frame(-11, 139, -5, 11, 143, 12, TRIM)
-steep_square_roof(0, 3, 144, 25, 34, ROOF)
-gold_cross(0, 181, 3)
+walls(-9, -3, 9, 10, 133, 145, CLEAN, thickness=2)
+frame(-11, 140, -5, 11, 145, 12, TRIM)
+steep_square_roof(0, 3, 146, 21, 42, ROOF)
+gold_cross(0, 191, 3)
 
 # Four corner pinnacles wrapping the central tower.
 for px, pz in [(-15, -7), (15, -7), (-15, 14), (15, 14)]:
@@ -305,6 +325,26 @@ tower_specs = [
 ]
 for spec in tower_specs:
     square_tower(*spec, finial=True)
+
+
+# Additional thin sanctum spires tightly packed around the central keep.
+# These create the dense crown of secondary needles visible in the reference.
+inner_spires = [
+    (-20, 8, 50, 7, 72, 17),
+    (20, 8, 50, 7, 70, 17),
+    (-11, 22, 48, 7, 66, 16),
+    (11, 22, 48, 7, 63, 15),
+    (-22, -10, 42, 7, 58, 15),
+    (22, -10, 42, 7, 56, 14),
+]
+for cx, cz, by, w, bh, rh in inner_spires:
+    square_tower(cx, cz, by, w, bh, rh, window_levels=(18, 38), finial=True)
+
+# Two isolated edge towers extend the skyline beyond the main enceinte.
+square_tower(-59, -2, 12, 9, 68, 18, window_levels=(18, 40), finial=True)
+square_tower(59, 6, 12, 9, 73, 19, window_levels=(20, 43), finial=True)
+line(-59, 46, -2, -52, 42, -2, CLEAN)
+line(59, 49, 6, 52, 44, 6, CLEAN)
 
 
 # ---------------------------------------------------------------------------
