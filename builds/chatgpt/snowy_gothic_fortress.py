@@ -163,9 +163,10 @@ terraces = [
     (53, 40, 12),
 ]
 for hx, hz, y in terraces:
-    # Thin stone shelf and vertical cliff edge, not a giant solid cube.
-    floor(-hx, -hz, hx, hz, y, STONE)
-    walls(-hx, -hz, hx, hz, y, y + 2, STONE, thickness=2)
+    # Concentric cliff rings.  Avoid stacking huge solid plates: the renderer
+    # works on exposed voxels and the rings preserve the stepped mountain shape
+    # at a fraction of the surface budget.
+    walls(-hx, -hz, hx, hz, y, y + 3, STONE, thickness=2)
 
 # Irregular cliff buttresses on the visible front and side edges.
 for x in range(-66, 67, 11):
