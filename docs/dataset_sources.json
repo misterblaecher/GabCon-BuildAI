@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 1,
   "researched_at": "2026-09-28",
   "purpose": "Minecraft build/dataset/source inventory for GabCon BuildAI. Counts from derivatives must not be summed with upstream lineages.",
   "rights_grades": {
@@ -731,31 +731,5 @@
       "rights_grade": "not-a-dataset",
       "notes": "Canonical ecosystem reference for modern schematic import/export behavior."
     }
-  ],
-  "usage_policy": {
-    "scope": "GabCon personal/local research policy",
-    "local_private_experimentation": {
-      "allowed_rights_grades": [
-        "A",
-        "B",
-        "C",
-        "D"
-      ],
-      "condition": "Use must still comply with each original source license/terms and collection restrictions.",
-      "c_and_d_rule": "C/D data may be used for local/private training, fine-tuning, retrieval, preprocessing, rendering and evaluation, but remains isolated from public-release data."
-    },
-    "redistribution_public_release": {
-      "allowed_rights_grades": [
-        "A",
-        "B"
-      ],
-      "condition": "Only exact assets whose provenance and applicable rights have been verified may be redistributed.",
-      "c_and_d_rule": "C/D assets are excluded until individually verified and reclassified as A/B."
-    },
-    "repository_storage": {
-      "restricted_raw_data": "Do not commit restricted C/D raw corpora to the public GabCon repository.",
-      "metadata_ok": "Keep source identifiers, URLs, authors/provenance, lineage and rights grades."
-    },
-    "precedence": "Source-specific licenses and terms override this internal GabCon policy."
-  }
+  ]
 }
