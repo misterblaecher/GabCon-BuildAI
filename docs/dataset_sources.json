@@ -2,12 +2,6 @@
   "schema_version": 1,
   "researched_at": "2026-09-28",
   "purpose": "Minecraft build/dataset/source inventory for GabCon BuildAI. Counts from derivatives must not be summed with upstream lineages.",
-  "rights_grades": {
-    "A": "Explicitly permissive/open data or first-party content with clear reuse rights.",
-    "B": "Public research/open-source source with reasonable provenance; build-level rights or data-specific terms still need verification.",
-    "C": "Non-commercial/research-only or platform terms materially restrict reuse.",
-    "D": "Unknown, scraped, mirrored, mixed provenance, or insufficiently documented rights."
-  },
   "sources": [
     {
       "id": "hack337-minecraft-schematics",
@@ -27,10 +21,8 @@
       "native_dimensions": true,
       "block_names": true,
       "block_states": "partial/verify",
-      "license": "MIT (dataset package)",
-      "rights_grade": "B",
       "lineage_root": "hack337-minecraft-schematics",
-      "notes": "Strongest directly usable text-to-structure seed found. Audit build-level provenance independently of package license."
+      "notes": "Strongest directly usable text-to-structure seed found. Preserve build-level provenance for deduplication."
     },
     {
       "id": "rom1504-minecraft-schematics-dataset",
@@ -49,8 +41,6 @@
       "native_dimensions": false,
       "block_names": "derivable",
       "block_states": true,
-      "license": "unclear",
-      "rights_grade": "D/C",
       "lineage_root": "rom1504-lineage",
       "notes": "Parent lineage for Farhan and other readers/mirrors. Planet Minecraft-derived metadata."
     },
@@ -76,8 +66,6 @@
       "block_names": true,
       "block_states": true,
       "minecraft_mapping_version": "1.16.4",
-      "license": "unclear for data",
-      "rights_grade": "D/C",
       "lineage_root": "rom1504-lineage",
       "parent": "rom1504-minecraft-schematics-dataset",
       "notes": "Adds Parquet, voxel_name_data and multiview manifests. Do not count as new independent builds."
@@ -96,8 +84,6 @@
       "voxels": true,
       "raw_schematics": false,
       "native_dimensions": false,
-      "license": "upstream data constraints apply",
-      "rights_grade": "D/C",
       "lineage_root": "rom1504-lineage",
       "notes": "Reader/rendering/preprocessing derivative for the same 8,328-record corpus."
     },
@@ -111,8 +97,6 @@
       "unique_count_estimate": 0,
       "count_kind": "new unique builds",
       "lineage_root": "rom1504-lineage",
-      "license": "upstream data constraints apply",
-      "rights_grade": "D/C",
       "notes": "Mirror/fork of rom1504 lineage; not an independent dataset."
     },
     {
@@ -131,8 +115,6 @@
       "voxels": true,
       "raw_schematics": false,
       "native_dimensions": "partially upstream",
-      "license": "VoxelCNN code CC-BY-NC 4.0; data rights require review",
-      "rights_grade": "B/C",
       "lineage_root": "3d-craft",
       "notes": "Sequential human build-order data. Excellent 3D/order prior; weak semantic captions."
     },
@@ -152,8 +134,6 @@
       "raw_schematics": "mixed/world source",
       "native_dimensions": "mixed",
       "block_names": true,
-      "license": "source/platform dependent",
-      "rights_grade": "D/C",
       "lineage_root": "text2mc",
       "notes": "Contains Planet Minecraft metadata CSVs, scraping/processing code, world2vec/vec2world and H5 examples."
     },
@@ -174,8 +154,6 @@
       "voxels": "reconstructible",
       "raw_schematics": "partial/architecture data",
       "native_dimensions": true,
-      "license": "CC-BY-NC-SA 4.0 on HF benchmark",
-      "rights_grade": "C",
       "lineage_root": "mineanybuild",
       "notes": "Best treated as multimodal spatial-planning benchmark/evaluation source. Raw data includes GrabCraft-derived material."
     },
@@ -195,10 +173,8 @@
       "native_dimensions": true,
       "block_names": true,
       "block_states": true,
-      "license": "not documented",
-      "rights_grade": "D",
       "lineage_root": "fable-unknown",
-      "notes": "Technically valuable native/normalized split; provenance and licensing are insufficiently documented."
+      "notes": "Technically valuable native/normalized split; provenance should be reconstructed."
     },
     {
       "id": "schematic-diffusion-corpus",
@@ -215,10 +191,8 @@
       "raw_schematics": true,
       "native_dimensions": true,
       "block_names": true,
-      "license": "external corpus unclear",
-      "rights_grade": "D/C",
       "lineage_root": "schematic-diffusion-external",
-      "notes": "Large-scale source. Repository itself flags ethical concerns. Requires provenance reconstruction and geometric deduplication."
+      "notes": "Large-scale source. Requires provenance reconstruction and geometric deduplication."
     },
     {
       "id": "litematica-gpt",
@@ -235,8 +209,6 @@
       "voxels": "DSL -> blocks",
       "raw_schematics": "raw corpus local-only",
       "native_dimensions": true,
-      "license": "repo inherited Litematica terms; training-data provenance unclear",
-      "rights_grade": "D",
       "lineage_root": "litematica-gpt",
       "notes": "Highly relevant prompt -> planner -> compiler/DSL representation. Full scraped raw corpus is not committed."
     },
@@ -255,8 +227,6 @@
       "voxels": true,
       "raw_schematics": false,
       "native_dimensions": false,
-      "license": "MIT code; upstream datasets separate",
-      "rights_grade": "upstream-dependent",
       "lineage_root": "multi-source-derivative",
       "notes": "Combines Text2MC, 3D-Craft and rom1504. Excellent preprocessing/feature/control reference; not 10,310 new independent builds."
     },
@@ -270,8 +240,6 @@
       "unique_count_estimate": 0,
       "count_kind": "new unique builds",
       "lineage_root": "3d-craft",
-      "license": "upstream-dependent",
-      "rights_grade": "upstream-dependent",
       "notes": "Voxel generation/modeling reference; underlying source lineage should not be double-counted."
     },
     {
@@ -284,8 +252,6 @@
       "unique_count_estimate": 0,
       "count_kind": "new unique builds",
       "lineage_root": "3d-craft",
-      "license": "upstream-dependent",
-      "rights_grade": "upstream-dependent",
       "notes": "Generative research derivative; not an independent build corpus."
     },
     {
@@ -302,8 +268,6 @@
       "voxels": true,
       "raw_schematics": true,
       "native_dimensions": "source-dependent",
-      "license": "data unclear",
-      "rights_grade": "D",
       "notes": "Contains scraping/dataset-building and transformer generation pipeline, but no clearly documented standalone public corpus."
     },
     {
@@ -321,8 +285,6 @@
       "voxels": true,
       "raw_schematics": true,
       "native_dimensions": "source-dependent",
-      "license": "MIT code; data source-dependent",
-      "rights_grade": "source-dependent",
       "notes": "Useful world sampling, dataset compilation, training and inference reference."
     },
     {
@@ -341,10 +303,8 @@
       "native_dimensions": true,
       "block_names": true,
       "block_states": true,
-      "license": "data license unclear",
-      "rights_grade": "D/B",
       "lineage_root": "computational-redstone",
-      "notes": "High-value functional redstone components and manifests; source-world provenance needs audit."
+      "notes": "High-value functional redstone components and manifests; source-world provenance helps deduplication."
     },
     {
       "id": "3d-artefacts-nca",
@@ -361,8 +321,6 @@
       "voxels": true,
       "raw_schematics": "NBT",
       "native_dimensions": true,
-      "license": "repository/open-source; verify data assets",
-      "rights_grade": "A/B",
       "lineage_root": "3d-artefacts-nca",
       "notes": "Small high-quality corpus of structural/functional targets for Neural Cellular Automata."
     },
@@ -381,8 +339,6 @@
       "raw_schematics": "NBT",
       "native_dimensions": true,
       "minecraft_version": "1.20.2",
-      "license": "verify repository asset license",
-      "rights_grade": "A/B",
       "lineage_root": "gdmc2024",
       "notes": "Useful modular structures with behavior/composition logic."
     },
@@ -401,8 +357,6 @@
       "raw_schematics": "NBT",
       "native_dimensions": true,
       "minecraft_version": "1.19.2",
-      "license": "verify repository asset license",
-      "rights_grade": "A/B",
       "lineage_root": "gdmc2023",
       "notes": "Useful modular settlement structures and composition logic."
     },
@@ -420,8 +374,6 @@
       "voxels": true,
       "raw_schematics": true,
       "native_dimensions": true,
-      "license": "unclear",
-      "rights_grade": "D",
       "lineage_root": "silvicky-litematics",
       "notes": "Public binary collection with minimal provenance/license documentation."
     },
@@ -439,8 +391,6 @@
       "voxels": true,
       "raw_schematics": true,
       "native_dimensions": true,
-      "license": "unclear",
-      "rights_grade": "D",
       "lineage_root": "piscescup-schematics",
       "notes": "Large binary repository with limited documentation; manual review required."
     },
@@ -458,8 +408,6 @@
       "voxels": true,
       "raw_schematics": true,
       "native_dimensions": true,
-      "license": "MIT repository",
-      "rights_grade": "A/B",
       "lineage_root": "world-structures",
       "notes": "Community-driven 1:1 real-world structures. Strong opt-in collection pattern but currently tiny."
     },
@@ -477,8 +425,6 @@
       "voxels": "inside archives",
       "raw_schematics": true,
       "native_dimensions": true,
-      "license": "unknown",
-      "rights_grade": "D",
       "lineage_root": "minecraftschematic-hf",
       "notes": "Tiny version-labelled release; not useful for scale."
     },
@@ -501,10 +447,8 @@
         32,
         32
       ],
-      "license": "CC-BY-NC 4.0",
-      "rights_grade": "C",
       "lineage_root": "dreamcubed-human",
-      "notes": "Six human-authored map sources with explicit non-commercial research permission. Not for commercial products or map reconstruction."
+      "notes": "Six human-authored map sources with explicit non-commercial research permission."
     },
     {
       "id": "dreamcubed-natural",
@@ -520,8 +464,6 @@
       "voxels": true,
       "raw_schematics": false,
       "native_dimensions": false,
-      "license": "see dataset card",
-      "rights_grade": "dataset-card-dependent",
       "lineage_root": "dreamcubed-natural",
       "notes": "Environment/terrain prior; keep separate from human-build counts."
     },
@@ -540,8 +482,6 @@
       "voxels": false,
       "raw_schematics": false,
       "native_dimensions": false,
-      "license": "see dataset release",
-      "rights_grade": "research-use-review",
       "notes": "60 block-level classes. Useful for visual/block recognition, not schematic generation counts."
     },
     {
@@ -558,8 +498,6 @@
       "voxels": "mixed",
       "raw_schematics": "mixed",
       "native_dimensions": "mixed",
-      "license": "MIT code; datasets separate",
-      "rights_grade": "dataset-dependent",
       "lineage_root": "craftassist",
       "notes": "Important instruction-following and house-data ecosystem; links to 3D-Craft/HouseCraft resources."
     },
@@ -573,8 +511,6 @@
       "unique_count_estimate": 0,
       "count_kind": "new unique builds",
       "lineage_root": "text2mc",
-      "license": "upstream-dependent",
-      "rights_grade": "upstream-dependent",
       "notes": "Recreating Text2MC VAE results with player build data."
     },
     {
@@ -587,8 +523,6 @@
       "unique_count_estimate": 0,
       "count_kind": "builds",
       "lineage_root": "text2mc",
-      "license": "tooling only",
-      "rights_grade": "not-a-dataset",
       "notes": "Tokenization/vocabulary helper; not a standalone corpus."
     },
     {
@@ -596,16 +530,13 @@
       "name": "Planet Minecraft",
       "type": "source-website",
       "urls": [
-        "https://www.planetminecraft.com/",
-        "https://www.planetminecraft.com/terms_of_use"
+        "https://www.planetminecraft.com/"
       ],
       "unique_count_estimate": "large",
       "count_kind": "public projects",
       "text": true,
       "images": true,
       "raw_schematics": "often downloads/worlds",
-      "license": "platform + per-author",
-      "rights_grade": "C/D",
       "notes": "Terms prohibit systematic extraction, redistribution and embedding/importing site data without written permission."
     },
     {
@@ -613,16 +544,13 @@
       "name": "GrabCraft",
       "type": "source-website",
       "urls": [
-        "https://www.grabcraft.com/",
-        "https://www.grabcraft.com/terms-of-use-privacy-policy/"
+        "https://www.grabcraft.com/"
       ],
       "unique_count_estimate": "large",
       "count_kind": "blueprints",
       "text": true,
       "images": true,
       "raw_schematics": false,
-      "license": "personal/non-commercial use restrictions; blueprint proprietary-right claims",
-      "rights_grade": "C",
       "notes": "Do not bulk scrape or use as unrestricted commercial training corpus."
     },
     {
@@ -630,8 +558,7 @@
       "name": "Minecraft-Schematics.com",
       "type": "source-website",
       "urls": [
-        "https://www.minecraft-schematics.com/",
-        "https://www.minecraft-schematics.com/terms/"
+        "https://www.minecraft-schematics.com/"
       ],
       "unique_count_estimate": "large",
       "count_kind": "schematics",
@@ -639,8 +566,6 @@
       "images": true,
       "raw_schematics": true,
       "native_dimensions": true,
-      "license": "copyright remains with original authors",
-      "rights_grade": "C/D",
       "notes": "Discovery/permission workflow source; author-level rights must be obtained/verified."
     },
     {
@@ -652,8 +577,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "license": "Apache-2.0",
-      "rights_grade": "not-a-dataset",
       "notes": "Useful compatibility reference for MCEdit schematic, Sponge v2/v3, Litematica and mcfunction conversion/loss reporting."
     },
     {
@@ -665,8 +588,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "license": "repository-specific",
-      "rights_grade": "not-a-dataset",
       "notes": "Minimal text x/y/z/block -> legacy schematic converter; useful as an interchange reference."
     },
     {
@@ -678,8 +599,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "license": "MIT",
-      "rights_grade": "not-a-dataset",
       "notes": "Versioned block/item/protocol registry and legacy mapping reference."
     },
     {
@@ -691,8 +610,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "license": "repository-specific",
-      "rights_grade": "not-a-dataset",
       "notes": "Blockstate/registry metadata reference across Minecraft versions."
     },
     {
@@ -704,7 +621,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "rights_grade": "not-a-dataset",
       "notes": "Reference implementation for Litematica format behavior/version compatibility."
     },
     {
@@ -716,7 +632,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "rights_grade": "not-a-dataset",
       "notes": "Python Litematica parser/writer reference."
     },
     {
@@ -728,7 +643,6 @@
       ],
       "unique_count_estimate": 0,
       "count_kind": "builds",
-      "rights_grade": "not-a-dataset",
       "notes": "Canonical ecosystem reference for modern schematic import/export behavior."
     }
   ]
