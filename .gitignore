@@ -20,3 +20,6 @@ mod/run-server/
 
 # Local generated asset manifests/caches
 .mcbuild/
+
+# Downloaded/extracted/canonical dataset corpora and local sourcing state
+data/

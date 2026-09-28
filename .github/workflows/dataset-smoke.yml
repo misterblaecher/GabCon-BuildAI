@@ -1,0 +1,82 @@
+name: Dataset sourcing smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dataset-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Dataset lint
+        run: |
+          uv run ruff check src/mcbuild/dataset tests/test_dataset_*.py
+          uv run ruff format --check src/mcbuild/dataset tests/test_dataset_*.py
+
+      - name: Dataset tests
+        run: uv run pytest tests/test_dataset_*.py
+
+      - name: CLI smoke
+        run: |
+          uv run mcbuild-dataset list-sources
+          uv run mcbuild-dataset --help
+
+      - name: Real Hack337 import
+        run: |
+          uv run mcbuild-dataset source hack337 --limit 1 --workers 1 --data-dir /tmp/mcbuild-hack337
+          uv run mcbuild-dataset status --data-dir /tmp/mcbuild-hack337
+          uv run python - <<'PY'
+          import sqlite3
+          db = sqlite3.connect('/tmp/mcbuild-hack337/manifests/downloads.sqlite')
+          parsed = db.execute(
+              "select count(*) from items where source='hack337' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Hack337 structure, got {parsed}"
+          )
+          PY
+
+      - name: Real Farhan import
+        run: |
+          uv run mcbuild-dataset source farhanwew --limit 1 --workers 1 --data-dir /tmp/mcbuild-farhan
+          uv run mcbuild-dataset status --data-dir /tmp/mcbuild-farhan
+          uv run python - <<'PY'
+          import sqlite3
+          db = sqlite3.connect('/tmp/mcbuild-farhan/manifests/downloads.sqlite')
+          parsed = db.execute(
+              "select count(*) from items where source='farhanwew' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Farhan structure, got {parsed}"
+          )
+          PY
+
+      - name: Real Fable import
+        run: |
+          uv run mcbuild-dataset source fable --limit 1 --workers 1 --data-dir /tmp/mcbuild-fable
+          uv run mcbuild-dataset status --data-dir /tmp/mcbuild-fable
+          uv run python - <<'PY'
+          import sqlite3
+          db = sqlite3.connect('/tmp/mcbuild-fable/manifests/downloads.sqlite')
+          parsed = db.execute(
+              "select count(*) from items where source='fable' and status='parsed'"
+          ).fetchone()[0]
+          assert parsed >= 1, (
+              f"expected at least one parsed Fable structure, got {parsed}"
+          )
+          PY
