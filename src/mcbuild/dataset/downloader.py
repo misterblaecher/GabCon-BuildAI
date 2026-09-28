@@ -58,9 +58,13 @@ def download_file(
     if destination.is_file():
         size = destination.stat().st_size
         digest = file_sha256(destination)
-        if expected_size is not None and size != expected_size:
-            destination.unlink()
-        elif expected_sha256 is not None and digest.lower() != expected_sha256.removeprefix("sha256:").lower():
+        invalid_size = expected_size is not None and size != expected_size
+        invalid_hash = (
+            expected_sha256 is not None
+            and digest.lower()
+            != expected_sha256.removeprefix("sha256:").lower()
+        )
+        if invalid_size or invalid_hash:
             destination.unlink()
         else:
             return DownloadResult(destination, digest, size, resumed=False)
@@ -73,7 +77,7 @@ def download_file(
             headers["Range"] = f"bytes={offset}-"
         request = urllib.request.Request(url, headers=headers)
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - source URLs are explicit
+            with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
                 status = getattr(response, "status", response.getcode())
                 resumed = bool(offset and status == 206)
                 if offset and status != 206:
@@ -86,15 +90,29 @@ def download_file(
                     shutil.copyfileobj(response, handle, length=1024 * 1024)
                 actual_size = part.stat().st_size
                 if total_size is not None and actual_size != total_size:
-                    raise DownloadError(f"Size mismatch for {url}: expected {total_size}, got {actual_size}")
+                    raise DownloadError(
+                        f"Size mismatch for {url}: expected {total_size}, got {actual_size}"
+                    )
                 digest = file_sha256(part)
                 if expected_sha256 is not None:
                     wanted = expected_sha256.removeprefix("sha256:").lower()
                     if digest.lower() != wanted:
-                        raise DownloadError(f"SHA-256 mismatch for {url}: expected {wanted}, got {digest}")
+                        raise DownloadError(
+                            f"SHA-256 mismatch for {url}: expected {wanted}, got {digest}"
+                        )
                 os.replace(part, destination)
-                return DownloadResult(destination, digest, actual_size, resumed=resumed)
-        except (OSError, urllib.error.URLError, urllib.error.HTTPError, DownloadError) as exc:
+                return DownloadResult(
+                    destination,
+                    digest,
+                    actual_size,
+                    resumed=resumed,
+                )
+        except (
+            OSError,
+            urllib.error.URLError,
+            urllib.error.HTTPError,
+            DownloadError,
+        ) as exc:
             last_error = exc
             if attempt >= retries:
                 break

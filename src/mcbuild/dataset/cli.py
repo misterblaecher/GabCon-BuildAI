@@ -48,7 +48,7 @@ def source_command(
         help="Run every catalog source with an automated adapter.",
     ),
     workers: int = typer.Option(8, "--workers", min=1, max=32),
-    data_dir: Path = typer.Option(Path("data"), "--data-dir"),
+    data_dir: Path = typer.Option("data", "--data-dir"),
     limit: int | None = typer.Option(
         None,
         "--limit",
@@ -99,7 +99,7 @@ def source_command(
 
 @app.command("status")
 def status(
-    data_dir: Path = typer.Option(Path("data"), "--data-dir"),
+    data_dir: Path = typer.Option("data", "--data-dir"),
 ) -> None:
     pipeline = DatasetPipeline(data_dir)
     table = Table(
@@ -124,7 +124,7 @@ def status(
 
 @app.command("dedup")
 def dedup(
-    data_dir: Path = typer.Option(Path("data"), "--data-dir"),
+    data_dir: Path = typer.Option("data", "--data-dir"),
 ) -> None:
     pipeline = DatasetPipeline(data_dir)
     duplicates = pipeline.manifest.recompute_duplicates()
@@ -139,7 +139,7 @@ def dedup(
 
 @app.command("stats")
 def stats(
-    data_dir: Path = typer.Option(Path("data"), "--data-dir"),
+    data_dir: Path = typer.Option("data", "--data-dir"),
 ) -> None:
     pipeline = DatasetPipeline(data_dir)
     rows = list(pipeline.manifest.iter_manifest())

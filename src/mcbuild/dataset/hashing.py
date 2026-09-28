@@ -10,18 +10,70 @@ from mcbuild.dataset.normalize import canonical_block_state
 
 _CARDINAL = ("north", "east", "south", "west")
 _CARDINAL_SET = set(_CARDINAL)
-_DIRECTION_TOKEN = re.compile(r"(?<![a-z])(north|east|south|west)(?![a-z])")
+_DIRECTION_TOKEN = re.compile(
+    r"(?<![a-z])(north|east|south|west)(?![a-z])"
+)
 _RAIL_SHAPES = {
-    "north_south": ("north_south", "east_west", "north_south", "east_west"),
-    "east_west": ("east_west", "north_south", "east_west", "north_south"),
-    "ascending_north": ("ascending_north", "ascending_east", "ascending_south", "ascending_west"),
-    "ascending_east": ("ascending_east", "ascending_south", "ascending_west", "ascending_north"),
-    "ascending_south": ("ascending_south", "ascending_west", "ascending_north", "ascending_east"),
-    "ascending_west": ("ascending_west", "ascending_north", "ascending_east", "ascending_south"),
-    "north_east": ("north_east", "south_east", "south_west", "north_west"),
-    "south_east": ("south_east", "south_west", "north_west", "north_east"),
-    "south_west": ("south_west", "north_west", "north_east", "south_east"),
-    "north_west": ("north_west", "north_east", "south_east", "south_west"),
+    "north_south": (
+        "north_south",
+        "east_west",
+        "north_south",
+        "east_west",
+    ),
+    "east_west": (
+        "east_west",
+        "north_south",
+        "east_west",
+        "north_south",
+    ),
+    "ascending_north": (
+        "ascending_north",
+        "ascending_east",
+        "ascending_south",
+        "ascending_west",
+    ),
+    "ascending_east": (
+        "ascending_east",
+        "ascending_south",
+        "ascending_west",
+        "ascending_north",
+    ),
+    "ascending_south": (
+        "ascending_south",
+        "ascending_west",
+        "ascending_north",
+        "ascending_east",
+    ),
+    "ascending_west": (
+        "ascending_west",
+        "ascending_north",
+        "ascending_east",
+        "ascending_south",
+    ),
+    "north_east": (
+        "north_east",
+        "south_east",
+        "south_west",
+        "north_west",
+    ),
+    "south_east": (
+        "south_east",
+        "south_west",
+        "north_west",
+        "north_east",
+    ),
+    "south_west": (
+        "south_west",
+        "north_west",
+        "north_east",
+        "south_east",
+    ),
+    "north_west": (
+        "north_west",
+        "north_east",
+        "south_east",
+        "south_west",
+    ),
 }
 
 
@@ -30,7 +82,9 @@ def _sha(lines: list[str]) -> str:
     return f"sha256:{digest}"
 
 
-def _split_state(state: str) -> tuple[str, list[tuple[str, str]]]:
+def _split_state(
+    state: str,
+) -> tuple[str, list[tuple[str, str]]]:
     state = canonical_block_state(state)
     if not state.endswith("]") or "[" not in state:
         return state, []
@@ -45,14 +99,28 @@ def _split_state(state: str) -> tuple[str, list[tuple[str, str]]]:
 def _rotate_cardinal(value: str, quarter_turns: int) -> str:
     if value not in _CARDINAL_SET:
         return value
-    return _CARDINAL[(_CARDINAL.index(value) + quarter_turns) % 4]
+    return _CARDINAL[
+        (_CARDINAL.index(value) + quarter_turns) % 4
+    ]
 
 
-def _rotate_direction_tokens(value: str, quarter_turns: int) -> str:
-    return _DIRECTION_TOKEN.sub(lambda match: _rotate_cardinal(match.group(1), quarter_turns), value)
+def _rotate_direction_tokens(
+    value: str,
+    quarter_turns: int,
+) -> str:
+    return _DIRECTION_TOKEN.sub(
+        lambda match: _rotate_cardinal(
+            match.group(1),
+            quarter_turns,
+        ),
+        value,
+    )
 
 
-def rotate_block_state(state: str, quarter_turns: int) -> str:
+def rotate_block_state(
+    state: str,
+    quarter_turns: int,
+) -> str:
     """Rotate common and generic directional state properties around Y.
 
     Cardinal property keys are rotated too, covering fences/walls/panes and many modded
@@ -79,31 +147,63 @@ def rotate_block_state(state: str, quarter_turns: int) -> str:
 
     if not rotated:
         return base
-    body = ",".join(f"{key}={value}" for key, value in sorted(rotated))
+    body = ",".join(
+        f"{key}={value}"
+        for key, value in sorted(rotated)
+    )
     return f"{base}[{body}]"
 
 
-def rotate_structure(structure: CanonicalStructure, quarter_turns: int) -> CanonicalStructure:
+def rotate_structure(
+    structure: CanonicalStructure,
+    quarter_turns: int,
+) -> CanonicalStructure:
     turns = quarter_turns % 4
     width, height, length = structure.dimensions
     if turns == 0:
         return structure
 
+    occupied_width = max(
+        block.x for block in structure.blocks
+    ) + 1
+    occupied_length = max(
+        block.z for block in structure.blocks
+    ) + 1
     rotated_rows: list[tuple[int, int, int, str]] = []
     for block in structure.blocks:
         if turns == 1:
-            x, z = length - 1 - block.z, block.x
+            x, z = occupied_length - 1 - block.z, block.x
         elif turns == 2:
-            x, z = width - 1 - block.x, length - 1 - block.z
+            x = occupied_width - 1 - block.x
+            z = occupied_length - 1 - block.z
         else:
-            x, z = block.z, width - 1 - block.x
-        rotated_rows.append((x, block.y, z, rotate_block_state(block.state, turns)))
+            x, z = block.z, occupied_width - 1 - block.x
+        rotated_rows.append(
+            (
+                x,
+                block.y,
+                z,
+                rotate_block_state(block.state, turns),
+            )
+        )
 
-    rotated_dimensions = (length, height, width) if turns % 2 else structure.dimensions
+    rotated_dimensions = (
+        (length, height, width)
+        if turns % 2
+        else structure.dimensions
+    )
     blocks = tuple(
         sorted(
-            (CanonicalBlock(x, y, z, state) for x, y, z, state in rotated_rows),
-            key=lambda block: (block.x, block.y, block.z, block.state),
+            (
+                CanonicalBlock(x, y, z, state)
+                for x, y, z, state in rotated_rows
+            ),
+            key=lambda block: (
+                block.x,
+                block.y,
+                block.z,
+                block.state,
+            ),
         )
     )
     return CanonicalStructure(
@@ -115,18 +215,33 @@ def rotate_structure(structure: CanonicalStructure, quarter_turns: int) -> Canon
 
 
 def exact_hash(structure: CanonicalStructure) -> str:
-    return _sha([f"{b.x},{b.y},{b.z},{b.state}" for b in structure.blocks])
+    return _sha(
+        [
+            f"{block.x},{block.y},{block.z},{block.state}"
+            for block in structure.blocks
+        ]
+    )
 
 
 def occupancy_hash(structure: CanonicalStructure) -> str:
-    return _sha([f"{b.x},{b.y},{b.z}" for b in structure.blocks])
+    return _sha(
+        [
+            f"{block.x},{block.y},{block.z}"
+            for block in structure.blocks
+        ]
+    )
 
 
 def rotation_hash(structure: CanonicalStructure) -> str:
-    return min(exact_hash(rotate_structure(structure, turns)) for turns in range(4))
+    return min(
+        exact_hash(rotate_structure(structure, turns))
+        for turns in range(4)
+    )
 
 
-def structure_hashes(structure: CanonicalStructure) -> StructureHashes:
+def structure_hashes(
+    structure: CanonicalStructure,
+) -> StructureHashes:
     return StructureHashes(
         structure_hash=exact_hash(structure),
         rotation_hash=rotation_hash(structure),
