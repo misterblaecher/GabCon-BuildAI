@@ -497,10 +497,10 @@ reported alongside:
 ## Dataset & research sources
 
 A maintained inventory of Minecraft build datasets, schematic collections, benchmarks,
-derivative research repositories, source-site restrictions, and format/tooling references
+derivative research repositories, source websites, and format/tooling references
 is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
 
-A machine-readable version for future importers, rights filtering, and lineage-aware
+A machine-readable version for future importers, source filtering, and lineage-aware
 deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
 
 The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
@@ -558,14 +558,6 @@ CI runs all four (lint, format check, type check, tests) on every push/PR.
 - A structured plan/component-registry tool and gating `finish()` on a verification checklist.
 - Iteration diffs (blocks added/removed vs. the previous iteration) and richer stats
   (per-storey counts, interior air volume, mirror-symmetry score).
-
-## Acknowledgments
-
-This project was inspired by [*APT: Architectural Planning and Text-to-Blueprint
-Construction Using Large Language Models for Open-World Agents*](https://arxiv.org/pdf/2411.17255)
-(Chen & Gao, 2024), which explores LLM-driven blueprint construction for
-Minecraft agents. mcbuild is an independent, from-scratch implementation and
-is not affiliated with or derived from that paper's code.
 
 ## AI disclosure
 
