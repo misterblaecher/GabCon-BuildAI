@@ -73,7 +73,4 @@ def test_tar_extraction_ignores_links(tmp_path: Path):
         link.linkname = "/etc/passwd"
         tf.addfile(link)
     files = extract_archive(archive, tmp_path / "out")
-    assert [
-        path.relative_to(tmp_path / "out").as_posix()
-        for path in files
-    ] == ["inside/build.schem"]
+    assert [path.relative_to(tmp_path / "out").as_posix() for path in files] == ["inside/build.schem"]

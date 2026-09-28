@@ -10,9 +10,7 @@ from mcbuild.dataset.normalize import canonical_block_state
 
 _CARDINAL = ("north", "east", "south", "west")
 _CARDINAL_SET = set(_CARDINAL)
-_DIRECTION_TOKEN = re.compile(
-    r"(?<![a-z])(north|east|south|west)(?![a-z])"
-)
+_DIRECTION_TOKEN = re.compile(r"(?<![a-z])(north|east|south|west)(?![a-z])")
 _RAIL_SHAPES = {
     "north_south": (
         "north_south",
@@ -99,9 +97,7 @@ def _split_state(
 def _rotate_cardinal(value: str, quarter_turns: int) -> str:
     if value not in _CARDINAL_SET:
         return value
-    return _CARDINAL[
-        (_CARDINAL.index(value) + quarter_turns) % 4
-    ]
+    return _CARDINAL[(_CARDINAL.index(value) + quarter_turns) % 4]
 
 
 def _rotate_direction_tokens(
@@ -147,10 +143,7 @@ def rotate_block_state(
 
     if not rotated:
         return base
-    body = ",".join(
-        f"{key}={value}"
-        for key, value in sorted(rotated)
-    )
+    body = ",".join(f"{key}={value}" for key, value in sorted(rotated))
     return f"{base}[{body}]"
 
 
@@ -163,12 +156,8 @@ def rotate_structure(
     if turns == 0:
         return structure
 
-    occupied_width = max(
-        block.x for block in structure.blocks
-    ) + 1
-    occupied_length = max(
-        block.z for block in structure.blocks
-    ) + 1
+    occupied_width = max(block.x for block in structure.blocks) + 1
+    occupied_length = max(block.z for block in structure.blocks) + 1
     rotated_rows: list[tuple[int, int, int, str]] = []
     for block in structure.blocks:
         if turns == 1:
@@ -187,17 +176,10 @@ def rotate_structure(
             )
         )
 
-    rotated_dimensions = (
-        (length, height, width)
-        if turns % 2
-        else structure.dimensions
-    )
+    rotated_dimensions = (length, height, width) if turns % 2 else structure.dimensions
     blocks = tuple(
         sorted(
-            (
-                CanonicalBlock(x, y, z, state)
-                for x, y, z, state in rotated_rows
-            ),
+            (CanonicalBlock(x, y, z, state) for x, y, z, state in rotated_rows),
             key=lambda block: (
                 block.x,
                 block.y,
@@ -215,28 +197,15 @@ def rotate_structure(
 
 
 def exact_hash(structure: CanonicalStructure) -> str:
-    return _sha(
-        [
-            f"{block.x},{block.y},{block.z},{block.state}"
-            for block in structure.blocks
-        ]
-    )
+    return _sha([f"{block.x},{block.y},{block.z},{block.state}" for block in structure.blocks])
 
 
 def occupancy_hash(structure: CanonicalStructure) -> str:
-    return _sha(
-        [
-            f"{block.x},{block.y},{block.z}"
-            for block in structure.blocks
-        ]
-    )
+    return _sha([f"{block.x},{block.y},{block.z}" for block in structure.blocks])
 
 
 def rotation_hash(structure: CanonicalStructure) -> str:
-    return min(
-        exact_hash(rotate_structure(structure, turns))
-        for turns in range(4)
-    )
+    return min(exact_hash(rotate_structure(structure, turns)) for turns in range(4))
 
 
 def structure_hashes(

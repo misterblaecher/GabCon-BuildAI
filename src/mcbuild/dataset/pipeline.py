@@ -54,9 +54,7 @@ class DatasetPipeline:
     ) -> DownloadResult | None:
         row = self.manifest.file_by_url(item.download_url)
         if row is None and item.expected_sha256:
-            row = self.manifest.file_by_hash(
-                item.expected_sha256.removeprefix("sha256:")
-            )
+            row = self.manifest.file_by_hash(item.expected_sha256.removeprefix("sha256:"))
         if row is None or not row["raw_path"]:
             return None
         existing = Path(row["raw_path"])
@@ -225,24 +223,11 @@ class DatasetPipeline:
         already_parsed = 0
         for item in items:
             state = self.manifest.item_state(item.source, item.source_item_id)
-            raw_path = (
-                Path(state["raw_path"])
-                if state is not None and state["raw_path"]
-                else None
-            )
-            if (
-                state is not None
-                and state["status"] == "parsed"
-                and raw_path is not None
-                and raw_path.is_file()
-            ):
+            raw_path = Path(state["raw_path"]) if state is not None and state["raw_path"] else None
+            if state is not None and state["status"] == "parsed" and raw_path is not None and raw_path.is_file():
                 already_parsed += 1
                 continue
-            if (
-                raw_path is not None
-                and raw_path.is_file()
-                and state["file_sha256"]
-            ):
+            if raw_path is not None and raw_path.is_file() and state["file_sha256"]:
                 cached_downloads.append(
                     (
                         item,
@@ -257,16 +242,11 @@ class DatasetPipeline:
                 continue
             pending.append(item)
 
-        downloaded: list[tuple[SourceItem, DownloadResult]] = list(
-            cached_downloads
-        )
+        downloaded: list[tuple[SourceItem, DownloadResult]] = list(cached_downloads)
         download_failed = 0
         max_workers = max(1, min(workers, 32))
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(self._download_one, item): item
-                for item in pending
-            }
+            futures = {executor.submit(self._download_one, item): item for item in pending}
             for future in as_completed(futures):
                 item = futures[future]
                 try:

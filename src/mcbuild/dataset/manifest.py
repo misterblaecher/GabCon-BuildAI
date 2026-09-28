@@ -300,9 +300,7 @@ class ManifestDB:
     def recompute_duplicates(self) -> int:
         updates = 0
         with self._connect() as db:
-            rows = db.execute(
-                "SELECT id, build_id, rotation_hash FROM structures ORDER BY id"
-            ).fetchall()
+            rows = db.execute("SELECT id, build_id, rotation_hash FROM structures ORDER BY id").fetchall()
             first_by_rotation: dict[str, str] = {}
             for row in rows:
                 duplicate_of = first_by_rotation.get(row["rotation_hash"])
@@ -362,8 +360,6 @@ class ManifestDB:
                     },
                     "duplicate_of": row["duplicate_of"],
                 }
-                handle.write(
-                    json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n"
-                )
+                handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
                 count += 1
         return count

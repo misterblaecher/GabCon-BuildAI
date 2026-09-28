@@ -57,9 +57,7 @@ class GitHubCollectionSource:
         with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310 - constructed internally
             raw = json.loads(response.read().decode("utf-8"))
         if raw.get("truncated"):
-            raise ValueError(
-                f"GitHub tree for {self.repository} is truncated; use a narrower collection adapter."
-            )
+            raise ValueError(f"GitHub tree for {self.repository} is truncated; use a narrower collection adapter.")
 
         items: list[SourceItem] = []
         for entry in raw.get("tree", []):
@@ -74,12 +72,8 @@ class GitHubCollectionSource:
                 SourceItem(
                     source=self.source_id,
                     source_item_id=str(entry.get("sha") or source_file),
-                    source_url=(
-                        f"https://github.com/{self.repository}/blob/{branch_name}/{quoted_path}"
-                    ),
-                    download_url=(
-                        f"https://raw.githubusercontent.com/{self.repository}/{branch_name}/{quoted_path}"
-                    ),
+                    source_url=(f"https://github.com/{self.repository}/blob/{branch_name}/{quoted_path}"),
+                    download_url=(f"https://raw.githubusercontent.com/{self.repository}/{branch_name}/{quoted_path}"),
                     source_file=source_file,
                     title=source_file.rsplit("/", 1)[-1].rsplit(".", 1)[0],
                     expected_size=int(entry["size"]) if entry.get("size") is not None else None,

@@ -35,10 +35,7 @@ class SourceSpec:
 
     @property
     def supported(self) -> bool:
-        return any(
-            _HF_RE.match(url) or _GITHUB_RE.match(url)
-            for url in self.urls
-        )
+        return any(_HF_RE.match(url) or _GITHUB_RE.match(url) for url in self.urls)
 
 
 class SourceRegistry:
@@ -58,11 +55,7 @@ class SourceRegistry:
     @classmethod
     def load(cls, catalog_path: Path | None = None) -> SourceRegistry:
         if catalog_path is None:
-            catalog_path = (
-                Path(__file__).resolve().parents[3]
-                / "docs"
-                / "dataset_sources.json"
-            )
+            catalog_path = Path(__file__).resolve().parents[3] / "docs" / "dataset_sources.json"
         raw = json.loads(catalog_path.read_text(encoding="utf-8"))
         entries = raw.get(
             "sources",
@@ -80,20 +73,9 @@ class SourceRegistry:
                     ),
                     name=str(entry.get("name") or catalog_id),
                     source_type=str(entry.get("type") or "unknown"),
-                    urls=tuple(
-                        str(url)
-                        for url in entry.get("urls", [])
-                    ),
-                    lineage_root=(
-                        str(entry.get("lineage_root"))
-                        if entry.get("lineage_root")
-                        else None
-                    ),
-                    parent=(
-                        str(entry.get("parent"))
-                        if entry.get("parent")
-                        else None
-                    ),
+                    urls=tuple(str(url) for url in entry.get("urls", [])),
+                    lineage_root=(str(entry.get("lineage_root")) if entry.get("lineage_root") else None),
+                    parent=(str(entry.get("parent")) if entry.get("parent") else None),
                     raw=dict(entry),
                 )
             )
@@ -103,17 +85,8 @@ class SourceRegistry:
         normalized = name.strip().lower()
         spec = self._names.get(normalized)
         if spec is None:
-            choices = ", ".join(
-                sorted(
-                    spec.source_id
-                    for spec in self.specs
-                    if spec.supported
-                )[:20]
-            )
-            raise KeyError(
-                f"Unknown dataset source {name!r}. "
-                f"Known source ids include: {choices}"
-            )
+            choices = ", ".join(sorted(spec.source_id for spec in self.specs if spec.supported)[:20])
+            raise KeyError(f"Unknown dataset source {name!r}. Known source ids include: {choices}")
         return spec
 
     def adapter(self, spec: SourceSpec) -> DatasetSource:
@@ -150,6 +123,4 @@ class SourceRegistry:
                 lineage_dataset=spec.lineage_root or spec.catalog_id,
                 lineage_parent=spec.parent,
             )
-        raise ValueError(
-            f"No automated adapter is available for {spec.catalog_id}"
-        )
+        raise ValueError(f"No automated adapter is available for {spec.catalog_id}")

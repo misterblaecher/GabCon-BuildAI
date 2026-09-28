@@ -7,13 +7,9 @@ from mcbuild.dataset.normalize import normalize_structure
 
 
 def test_directional_block_state_rotation():
-    state = (
-        "minecraft:oak_stairs["
-        "facing=north,half=bottom,shape=straight,waterlogged=false]"
-    )
+    state = "minecraft:oak_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"
     assert rotate_block_state(state, 1) == (
-        "minecraft:oak_stairs["
-        "facing=east,half=bottom,shape=straight,waterlogged=false]"
+        "minecraft:oak_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"
     )
     assert (
         rotate_block_state(
@@ -45,8 +41,7 @@ def test_rotation_hash_matches_rotated_copy_but_exact_hash_does_not():
                 0,
                 0,
                 0,
-                "minecraft:oak_stairs["
-                "facing=north,half=bottom,shape=straight]",
+                "minecraft:oak_stairs[facing=north,half=bottom,shape=straight]",
             ),
             (1, 0, 0, "minecraft:stone"),
             (1, 1, 0, "minecraft:oak_log[axis=x]"),
@@ -55,14 +50,8 @@ def test_rotation_hash_matches_rotated_copy_but_exact_hash_does_not():
     rotated = rotate_structure(structure, 1)
     original_hashes = structure_hashes(structure)
     rotated_hashes = structure_hashes(rotated)
-    assert (
-        original_hashes.structure_hash
-        != rotated_hashes.structure_hash
-    )
-    assert (
-        original_hashes.rotation_hash
-        == rotated_hashes.rotation_hash
-    )
+    assert original_hashes.structure_hash != rotated_hashes.structure_hash
+    assert original_hashes.rotation_hash == rotated_hashes.rotation_hash
 
 
 def test_occupancy_hash_ignores_materials():
@@ -78,14 +67,8 @@ def test_occupancy_hash_ignores_materials():
             (1, 0, 0, "blue_wool"),
         ]
     )
-    assert (
-        structure_hashes(stone).occupancy_hash
-        == structure_hashes(wool).occupancy_hash
-    )
-    assert (
-        structure_hashes(stone).structure_hash
-        != structure_hashes(wool).structure_hash
-    )
+    assert structure_hashes(stone).occupancy_hash == structure_hashes(wool).occupancy_hash
+    assert structure_hashes(stone).structure_hash != structure_hashes(wool).structure_hash
 
 
 def test_rotation_hash_ignores_empty_declared_border_translation():
@@ -97,7 +80,4 @@ def test_rotation_hash_ignores_empty_declared_border_translation():
         dimensions=(8, 3, 9),
     )
     rotated = rotate_structure(structure, 1)
-    assert (
-        structure_hashes(structure).rotation_hash
-        == structure_hashes(rotated).rotation_hash
-    )
+    assert structure_hashes(structure).rotation_hash == structure_hashes(rotated).rotation_hash

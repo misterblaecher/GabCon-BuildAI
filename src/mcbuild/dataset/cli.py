@@ -66,9 +66,7 @@ def source_command(
     registry = _registry()
     pipeline = DatasetPipeline(data_dir)
     specs = (
-        [spec for spec in registry.specs if spec.supported]
-        if all_sources
-        else [registry.resolve(source_name or "")]
+        [spec for spec in registry.specs if spec.supported] if all_sources else [registry.resolve(source_name or "")]
     )
     failures = 0
     for spec in specs:
@@ -95,8 +93,7 @@ def source_command(
                 raise typer.Exit(1) from exc
     if failures:
         console.print(
-            f"[yellow]Completed with {failures} recorded failure(s); "
-            "other sources/items were preserved.[/yellow]"
+            f"[yellow]Completed with {failures} recorded failure(s); other sources/items were preserved.[/yellow]"
         )
 
 
@@ -127,13 +124,8 @@ def status(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
 def dedup(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
     pipeline = DatasetPipeline(data_dir)
     duplicates = pipeline.manifest.recompute_duplicates()
-    count = pipeline.manifest.write_jsonl(
-        pipeline.manifest_dir / "structures.jsonl"
-    )
-    console.print(
-        f"Recomputed global rotation dedup: {duplicates} duplicate(s), "
-        f"{count} manifest record(s)."
-    )
+    count = pipeline.manifest.write_jsonl(pipeline.manifest_dir / "structures.jsonl")
+    console.print(f"Recomputed global rotation dedup: {duplicates} duplicate(s), {count} manifest record(s).")
 
 
 @app.command("stats")
@@ -144,10 +136,7 @@ def stats(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
     unique = sum(1 for row in rows if row["duplicate_of"] is None)
     blocks = sum(int(row["block_count"]) for row in rows)
     volume = sum(int(row["volume"]) for row in rows)
-    console.print(
-        f"structures={structures:,} unique={unique:,} "
-        f"non_air_blocks={blocks:,} total_volume={volume:,}"
-    )
+    console.print(f"structures={structures:,} unique={unique:,} non_air_blocks={blocks:,} total_volume={volume:,}")
 
 
 def main() -> None:

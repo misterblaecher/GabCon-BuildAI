@@ -59,11 +59,7 @@ def download_file(
         size = destination.stat().st_size
         digest = file_sha256(destination)
         invalid_size = expected_size is not None and size != expected_size
-        invalid_hash = (
-            expected_sha256 is not None
-            and digest.lower()
-            != expected_sha256.removeprefix("sha256:").lower()
-        )
+        invalid_hash = expected_sha256 is not None and digest.lower() != expected_sha256.removeprefix("sha256:").lower()
         if invalid_size or invalid_hash:
             destination.unlink()
         else:
@@ -90,16 +86,12 @@ def download_file(
                     shutil.copyfileobj(response, handle, length=1024 * 1024)
                 actual_size = part.stat().st_size
                 if total_size is not None and actual_size != total_size:
-                    raise DownloadError(
-                        f"Size mismatch for {url}: expected {total_size}, got {actual_size}"
-                    )
+                    raise DownloadError(f"Size mismatch for {url}: expected {total_size}, got {actual_size}")
                 digest = file_sha256(part)
                 if expected_sha256 is not None:
                     wanted = expected_sha256.removeprefix("sha256:").lower()
                     if digest.lower() != wanted:
-                        raise DownloadError(
-                            f"SHA-256 mismatch for {url}: expected {wanted}, got {digest}"
-                        )
+                        raise DownloadError(f"SHA-256 mismatch for {url}: expected {wanted}, got {digest}")
                 os.replace(part, destination)
                 return DownloadResult(
                     destination,

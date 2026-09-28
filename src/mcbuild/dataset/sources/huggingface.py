@@ -60,8 +60,7 @@ class HuggingFaceSource:
     def _tree(self) -> list[dict[str, Any]]:
         dataset = urllib.parse.quote(self.dataset_id, safe="/")
         url: str | None = (
-            f"https://huggingface.co/api/datasets/{dataset}/tree/main"
-            "?recursive=true&expand=false&limit=1000"
+            f"https://huggingface.co/api/datasets/{dataset}/tree/main?recursive=true&expand=false&limit=1000"
         )
         entries: list[dict[str, Any]] = []
         while url:
@@ -100,19 +99,14 @@ class HuggingFaceSource:
                 continue
             source_file = str(entry.get("path", ""))
             lower = source_file.lower()
-            if self.include_prefixes and not any(
-                source_file.startswith(prefix) for prefix in self.include_prefixes
-            ):
+            if self.include_prefixes and not any(source_file.startswith(prefix) for prefix in self.include_prefixes):
                 continue
             if not any(lower.endswith(extension) for extension in self.extensions):
                 continue
 
             basename = source_file.rsplit("/", 1)[-1]
             metadata = (
-                mapping.get(source_file)
-                or mapping.get(basename)
-                or mapping.get(basename.rsplit(".", 1)[0])
-                or {}
+                mapping.get(source_file) or mapping.get(basename) or mapping.get(basename.rsplit(".", 1)[0]) or {}
             )
             title = metadata.get("title") or metadata.get("name")
             description = metadata.get("description") or metadata.get("desc")

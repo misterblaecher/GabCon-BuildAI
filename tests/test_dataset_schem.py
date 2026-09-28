@@ -16,9 +16,7 @@ def test_schem_to_canonical_hash_manifest_end_to_end(tmp_path: Path):
         11,
         3,
         -2,
-        get_block(
-            "oak_stairs[facing=north,half=bottom,shape=straight]"
-        ).index,
+        get_block("oak_stairs[facing=north,half=bottom,shape=straight]").index,
     )
     source_path = tmp_path / "fixture.schem"
     export_schem(grid, str(source_path))
