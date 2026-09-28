@@ -11,6 +11,7 @@ mod + WebSocket server) builds live inside a running Minecraft world.
 ![uv](https://img.shields.io/badge/managed%20with-uv-de5fe9)
 ![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-8a2be2)
 ![Ollama](https://img.shields.io/badge/LLM-Ollama-black)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![Multi-view isometric render of an agent-built mansion](docs/images/mansion-hero.png)
 
@@ -497,14 +498,15 @@ reported alongside:
 ## Dataset & research sources
 
 A maintained inventory of Minecraft build datasets, schematic collections, benchmarks,
-derivative research repositories, source websites, and format/tooling references
+derivative research repositories, source-site restrictions, and format/tooling references
 is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
 
-A machine-readable version for future importers, source filtering, and lineage-aware
+A machine-readable version for future importers, rights filtering, and lineage-aware
 deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
 
 The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
-and records provenance, lineage, formats, scale, and technical suitability for GabCon.
+and records provenance, licensing/usage notes, lineage, formats, and technical suitability
+for GabCon.
 
 ## Project layout
 
@@ -559,6 +561,14 @@ CI runs all four (lint, format check, type check, tests) on every push/PR.
 - Iteration diffs (blocks added/removed vs. the previous iteration) and richer stats
   (per-storey counts, interior air volume, mirror-symmetry score).
 
+## Acknowledgments
+
+This project was inspired by [*APT: Architectural Planning and Text-to-Blueprint
+Construction Using Large Language Models for Open-World Agents*](https://arxiv.org/pdf/2411.17255)
+(Chen & Gao, 2024), which explores LLM-driven blueprint construction for
+Minecraft agents. mcbuild is an independent, from-scratch implementation and
+is not affiliated with or derived from that paper's code.
+
 ## AI disclosure
 
 This project was built with significant AI assistance (Claude): most of the
@@ -567,3 +577,9 @@ co-written by an LLM agent under human direction and review. The renders
 throughout this README are unedited output from the agent described above,
 not hand-picked or touched-up examples.
 
+## License
+
+[MIT](LICENSE), except for the bundled Minecraft block textures/blockstates —
+see [`src/mcbuild/assets/NOTICE.md`](src/mcbuild/assets/NOTICE.md). Minecraft
+is a trademark of Mojang Studios / Microsoft; this project is not affiliated
+with or endorsed by them.
