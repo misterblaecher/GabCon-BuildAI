@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -16,6 +17,8 @@ app = typer.Typer(
     help="Source, normalize and deduplicate Minecraft build datasets.",
 )
 console = Console()
+DEFAULT_DATA_DIR = Path("data")
+DataDirOption = Annotated[Path, typer.Option("--data-dir")]
 
 
 def _registry() -> SourceRegistry:
@@ -48,7 +51,7 @@ def source_command(
         help="Run every catalog source with an automated adapter.",
     ),
     workers: int = typer.Option(8, "--workers", min=1, max=32),
-    data_dir: Path = typer.Option("data", "--data-dir"),
+    data_dir: DataDirOption = DEFAULT_DATA_DIR,
     limit: int | None = typer.Option(
         None,
         "--limit",
@@ -98,9 +101,7 @@ def source_command(
 
 
 @app.command("status")
-def status(
-    data_dir: Path = typer.Option("data", "--data-dir"),
-) -> None:
+def status(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
     pipeline = DatasetPipeline(data_dir)
     table = Table(
         "Source",
@@ -123,9 +124,7 @@ def status(
 
 
 @app.command("dedup")
-def dedup(
-    data_dir: Path = typer.Option("data", "--data-dir"),
-) -> None:
+def dedup(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
     pipeline = DatasetPipeline(data_dir)
     duplicates = pipeline.manifest.recompute_duplicates()
     count = pipeline.manifest.write_jsonl(
@@ -138,9 +137,7 @@ def dedup(
 
 
 @app.command("stats")
-def stats(
-    data_dir: Path = typer.Option("data", "--data-dir"),
-) -> None:
+def stats(data_dir: DataDirOption = DEFAULT_DATA_DIR) -> None:
     pipeline = DatasetPipeline(data_dir)
     rows = list(pipeline.manifest.iter_manifest())
     structures = len(rows)
