@@ -25,20 +25,6 @@ The goal is not to maximize the raw number of files. The goal is to preserve:
 | **C** | Non-commercial/research-only or platform terms materially restrict reuse. | **Allowed for local/private experimentation when the source terms permit that use**. | **Not included** in GabCon redistributable/public datasets. |
 | **D** | Unknown, scraped, mirrored, mixed provenance, or insufficiently documented rights. | **Allowed for local/private experimentation as provenance-pending data, subject to the original source terms**. | **Not included** in GabCon redistributable/public datasets until reclassified as verified A/B. |
 
-## GabCon local-use policy
-
-For this personal project, **rights grades C and D are permitted inside the local/private research workspace**. They may be used for local training, fine-tuning, retrieval experiments, preprocessing, rendering, evaluation and model-development experiments **provided the way the data was obtained and used does not violate the original source's license or terms**.
-
-This is a GabCon project policy, not a claim that C/D data has been relicensed. In particular:
-
-- C/D source files must stay out of redistributable dataset releases by default;
-- do not commit restricted raw corpora to this public repository;
-- preserve `source_dataset`, `source_url`, author/provenance fields and the original rights grade;
-- derived checkpoints trained locally on C/D data should be reviewed separately before any public or commercial release;
-- a C/D source becomes eligible for redistribution only after its exact assets are verified and reclassified as **A/B**;
-- source-specific restrictions still win over this policy (for example, a site's prohibition on automated extraction is not waived just because the experiment is local).
-
-**Release rule:** GabCon may redistribute/publicly package only **verified A/B** source material. C/D data is a local/private research pool, not a public-release pool.
 
 ## Best candidates for GabCon
 
@@ -508,46 +494,6 @@ all rotations/captions/renders of ABC -> train only
 
 This prevents severe train/test leakage.
 
-## Practical corpus strategy
-
-### Clean/open core — redistributable candidate pool
-
-Prefer:
-
-- first-party GabCon builds;
-- explicitly licensed user submissions;
-- Hack337 entries after build-level provenance audit;
-- clearly licensed GDMC/academic assets;
-- future opt-in community submissions under a specified data license.
-
-Only **verified A/B** assets from this pool may enter a public/redistributable GabCon dataset.
-
-### Local research pool — C sources
-
-Allowed in the local/private GabCon workspace when their source terms permit local research use:
-
-- Dream-Cubed Human;
-- MineAnyBuild;
-- 3D-Craft where non-commercial terms apply;
-- other non-commercial/research-only sources.
-
-These sources can participate in local training/evaluation, but their raw data must not be included in a redistributable release.
-
-### Local provenance-pending pool — D sources
-
-Allowed for private/local experiments while provenance is tracked separately:
-
-- Fable;
-- the ~120k schematic archive;
-- generic GitHub schematic dumps;
-- existing Planet Minecraft-derived corpora;
-- scraped/derived GrabCraft corpora where the original terms permit the intended local use.
-
-Do not interpret this as permission to perform prohibited scraping. Existing C/D material may remain useful locally, but source-specific collection restrictions still apply.
-
-### Restricted external index
-
-For sources whose terms do not permit local copying/processing in the intended way, keep only metadata/URLs and permission state. The index can still support future author-permission or opt-in workflows.
 
 ## Scale expectations
 
