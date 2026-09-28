@@ -498,14 +498,14 @@ reported alongside:
 ## Dataset & research sources
 
 A maintained inventory of Minecraft build datasets, schematic collections, benchmarks,
-derivative research repositories, source-site restrictions, and format/tooling references
+derivative research repositories, source websites, and format/tooling references
 is available in [`docs/DATASET_SOURCES.md`](docs/DATASET_SOURCES.md).
 
-A machine-readable version for future importers, rights filtering, and lineage-aware
+A machine-readable version for future importers, source filtering, and lineage-aware
 deduplication is available in [`docs/dataset_sources.json`](docs/dataset_sources.json).
 
 The inventory deliberately separates **unique source builds** from mirrors/forks/derivatives
-and records provenance, licensing/usage notes, lineage, formats, and technical suitability
+and records provenance, lineage, formats, and technical suitability
 for GabCon.
 
 ## Project layout
