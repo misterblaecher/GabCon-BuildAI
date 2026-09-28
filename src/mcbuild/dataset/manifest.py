@@ -162,14 +162,18 @@ class ManifestDB:
     def file_by_url(self, url: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                "SELECT * FROM items WHERE download_url=? AND status IN ('downloaded','parsed','container') ORDER BY downloaded_at LIMIT 1",
+                """SELECT * FROM items
+                WHERE download_url=? AND status IN ('downloaded','parsed','container')
+                ORDER BY downloaded_at LIMIT 1""",
                 (url,),
             ).fetchone()
 
     def file_by_hash(self, sha256: str) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
-                "SELECT * FROM items WHERE file_sha256=? AND status IN ('downloaded','parsed','container') ORDER BY downloaded_at LIMIT 1",
+                """SELECT * FROM items
+                WHERE file_sha256=? AND status IN ('downloaded','parsed','container')
+                ORDER BY downloaded_at LIMIT 1""",
                 (sha256,),
             ).fetchone()
 
