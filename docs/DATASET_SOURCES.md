@@ -363,9 +363,6 @@ Never make 32^3 the master representation. Keep original geometry and generate n
   "source_dataset": "hack337",
   "source_url": "https://...",
   "source_author": "...",
-  "rights_grade": "B",
-  "dataset_license": "MIT",
-  "build_license": null,
   "title": "Medieval Watchtower",
   "description_human": "...",
   "caption_generated": "...",
@@ -437,9 +434,7 @@ There is no verified public corpus found in this audit that simultaneously provi
 - full modern block states;
 - strong natural-language annotations;
 - images;
-- and clearly permissive commercial redistribution/training rights.
 
-Large raw corpora exist, but provenance/licensing is the bottleneck.
 
 A high-quality GabCon dataset can reach very large SFT sizes through leakage-safe augmentation. For example, 10k genuinely unique builds x 4 rotations x 3 text variants = 120k SFT pairs, while still reporting the honest base count as 10k unique structures.
 
@@ -447,9 +442,8 @@ A high-quality GabCon dataset can reach very large SFT sizes through leakage-saf
 
 1. Add an importer registry keyed by the machine-readable catalogue in `docs/dataset_sources.json`.
 2. Add per-source adapters without changing the canonical structure schema.
-3. Add a rights/provenance manifest to every imported record.
+3. Add a provenance manifest to every imported record.
 4. Add canonical structure hashing and cross-source deduplication.
 5. Render all accepted structures through BuildAI's own renderer so image supervision is consistent.
 6. Generate rich captions only after retaining original human metadata separately.
 7. Build train/validation/test splits at the canonical-build level before augmentation.
-8. Never merge restricted/non-commercial data into a redistributable/commercial release by accident.
