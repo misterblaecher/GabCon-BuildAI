@@ -375,7 +375,7 @@
       "raw_schematics": true,
       "native_dimensions": true,
       "lineage_root": "silvicky-litematics",
-      "notes": "Public binary collection with minimal provenance/license documentation."
+      "notes": "Public binary collection with minimal metadata documentation."
     },
     {
       "id": "piscescup-mc-java-schematics",
@@ -448,7 +448,7 @@
         32
       ],
       "lineage_root": "dreamcubed-human",
-      "notes": "Six human-authored map sources with explicit non-commercial research permission."
+      "notes": "Six human-authored map sources represented as voxel chunks."
     },
     {
       "id": "dreamcubed-natural",
@@ -537,7 +537,7 @@
       "text": true,
       "images": true,
       "raw_schematics": "often downloads/worlds",
-      "notes": "Terms prohibit systematic extraction, redistribution and embedding/importing site data without written permission."
+      "notes": "Large public source of Minecraft projects, images, metadata and downloadable builds/worlds."
     },
     {
       "id": "grabcraft",
@@ -551,7 +551,7 @@
       "text": true,
       "images": true,
       "raw_schematics": false,
-      "notes": "Do not bulk scrape or use as unrestricted commercial training corpus."
+      "notes": "Large blueprint-oriented source with images and build instructions."
     },
     {
       "id": "minecraft-schematics-com",
@@ -566,7 +566,7 @@
       "images": true,
       "raw_schematics": true,
       "native_dimensions": true,
-      "notes": "Discovery/permission workflow source; author-level rights must be obtained/verified."
+      "notes": "Large schematic-oriented source with downloadable structures and metadata."
     },
     {
       "id": "schematic-ai-studio",
