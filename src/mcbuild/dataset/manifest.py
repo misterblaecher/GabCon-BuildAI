@@ -188,7 +188,9 @@ class ManifestDB:
                 (_now(), item.source, item.source_item_id),
             )
 
-    def duplicate_for_rotation(self, rotation_hash: str, *, exclude_source: str, exclude_item: str) -> sqlite3.Row | None:
+    def duplicate_for_rotation(
+        self, rotation_hash: str, *, exclude_source: str, exclude_item: str
+    ) -> sqlite3.Row | None:
         with self._connect() as db:
             return db.execute(
                 """SELECT * FROM structures WHERE rotation_hash=? AND NOT (source=? AND source_item_id=?)

@@ -99,17 +99,12 @@ def rotate_structure(structure: CanonicalStructure, quarter_turns: int) -> Canon
             x, z = occupied_width - 1 - block.x, occupied_length - 1 - block.z
         else:
             x, z = block.z, occupied_width - 1 - block.x
-        rotated_rows.append(
-            (x, block.y, z, rotate_block_state(block.state, turns), block.source_state_id)
-        )
+        rotated_rows.append((x, block.y, z, rotate_block_state(block.state, turns), block.source_state_id))
 
     rotated_dimensions = (length, height, width) if turns % 2 else structure.dimensions
     blocks = tuple(
         sorted(
-            (
-                CanonicalBlock(x, y, z, state, source_state_id)
-                for x, y, z, state, source_state_id in rotated_rows
-            ),
+            (CanonicalBlock(x, y, z, state, source_state_id) for x, y, z, state, source_state_id in rotated_rows),
             key=lambda block: (block.x, block.y, block.z, block.state, str(block.source_state_id)),
         )
     )

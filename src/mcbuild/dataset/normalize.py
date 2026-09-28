@@ -76,9 +76,7 @@ def _normalize_rows(
     elif any(not isinstance(value, int) or value <= 0 for value in dimensions):
         raise ValueError(f"Invalid declared dimensions: {dimensions!r}")
     elif any(occupied > declared for occupied, declared in zip(occupied_dimensions, dimensions, strict=True)):
-        raise ValueError(
-            f"Occupied bounds {occupied_dimensions!r} exceed declared dimensions {dimensions!r}."
-        )
+        raise ValueError(f"Occupied bounds {occupied_dimensions!r} exceed declared dimensions {dimensions!r}.")
 
     canonical_blocks = tuple(
         sorted(

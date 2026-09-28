@@ -112,7 +112,9 @@ class DatasetPipeline:
 
     def _parse_one(self, item: SourceItem, path: Path) -> bool:
         if reader_for(path) is None:
-            self.manifest.mark_error(item.source, item.source_item_id, stage="parse", message=f"Unsupported format: {path.name}")
+            self.manifest.mark_error(
+                item.source, item.source_item_id, stage="parse", message=f"Unsupported format: {path.name}"
+            )
             return False
         try:
             structure = read_structure(path)
@@ -220,7 +222,7 @@ class DatasetPipeline:
             if item.container:
                 self.manifest.mark_container_processed(item)
             return parsed, failed, discovered
-        return ((1, 0, 0) if self._parse_one(item, path) else (0, 1, 0))
+        return (1, 0, 0) if self._parse_one(item, path) else (0, 1, 0)
 
     def run_source(
         self,
@@ -248,12 +250,25 @@ class DatasetPipeline:
         for item in items:
             state = self.manifest.item_state(item.source, item.source_item_id)
             raw_path = Path(state["raw_path"]) if state is not None and state["raw_path"] else None
-            if state is not None and state["status"] in {"parsed", "container"} and raw_path is not None and raw_path.is_file():
+            if (
+                state is not None
+                and state["status"] in {"parsed", "container"}
+                and raw_path is not None
+                and raw_path.is_file()
+            ):
                 already_parsed += 1
                 continue
             if raw_path is not None and raw_path.is_file() and state["file_sha256"]:
                 cached_downloads.append(
-                    (item, DownloadResult(raw_path, str(state["file_sha256"]), int(state["file_size"] or raw_path.stat().st_size), False))
+                    (
+                        item,
+                        DownloadResult(
+                            raw_path,
+                            str(state["file_sha256"]),
+                            int(state["file_size"] or raw_path.stat().st_size),
+                            False,
+                        ),
+                    )
                 )
                 continue
             pending.append(item)

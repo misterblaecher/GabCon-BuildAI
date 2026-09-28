@@ -85,9 +85,7 @@ class FarhanParquetReader:
 
                 blocks: list[tuple[int, int, int, str, int]] = []
                 if not invalid_lengths:
-                    for flat_index, (state_id, name) in enumerate(
-                        zip(voxel_ids, voxel_names, strict=True)
-                    ):
+                    for flat_index, (state_id, name) in enumerate(zip(voxel_ids, voxel_names, strict=True)):
                         state_id = int(state_id)
                         if state_id == 0 or name is None or str(name) in {"air", "minecraft:air"}:
                             continue
@@ -128,9 +126,7 @@ class FarhanParquetReader:
                     source_item_id=f"row:{row_index:06d}",
                     source_url=original_url,
                     title=str(values.get("title")) if values.get("title") else None,
-                    description=(
-                        str(values.get("description")) if values.get("description") else None
-                    ),
+                    description=(str(values.get("description")) if values.get("description") else None),
                     tags=_tags(values.get("tags")),
                     minecraft_version=self.minecraft_version,
                     structure=structure,
