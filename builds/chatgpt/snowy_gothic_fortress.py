@@ -188,7 +188,7 @@ for z in range(-48, 49, 13):
     fill(66, 0, z - 3, 72, 4 + ((abs(z) + 2) % 7), z + 3, STONE)
 
 # Snow shelf on the summit and broken snow shelves down the cliff.
-floor(-53, -40, 53, 40, 13, SNOW)
+floor(-52, -39, 52, 39, 13, SNOW)
 for x in range(-70, 71, 8):
     set_block(x, 3 + (abs(x) % 5), -58 + (abs(x) % 4), SNOW)
     set_block(x, 6 + (abs(x) % 4), 54 - (abs(x) % 5), SNOW)
