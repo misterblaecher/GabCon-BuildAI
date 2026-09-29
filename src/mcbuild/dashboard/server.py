@@ -187,15 +187,11 @@ def _memory_snapshot() -> dict[str, Any]:
 
 def _cpu_snapshot() -> dict[str, Any]:
     load = None
-    try:
+    with contextlib.suppress(OSError):
         load = [round(value, 2) for value in os.getloadavg()]
-    except OSError:
-        pass
     uptime = None
-    try:
+    with contextlib.suppress(OSError, ValueError, IndexError):
         uptime = float(Path("/proc/uptime").read_text(encoding="utf-8").split()[0])
-    except (OSError, ValueError, IndexError):
-        pass
     return {"logical_cpus": os.cpu_count(), "load_average": load, "uptime_seconds": uptime}
 
 
