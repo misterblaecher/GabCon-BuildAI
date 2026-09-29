@@ -252,7 +252,12 @@ def _diagnostic(name: str) -> dict[str, Any]:
     if name == "swift":
         swift = shutil.which("swift")
         if not swift:
-            return {"ok": False, "stderr": "swift CLI not found in PATH", "stdout": "", "command": ["swift", "--version"]}
+            return {
+                "ok": False,
+                "stderr": "swift CLI not found in PATH",
+                "stdout": "",
+                "command": ["swift", "--version"],
+            }
         return _run([swift, "--version"], timeout=12)
 
     python = _detect_train_python()
@@ -452,7 +457,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("Content-Security-Policy", "default-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:")
+        self.send_header(
+            "Content-Security-Policy", "default-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:"
+        )
         self.send_header("X-Frame-Options", "DENY")
         self.end_headers()
         self.wfile.write(body)
@@ -503,7 +510,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="GabCon local dual-GPU workstation dashboard.")
-    parser.add_argument("--host", default="127.0.0.1", help="Bind address; keep loopback unless you add your own network controls.")
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Bind address; keep loopback unless you add your own network controls."
+    )
     parser.add_argument("--port", type=int, default=8787)
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
