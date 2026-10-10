@@ -14,3 +14,14 @@
 .build-error strong{display:block;font-size:12px}
 .build-error p{font-size:11px;color:#efb7b1;line-height:1.5;margin:7px 0}
 .build-error pre{font:11px/1.6 var(--mono);color:#fff0ed;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:250px;overflow:auto;user-select:text}
+
+/* Mobile/PWA enhancements: install CTA, touch editor, home-screen guide. */
+.install-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #5e8454;background:#263a2a;color:#ccf8b4;border-radius:7px;padding:9px 12px;font-weight:700;font-size:11px;white-space:nowrap}
+.install-button:hover{background:#3a5434;border-color:var(--lime)}
+.mobile-section{display:flex;align-items:center;justify-content:space-between;gap:28px;border:1px solid #456347;border-radius:11px;background:linear-gradient(110deg,#1b3329,#162325);padding:24px;margin-top:38px}
+.mobile-copy h2{font:700 22px var(--head);margin:11px 0 8px}
+.mobile-copy p{color:#a0bba9;line-height:1.6;font-size:12px;max-width:790px;margin:0}
+.mobile-copy code{font:11px var(--mono);color:var(--lime);overflow-wrap:anywhere}
+.mobile-section .light-button{white-space:nowrap;border-color:#8eb878;color:#dcfac8}
+@media(max-width:740px){.mobile-section{flex-direction:column;align-items:stretch;gap:16px;padding:19px}.mobile-section .light-button{width:100%}.install-button{padding:8px 11px}.page-heading{min-height:148px}}
+@media(max-width:630px){.code-container textarea{font-size:16px;line-height:25px}.line-numbers{font-size:11px;line-height:25px}.idea-input{font-size:16px}.seed-label input{font-size:16px}.install-button{font-size:10px}.topbar{gap:6px}.top-actions{gap:7px}.github-link{padding:7px 8px;font-size:10px}.drag-hint{max-width:66%}}

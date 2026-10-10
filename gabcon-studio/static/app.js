@@ -9,6 +9,7 @@ const els = {
 };
 let current = null, model = null, mode = '3d', busy = false, toastTimer = 0;
 let studioBlockLimit = 1_000_000;
+let deferredInstallPrompt = null;
 const cam = { yaw: Math.PI / 4, elev: 0.56, zoom: 1, px: 0, py: 0 };
 const SAMPLE = [
   '# GabCon-BuildAI : tour médiévale',
@@ -95,6 +96,33 @@ async function copyPrompt() {
     const ok = document.execCommand('copy');
     temp.remove();
     notify(ok ? 'Prompt copié pour ChatGPT.' : 'La copie automatique est indisponible.', !ok);
+  }
+}
+async function installApp() {
+  if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+    return notify("GabCon Studio est déjà ouvert comme application.");
+  }
+  if (deferredInstallPrompt) {
+    const event = deferredInstallPrompt;
+    deferredInstallPrompt = null;
+    event.prompt();
+    try { await event.userChoice; } catch (_) {}
+    return;
+  }
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    return notify("iPhone / iPad : ouvre ce site avec Safari, touche Partager, puis « Sur l'écran d’accueil ».");
+  }
+  notify("Dans le menu de ton navigateur, choisis « Installer l’application » ou « Ajouter à l’écran d’accueil ». Utilise une adresse HTTPS.");
+}
+function registerMobileApp() {
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+  });
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () =>
+      navigator.serviceWorker.register('/sw.js').catch(err => console.debug('PWA unavailable', err))
+    );
   }
 }
 function numberText(num) { return Number(num || 0).toLocaleString('fr-FR'); }
@@ -360,21 +388,38 @@ function resetCamera() {
   requestDraw();
 }
 function cameraEvents() {
-  let drag=null;
+  const pointers = new Map();
+  let pinchDistance = 0;
+  const distance = () => {
+    const points = [...pointers.values()];
+    return Math.hypot(points[0].x-points[1].x, points[0].y-points[1].y);
+  };
   els.canvas.addEventListener('pointerdown',e=>{
-    drag={x:e.clientX,y:e.clientY,pan:e.shiftKey || e.button===2};
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,pan:e.shiftKey || e.button===2});
     els.canvas.setPointerCapture(e.pointerId);
+    pinchDistance = pointers.size === 2 ? distance() : 0;
   });
   els.canvas.addEventListener('pointermove',e=>{
-    if(!drag)return;
-    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-    drag.x=e.clientX;drag.y=e.clientY;
-    if(drag.pan){cam.px+=dx;cam.py+=dy;}
+    const prev = pointers.get(e.pointerId);
+    if(!prev)return;
+    const dx=e.clientX-prev.x,dy=e.clientY-prev.y;
+    pointers.set(e.pointerId,{...prev,x:e.clientX,y:e.clientY});
+    if(pointers.size>=2){
+      const next=distance();
+      if(pinchDistance>0&&next>0){
+        cam.zoom=Math.max(.25,Math.min(6,cam.zoom*next/pinchDistance));
+        requestDraw();
+      }
+      pinchDistance=next;
+      return;
+    }
+    if(prev.pan){cam.px+=dx;cam.py+=dy;}
     else{cam.yaw+=dx*.012;cam.elev=Math.max(.13,Math.min(1.5,cam.elev-dy*.007));}
     requestDraw();
   });
+  const endPointer = e => { pointers.delete(e.pointerId);pinchDistance=0; };
   for(const name of ['pointerup','pointercancel','lostpointercapture'])
-    els.canvas.addEventListener(name,()=>{drag=null;});
+    els.canvas.addEventListener(name,endPointer);
   els.canvas.addEventListener('contextmenu',e=>e.preventDefault());
   els.canvas.addEventListener('wheel',e=>{
     e.preventDefault();cam.zoom=Math.max(.25,Math.min(6,cam.zoom*Math.exp(-e.deltaY*.0012)));
@@ -386,7 +431,11 @@ function cameraEvents() {
   $('resetCam').addEventListener('click',resetCamera);
   if(window.ResizeObserver) new ResizeObserver(requestDraw).observe(els.viewport);
   else window.addEventListener('resize',requestDraw);
+  if(window.matchMedia('(pointer: coarse)').matches){
+    $('dragHint').textContent='Glisse pour pivoter · Pince pour zoomer · Boutons pour changer de vue';
+  }
 }
+
 function init() {
   try {
     els.code.value=localStorage.getItem('gabcon-code') ?? SAMPLE;
@@ -406,6 +455,8 @@ function init() {
     try{localStorage.setItem('gabcon-idea',els.idea.value);}catch(_){}
   });
   $('copyPrompt').addEventListener('click',copyPrompt);
+  $('installBtn').addEventListener('click',installApp);
+  $('mobileInstallBtn').addEventListener('click',installApp);
   els.build.addEventListener('click',build);
   $('exampleBtn').addEventListener('click',()=>{
     if(els.code.value.trim() && els.code.value!==SAMPLE && !confirm('Remplacer le code par la tour de démonstration ?'))return;
@@ -425,6 +476,7 @@ function init() {
   document.querySelectorAll('[data-jump]').forEach(button=>
     button.addEventListener('click',()=>$(button.dataset.jump).scrollIntoView({behavior:'smooth'}))
   );
+  registerMobileApp();
   requestDraw();refreshHistory();health();
 }
 init();

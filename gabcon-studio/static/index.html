@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1015" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GabCon Studio" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
   <title>GabCon Studio — BuildAI</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
@@ -41,7 +47,7 @@
     <div class="main-area">
       <header class="topbar">
         <div class="breadcrumbs">GabCon / <span>BuildAI Studio</span> <span class="slash">/</span> <span class="current-crumb">Nouveau projet</span></div>
-        <div class="top-actions"><div class="server-chip"><span class="online-dot"></span> LOCAL FIRST</div><a class="github-link" href="https://github.com/misterblaecher/GabCon-BuildAI" target="_blank" rel="noopener">↗ GitHub</a></div>
+        <div class="top-actions"><button class="install-button" id="installBtn" type="button" title="Installer sur le téléphone ou le PC">⬇ Installer l'app</button><div class="server-chip"><span class="online-dot"></span> LOCAL FIRST</div><a class="github-link" href="https://github.com/misterblaecher/GabCon-BuildAI" target="_blank" rel="noopener">↗ GitHub</a></div>
       </header>
       <main class="page-content">
         <div class="page-heading" id="editor">
@@ -82,6 +88,14 @@
         </section>
 
         <section class="history-section" id="history"><div class="section-head"><div><div class="eyebrow"><span class="eyebrow-dash"></span> COLLECTION</div><h2>Mes dernières créations <span>↗</span></h2><p>Tous les projets restent sur ton ordinateur.</p></div><button class="light-button" id="refreshHistory">↻ Actualiser</button></div><div class="history-grid" id="historyGrid"><div class="history-empty"><span>▧</span><strong>Ton atelier est prêt.</strong><p>Ta première création apparaîtra ici.</p></div></div></section>
+        <section class="mobile-section" id="mobile">
+          <div class="mobile-copy">
+            <div class="eyebrow"><span class="eyebrow-dash"></span> MOBILE / INSTALLATION</div>
+            <h2>Ton atelier, aussi sur téléphone.</h2>
+            <p>Connecte ton PC et ton téléphone au même réseau privé Tailscale, puis ouvre l'adresse HTTPS donnée par <code>tailscale serve status</code> sur ton téléphone. Tu peux ensuite ajouter GabCon Studio à l'écran d'accueil. Ton PC doit rester allumé pendant les constructions.</p>
+          </div>
+          <button class="light-button" id="mobileInstallBtn" type="button">⬇ Ajouter à l'écran d'accueil</button>
+        </section>
         <section class="how-section" id="how"><div class="how-number">HOW IT WORKS / 04</div><div><h2>Une idée. Du code. Des blocs.</h2><p>Dans cette version, ChatGPT sert uniquement à écrire le blueprint. Aucune connexion à l'API OpenAI n'est utilisée. BuildAI exécute ensuite le code dans son environnement Python local, génère les vues et produit un schematic WorldEdit. Utilise uniquement du code provenant d'une source de confiance.</p></div><a class="how-link" href="https://github.com/misterblaecher/GabCon-BuildAI/blob/main/src/mcbuild/dsl/REFERENCE.md" target="_blank" rel="noopener">Documentation DSL ↗</a></section>
       </main>
     </div>

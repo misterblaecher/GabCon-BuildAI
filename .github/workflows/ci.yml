@@ -26,7 +26,9 @@ jobs:
         run: uv run python -m compileall -q gabcon-studio
 
       - name: Check GabCon Studio JavaScript syntax
-        run: node --check gabcon-studio/static/app.js
+        run: |
+          node --check gabcon-studio/static/app.js
+          node --check gabcon-studio/static/sw.js
 
       - name: Lint (ruff)
         run: uv run ruff check src tests tools

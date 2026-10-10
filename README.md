@@ -27,7 +27,7 @@ uv sync --extra dev
 uv run python gabcon-studio/server.py
 ```
 
-Ouvrir **http://127.0.0.1:8788**. Le moteur est exécuté localement : aucune clé API ChatGPT n'est nécessaire pour cette interface. Voir [GabCon Studio](gabcon-studio/README.md) pour les fonctionnalités et les limites de sécurité. Ne pas exposer ce service sur Internet.
+Ouvrir **http://127.0.0.1:8788**. Le moteur est exécuté localement : aucune clé API ChatGPT n'est nécessaire pour cette interface. **Android et iPhone :** GabCon Studio est aussi installable comme application Web (PWA), accessible via HTTPS privé avec **Tailscale Serve**. Voir [le guide GabCon Studio](gabcon-studio/README.md#utilisation-sur-téléphone-android--iphone) pour connecter le téléphone. Ne pas exposer le serveur Python publiquement sur Internet.
 
 ## How it works
 
