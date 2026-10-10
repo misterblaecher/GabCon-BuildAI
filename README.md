@@ -18,6 +18,17 @@ mod + WebSocket server) builds live inside a running Minecraft world.
 *Four rotations of a mansion built end-to-end from the prompt `"make a mansion"` —
 one of the agent's own self-critique renders, unedited.*
 
+## GabCon Studio (sans API d'IA)
+
+Une interface Web locale permet de générer un blueprint Python avec ChatGPT (dans l'application habituelle), de le coller dans un éditeur, de le visualiser en 3D ou en rendu BuildAI, puis de télécharger le fichier WorldEdit `.schem`.
+
+```bash
+uv sync --extra dev
+uv run python gabcon-studio/server.py
+```
+
+Ouvrir **http://127.0.0.1:8788**. Le moteur est exécuté localement : aucune clé API ChatGPT n'est nécessaire pour cette interface. Voir [GabCon Studio](gabcon-studio/README.md) pour les fonctionnalités et les limites de sécurité. Ne pas exposer ce service sur Internet.
+
 ## How it works
 
 ```
