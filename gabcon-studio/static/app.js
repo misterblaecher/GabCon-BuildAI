@@ -202,6 +202,12 @@ async function openBuild(item) {
   $('statBlocks').textContent = numberText(stats.block_count);
   $('statDims').textContent = Array.isArray(stats.dims) ? stats.dims.join(' × ') : '—';
   $('statMaterials').textContent = String(stats.material_count || stats.top_materials?.length || '—');
+  const timings = stats.timings_ms;
+  const timingLabels = [['blueprint','Python'],['validation','Validation'],['render','Rendu'],['schematic','.schem'],['browser_preview','3D']];
+  $('timingInfo').textContent = timings
+    ? timingLabels.filter(([key]) => Number.isFinite(timings[key]))
+      .map(([key, label]) => label + ' ' + (timings[key] / 1000).toFixed(2) + ' s').join(' · ')
+    : 'Mesures indisponibles pour cette ancienne construction.';
   $('previewSubtitle').textContent = item.name;
   $('exportBadge').textContent = 'FICHIERS PRÊTS';
   $('exportBadge').classList.add('ready');
