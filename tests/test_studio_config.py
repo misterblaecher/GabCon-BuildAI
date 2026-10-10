@@ -1,4 +1,5 @@
 """Regression tests for GabCon Studio's user-configurable build limit."""
+
 from __future__ import annotations
 
 import runpy
