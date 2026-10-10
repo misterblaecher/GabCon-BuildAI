@@ -14,7 +14,7 @@ def test_mobile_manifest_and_icons():
     assert {icon["sizes"] for icon in manifest["icons"]} == {"192x192", "512x512"}
     for icon in manifest["icons"]:
         icon_path = ROOT / icon["src"].lstrip("/")
-        assert icon_path.read_bytes().startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+        assert icon_path.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
 
 
 def test_mobile_shell_assets_and_no_api_cache():
