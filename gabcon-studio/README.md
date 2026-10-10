@@ -23,9 +23,47 @@ Une interface Web **locale** pour le dépôt [GabCon-BuildAI](https://github.com
 
 > Sur Windows, ces commandes fonctionnent dans PowerShell si `uv` est installé. Le port 8788 diffère de celui du dashboard BuildAI (8787).
 
+## Utilisation sur téléphone (Android / iPhone)
+
+GabCon Studio est une **application Web installable (PWA)**. Son moteur de génération reste sur ton PC Windows ; ton téléphone sert d'interface pour coller le Python de ChatGPT, inspecter la construction et récupérer le `.schem`.
+
+La solution recommandée est **Tailscale Serve**, qui fournit un accès HTTPS **privé** sans exposer le port Python sur Internet. Tu peux utiliser ton téléphone même en dehors du Wi-Fi de chez toi, tant que le PC et le téléphone sont connectés au même réseau privé Tailscale (tailnet) et que le PC reste allumé.
+
+1. Installer [Tailscale](https://tailscale.com/download) **sur le PC et le téléphone**, puis te connecter au **même compte/tailnet** sur les deux.
+2. Dans PowerShell sur le PC, depuis la racine du projet, lancer Studio :
+
+   ```powershell
+   uv run python gabcon-studio/server.py
+   ```
+
+3. Dans **un deuxième PowerShell sur le PC**, activer le proxy HTTPS privé :
+
+   ```powershell
+   tailscale serve --bg http://127.0.0.1:8788
+   tailscale serve status
+   ```
+
+   Lors de la première utilisation, Tailscale peut demander d'activer HTTPS pour ton tailnet. Le résultat de `tailscale serve status` affiche l'adresse HTTPS du PC (de forme `https://nom-pc.<tailnet>.ts.net`).
+
+4. Sur ton téléphone, activer Tailscale, puis ouvrir **l'adresse HTTPS affichée** dans le navigateur du téléphone.
+5. Ajouter GabCon Studio à l'écran d'accueil : **Android** → menu Chrome → *Installer l'application* ou bouton *Installer l'app* dans Studio ; **iPhone** → Safari → *Partager* → *Sur l'écran d'accueil*.
+
+Tu peux alors lancer Studio depuis son icône. Le bouton *Installer l'app* de Studio fournit également une indication pour ton navigateur. Sur mobile, tu peux **pivoter avec un doigt et zoomer avec deux doigts** dans la vue 3D.
+
+**Important :**
+- Ne pas remplacer `tailscale serve` par `tailscale funnel` : Funnel publie un service sur l'Internet public.
+- Ne pas ouvrir/rediriger le port `8788` sur la box Internet et ne pas modifier `HOST = "127.0.0.1"`. Le processus traite du Python fourni par l'utilisateur et **n'est pas sécurisé contre du code hostile**.
+- Restreindre l'accès à ton tailnet ; toute personne disposant de l'accès au service peut utiliser Studio. Ne partage pas cet accès avec une personne non fiable.
+- La page d'accueil peut être mise en cache par la PWA, mais **les générations, fichiers et API exigent une connexion au PC**. Les blueprints en cours sont sauvegardés uniquement dans le stockage local de *chaque navigateur*, ils ne sont pas synchronisés entre le PC et le téléphone. L'historique des constructions est, lui, stocké sur le PC.
+- **GitHub Pages ne peut pas exécuter le moteur BuildAI en Python**. Une version entièrement hébergée sur un site public nécessiterait un serveur Python distinct, un système de comptes/authentification et une isolation renforcée du code, ce que ce mode privé n'essaie pas de faire.
+
+Documentation : [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) et [installation des applications Web sur mobile](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
+
 ## Fonctionnalités
 
 - Copie d'un prompt spécialisé pour ChatGPT, sans appel à l'API OpenAI.
+- Application Web mobile installable sur Android/iPhone, avec icônes, manifeste et accès privé HTTPS via Tailscale Serve.
+- Gestes tactiles du visualiseur 3D : glisser pour pivoter, pincer pour zoomer.
 - Éditeur Python avec import `.py`, insertion de tabulations et sauvegarde automatique du brouillon dans le navigateur.
 - Génération à partir du **véritable DSL BuildAI** (`run_blueprint`) ; pas une simulation.
 - Validation structurale et génération de `render.png` (6 vues) et `final.schem` WorldEdit.
