@@ -18,6 +18,13 @@ from mcbuild.render.views import build_contact_sheet
 from mcbuild.validation import validate_structural_blocks
 from mcbuild.voxel import VoxelGrid
 
+from studio_config import (
+    BROWSER_SURFACE_MAX_BLOCKS,
+    DETAILED_PREVIEW_MAX_BLOCKS,
+    MAX_SCHEMATIC_VOLUME,
+    studio_block_limit,
+)
+
 VIEWS = [
     {"yaw": 0},
     {"yaw": 1},
@@ -26,8 +33,6 @@ VIEWS = [
     {"mode": "top-down"},
     {"yaw": 1, "cutaway": "z"},
 ]
-MAX_RENDER_BLOCKS = 160_000
-MAX_BROWSER_SURFACE_BLOCKS = 30_000
 NEIGHBORS = (
     (1, 0, 0), (-1, 0, 0), (0, 1, 0),
     (0, -1, 0), (0, 0, 1), (0, 0, -1),
@@ -58,7 +63,7 @@ def build_surface(grid: VoxelGrid) -> dict:
                 mask |= (1 << bit)
         if not mask:
             continue
-        if len(surface) >= MAX_BROWSER_SURFACE_BLOCKS:
+        if len(surface) >= BROWSER_SURFACE_MAX_BLOCKS:
             overflow = True
             break
         surface.append([x - origin[0], y - origin[1], z - origin[2], *color_by_index[index], mask])
@@ -88,15 +93,41 @@ def main() -> int:
         run_blueprint(source, grid, seed=seed)
         if not len(grid):
             raise ValueError("Le code s'exécute, mais ne place aucun bloc.")
-        if len(grid) > MAX_RENDER_BLOCKS:
-            raise ValueError(f"Limite Studio : {MAX_RENDER_BLOCKS:,} blocs. Réduis la taille de la construction.")
+        max_blocks = studio_block_limit()
+        if len(grid) > max_blocks:
+            raise ValueError(
+                f"Limite Studio : {max_blocks:,} blocs ; la construction en contient {len(grid):,}. "
+                "Modifie GABCON_STUDIO_MAX_BLOCKS dans .env (4 000 000 maximum)."
+            )
+        bounds = grid.bounds
+        assert bounds is not None
+        dimensions = tuple(high - low + 1 for low, high in zip(bounds[0], bounds[1], strict=True))
+        bounding_volume = dimensions[0] * dimensions[1] * dimensions[2]
+        if bounding_volume > MAX_SCHEMATIC_VOLUME:
+            raise ValueError(
+                f"Volume englobant trop grand ({bounding_volume:,} cases, "
+                f"limite {MAX_SCHEMATIC_VOLUME:,}). "
+                "Rapproche les parties éloignées : l'exporteur .schem alloue aussi les cases vides."
+            )
         validate_structural_blocks(grid)
 
         out_dir.mkdir(parents=True, exist_ok=True)
-        sheet, labels, stats = build_contact_sheet(grid, VIEWS)
+        # Six detailed rasterizations can be extremely expensive on a million-block build.
+        # For large plans, retain all blocks in the schematic but render one top view.
+        detailed_preview = len(grid) <= DETAILED_PREVIEW_MAX_BLOCKS
+        preview_views = VIEWS if detailed_preview else [{"mode": "top-down"}]
+        sheet, labels, stats = build_contact_sheet(grid, preview_views)
         sheet.save(out_dir / "render.png")
         export_schem(grid, str(out_dir / "final.schem"))
-        surface = build_surface(grid)
+        if detailed_preview:
+            surface = build_surface(grid)
+        else:
+            surface = {
+                "surface": [],
+                "too_large": True,
+                "origin": list(bounds[0]),
+                "count": len(grid),
+            }
         (out_dir / "voxels.json").write_text(json.dumps(surface, separators=(",", ":")), encoding="utf-8")
 
         metadata = {
@@ -106,6 +137,9 @@ def main() -> int:
             "server_profile": palette.registry_metadata(),
             "compatibility": {"valid": True},
             "interactive": not surface["too_large"],
+            "preview_mode": "six_views" if detailed_preview else "top_down",
+            "studio_block_limit": max_blocks,
+            "bounding_volume": bounding_volume,
             "material_count": len({idx for _, idx in grid.items()}),
             **stats,
         }

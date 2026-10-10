@@ -19,6 +19,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
+from dotenv import load_dotenv
+
+from studio_config import DETAILED_PREVIEW_MAX_BLOCKS, studio_block_limit
+
 STUDIO_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = STUDIO_DIR.parent
 STATIC_DIR = STUDIO_DIR / "static"
@@ -27,7 +31,7 @@ RUNS_DIR.mkdir(parents=True, exist_ok=True)
 HOST = "127.0.0.1"
 PORT = 8788
 MAX_BODY = 550_000
-BUILD_TIMEOUT = 210
+BUILD_TIMEOUT = 900
 ARTIFACTS = {"blueprint.py", "render.png", "final.schem", "stats.json", "voxels.json"}
 EXT_MIME = {
     ".html": "text/html; charset=utf-8",
@@ -101,7 +105,13 @@ class Handler(BaseHTTPRequestHandler):
         path = unquote(urlparse(self.path).path)
         if path == "/api/health":
             ready = (PROJECT_DIR / "pyproject.toml").is_file() and (PROJECT_DIR / "src" / "mcbuild").is_dir()
-            return self.send_json(200, {"ok": True, "project_detected": ready, "api_required": False})
+            return self.send_json(200, {
+                "ok": True,
+                "project_detected": ready,
+                "api_required": False,
+                "studio_max_blocks": studio_block_limit(),
+                "detailed_preview_max_blocks": DETAILED_PREVIEW_MAX_BLOCKS,
+            })
         if path == "/api/builds":
             ids = sorted((d.name for d in RUNS_DIR.iterdir() if d.is_dir()), reverse=True)
             builds = [m for identifier in ids[:30] if (m := metadata_for(identifier))]
@@ -163,7 +173,11 @@ class Handler(BaseHTTPRequestHandler):
                     timeout=BUILD_TIMEOUT, check=False, stdin=subprocess.DEVNULL,
                 )
             except subprocess.TimeoutExpired:
-                return self.send_json(408, {"error": "Délai dépassé pendant le calcul ou le rendu. Essaie une construction plus petite."})
+                print(f"[studio] Generation time-out: {identifier} ({BUILD_TIMEOUT}s)", flush=True)
+                return self.send_json(408, {"error": (
+                    f"Délai dépassé après {BUILD_TIMEOUT} secondes pendant le calcul ou l'export. "
+                    "Essaie une construction plus petite ou moins complexe."
+                )})
             if proc.returncode != 0:
                 # Our worker always prints a JSON error line, but dependency errors can be plain text.
                 details = proc.stdout.strip().splitlines()
@@ -175,6 +189,7 @@ class Handler(BaseHTTPRequestHandler):
                         pass
                 if not message:
                     message = (proc.stderr or "Échec du moteur BuildAI.")[-1200:]
+                print(f"[studio] Build failed ({identifier}): {message}", flush=True)
                 return self.send_json(422, {"error": message})
             item = metadata_for(identifier)
             if not item:
@@ -185,8 +200,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    load_dotenv(PROJECT_DIR / ".env")
     print("\n  GABCON STUDIO  /  interface locale BuildAI")
     print(f"  → http://{HOST}:{PORT}")
+    print(f"  → Limite de blocs : {studio_block_limit():,} (configurable via .env)")
     print("  → Aucun appel API ChatGPT/OpenRouter depuis l'interface.")
     print("  → Ne pas exposer sur Internet (sandbox prévue contre les erreurs, pas le code hostile).\n")
     server = ThreadingHTTPServer((HOST, PORT), Handler)
