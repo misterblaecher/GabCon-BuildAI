@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -23,6 +24,7 @@ from studio_config import (
     DETAILED_PREVIEW_MAX_BLOCKS,
     MAX_SCHEMATIC_VOLUME,
     studio_block_limit,
+    studio_preview_mode,
 )
 
 VIEWS = [
@@ -81,6 +83,8 @@ def main() -> int:
     out_dir = Path(sys.argv[2])
     seed = int(sys.argv[3])
     load_dotenv()
+    timings_ms: dict[str, int] = {}
+    started = time.perf_counter()
     try:
         registry = resolve_registry_path(None)
         if registry is None:
@@ -91,6 +95,7 @@ def main() -> int:
         source = blueprint_path.read_text(encoding="utf-8")
         grid = VoxelGrid()
         run_blueprint(source, grid, seed=seed)
+        timings_ms["blueprint"] = round((time.perf_counter() - started) * 1000)
         if not len(grid):
             raise ValueError("Le code s'exécute, mais ne place aucun bloc.")
         max_blocks = studio_block_limit()
@@ -110,15 +115,22 @@ def main() -> int:
                 "Rapproche les parties éloignées : l'exporteur .schem alloue aussi les cases vides."
             )
         validate_structural_blocks(grid)
+        timings_ms["validation"] = round((time.perf_counter() - started) * 1000) - timings_ms["blueprint"]
 
         out_dir.mkdir(parents=True, exist_ok=True)
         # Six detailed rasterizations can be extremely expensive on a million-block build.
         # For large plans, retain all blocks in the schematic but render one top view.
-        detailed_preview = len(grid) <= DETAILED_PREVIEW_MAX_BLOCKS
+        detailed_preview = len(grid) <= DETAILED_PREVIEW_MAX_BLOCKS and studio_preview_mode() != "fast"
         preview_views = VIEWS if detailed_preview else [{"mode": "top-down"}]
+        stage_started = time.perf_counter()
         sheet, labels, stats = build_contact_sheet(grid, preview_views)
         sheet.save(out_dir / "render.png")
-        export_schem(grid, str(out_dir / "final.schem"))
+        timings_ms["render"] = round((time.perf_counter() - stage_started) * 1000)
+        stage_started = time.perf_counter()
+        # Already validated above: avoid repeating the full structural scan.
+        export_schem(grid, str(out_dir / "final.schem"), validate=False)
+        timings_ms["schematic"] = round((time.perf_counter() - stage_started) * 1000)
+        stage_started = time.perf_counter()
         if detailed_preview:
             surface = build_surface(grid)
         else:
@@ -129,6 +141,7 @@ def main() -> int:
                 "count": len(grid),
             }
         (out_dir / "voxels.json").write_text(json.dumps(surface, separators=(",", ":")), encoding="utf-8")
+        timings_ms["browser_preview"] = round((time.perf_counter() - stage_started) * 1000)
 
         metadata = {
             "seed": seed,
@@ -140,11 +153,11 @@ def main() -> int:
             "preview_mode": "six_views" if detailed_preview else "top_down",
             "studio_block_limit": max_blocks,
             "bounding_volume": bounding_volume,
-            "material_count": len({idx for _, idx in grid.items()}),
+            "timings_ms": timings_ms,
             **stats,
         }
         (out_dir / "stats.json").write_text(json.dumps(metadata, indent=2, default=str), encoding="utf-8")
-        print(json.dumps({"ok": True, "blocks": len(grid)}))
+        print(json.dumps({"ok": True, "blocks": len(grid), "timings_ms": timings_ms}))
         return 0
     except Exception as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False))
