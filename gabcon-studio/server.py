@@ -41,6 +41,7 @@ EXT_MIME = {
     ".schem": "application/octet-stream",
     ".py": "text/x-python; charset=utf-8",
     ".json": "application/json; charset=utf-8",
+    ".webmanifest": "application/manifest+json; charset=utf-8",
     ".svg": "image/svg+xml",
 }
 BUILD_LOCK = threading.Lock()
@@ -135,6 +136,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         if urlparse(self.path).path != "/api/build":
             return self.send_error(404)
+        # Browsers must send a JSON same-origin request. This prevents other sites
+        # from silently triggering a local build (e.g. via a form or no-cors fetch).
+        fetch_site = self.headers.get("Sec-Fetch-Site", "")
+        if fetch_site and fetch_site not in ("same-origin", "none"):
+            return self.send_json(403, {"error": "Requête intersite refusée."})
+        media_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+        if media_type != "application/json":
+            return self.send_json(415, {"error": "Type de requête non pris en charge : JSON requis."})
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
