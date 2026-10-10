@@ -17,13 +17,13 @@ def test_fast_byte_palette_encoding():
 def test_varint_palette_encoding_beyond_128_entries():
     indices = np.array([0, 1, 127, 128, 255, 16384], dtype=np.uint16)
     encoded = _encode_block_data(indices, 16385)
-    assert np.asarray(encoded, dtype=np.uint8).tobytes() == b"\\x00\\x01\\x7f\\x80\\x01\\xff\\x01\\x80\\x80\\x01"
+    assert np.asarray(encoded, dtype=np.uint8).tobytes() == b"\x00\x01\x7f\x80\x01\xff\x01\x80\x80\x01"
 
 
 def test_prevalidated_export_preserves_output(tmp_path):
     grid = VoxelGrid()
     run_blueprint(
-        "fill(-3, 0, -2, 4, 3, 2, 'stone_bricks')\\nset_block(1, 1, 0, 'air')\\nset_block(2, 4, 1, 'glass')",
+        "fill(-3, 0, -2, 4, 3, 2, 'stone_bricks')\nset_block(1, 1, 0, 'air')\nset_block(2, 4, 1, 'glass')",
         grid,
     )
     checked = tmp_path / "checked.schem"
