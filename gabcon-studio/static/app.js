@@ -8,6 +8,7 @@ const els = {
   build: $('buildBtn'), lineNumbers: $('lineNumbers'), history: $('historyGrid')
 };
 let current = null, model = null, mode = '3d', busy = false, toastTimer = 0;
+let studioBlockLimit = 1_000_000;
 const cam = { yaw: Math.PI / 4, elev: 0.56, zoom: 1, px: 0, py: 0 };
 const SAMPLE = [
   '# GabCon-BuildAI : tour médiévale',
@@ -42,6 +43,7 @@ function status(message, kind) {
   if (kind) $('statusChip').classList.add(kind);
 }
 function loading(active) {
+  if (active) $('buildError').classList.add('hidden');
   busy = active;
   els.build.disabled = active;
   $('buildBtnText').textContent = active ? 'Construction en cours...' : 'Visualiser la construction';
@@ -74,7 +76,7 @@ function blueprintPrompt() {
     'Le bloc "air" sert à créer des ouvertures.',
     'Les coordonnées X/Z sont horizontales, Y est verticale.',
     'Aucun import, aucune API externe, pas de fonctions inexistantes.',
-    'Utilise des blocs Minecraft valides et limite la construction à 160 000 blocs.',
+    'Utilise des blocs Minecraft valides et limite la construction à ' + numberText(studioBlockLimit) + ' blocs.',
     'Ajoute des détails, des entrées et une architecture cohérente.',
     'Le script sera collé directement dans GabCon Studio.',
     'Documentation : https://github.com/misterblaecher/GabCon-BuildAI/blob/main/src/mcbuild/dsl/REFERENCE.md'
@@ -187,7 +189,7 @@ async function openBuild(item) {
     const data = await r.json();
     if (data.too_large || !data.surface?.length) {
       viewMode('render');
-      notify('Projet volumineux : visualisation par PNG.');
+      notify('Construction volumineuse : aperçu PNG allégé. Le schematic contient tous les blocs.');
     } else {
       model = { voxels: data.surface, dims: stats.dims || [16, 16, 16] };
       resetCamera();
@@ -218,7 +220,9 @@ async function build() {
   } catch (err) {
     console.error(err);
     status('ERREUR', 'error');
-    notify(err.message || 'Erreur inconnue', true);
+    $('buildErrorText').textContent = err.message || 'Erreur inconnue';
+    $('buildError').classList.remove('hidden');
+    notify('Échec de la génération : consulte le message sous l’éditeur.', true);
   } finally { loading(false); }
 }
 async function refreshHistory() {
@@ -257,6 +261,7 @@ async function health() {
     const r = await fetch('/api/health');
     const data = await r.json();
     if (!data.project_detected) throw Error('Dossier mcbuild introuvable');
+    studioBlockLimit = Number(data.studio_max_blocks) || 1_000_000;
     $('onlineDot').classList.add('good'); $('onlineLabel').textContent='Moteur local disponible';
   } catch (_) { $('onlineDot').classList.add('bad'); $('onlineLabel').textContent='Moteur indisponible'; }
 }
