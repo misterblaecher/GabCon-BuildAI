@@ -19,3 +19,7 @@ def studio_block_limit() -> int:
     except (ValueError, AttributeError):
         return DEFAULT_STUDIO_MAX_BLOCKS
     return min(ENGINE_MAX_BLOCKS, max(1, requested))
+
+def studio_preview_mode() -> str:
+    """Auto = detailed on small builds, fast = always render top-down."""
+    return "fast" if os.getenv("GABCON_STUDIO_PREVIEW_MODE", "").strip().lower() == "fast" else "auto"

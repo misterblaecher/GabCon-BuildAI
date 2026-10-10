@@ -37,6 +37,7 @@ def build_stats(grid: VoxelGrid) -> dict:
         "dims": dims,
         "bounds": bounds,  # ((minx,miny,minz),(maxx,maxy,maxz)) or None
         "block_count": len(grid),
+        "material_count": len(counts),
         "namespaces": dict(sorted(namespaces.items())),
         "top_materials": top_materials,
     }

@@ -7,6 +7,7 @@ from pathlib import Path
 
 _CONFIG = runpy.run_path(str(Path(__file__).resolve().parents[1] / "gabcon-studio" / "studio_config.py"))
 studio_block_limit = _CONFIG["studio_block_limit"]
+studio_preview_mode = _CONFIG["studio_preview_mode"]
 
 
 def test_studio_default_limit(monkeypatch):
@@ -32,3 +33,13 @@ def test_studio_invalid_limit_uses_default(monkeypatch):
 def test_studio_non_positive_limit_is_safe(monkeypatch):
     monkeypatch.setenv("GABCON_STUDIO_MAX_BLOCKS", "-1")
     assert studio_block_limit() == 1
+
+
+def test_studio_fast_preview_mode(monkeypatch):
+    monkeypatch.setenv("GABCON_STUDIO_PREVIEW_MODE", "fast")
+    assert studio_preview_mode() == "fast"
+
+
+def test_studio_default_preview_mode(monkeypatch):
+    monkeypatch.delenv("GABCON_STUDIO_PREVIEW_MODE", raising=False)
+    assert studio_preview_mode() == "auto"

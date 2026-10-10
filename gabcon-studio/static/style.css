@@ -25,3 +25,6 @@
 .mobile-section .light-button{white-space:nowrap;border-color:#8eb878;color:#dcfac8}
 @media(max-width:740px){.mobile-section{flex-direction:column;align-items:stretch;gap:16px;padding:19px}.mobile-section .light-button{width:100%}.install-button{padding:8px 11px}.page-heading{min-height:148px}}
 @media(max-width:630px){.code-container textarea{font-size:16px;line-height:25px}.line-numbers{font-size:11px;line-height:25px}.idea-input{font-size:16px}.seed-label input{font-size:16px}.install-button{font-size:10px}.topbar{gap:6px}.top-actions{gap:7px}.github-link{padding:7px 8px;font-size:10px}.drag-hint{max-width:66%}}
+
+/* Lightweight performance breakdown from the worker stage timers. */
+.performance-line{padding:11px 17px;border-bottom:1px solid var(--border);color:#a4c3ac;background:#16241d;font:10px/1.8 var(--mono);overflow-wrap:anywhere}

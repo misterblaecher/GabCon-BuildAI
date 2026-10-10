@@ -87,6 +87,32 @@ Les projets sont conservés dans `gabcon-studio/runs/`. Le dossier est ignoré p
 - Un script DSL doit utiliser les fonctions supportées par le projet, **pas** `minecraft`, `mcpi` ou `worldedit` comme import Python.
 - Il n'y a aucune synchronisation automatique de la conversation ChatGPT, pas de connexion au compte, et aucune API d'IA utilisée par Studio.
 
+## Accélérer les générations sur PC
+
+L'export Sponge `.schem` utilise des tableaux NumPy compacts ; les validations sont effectuées une seule fois dans Studio. Le `stats.json` d'une génération contient désormais `timings_ms` avec les durées de **blueprint**, **validation**, **render**, **schematic** et **browser_preview**. Ces durées permettent de voir si le PC est ralenti par les boucles Python, le rendu 3D ou l'export.
+
+**Pour privilégier la vitesse à la qualité du rendu**, ajouter ceci dans le `.env` à la racine du dépôt :
+
+```dotenv
+GABCON_STUDIO_PREVIEW_MODE=fast
+```
+
+Puis arrêter le serveur (Ctrl+C), et relancer :
+
+```powershell
+uv run python gabcon-studio/server.py
+```
+
+Le mode `fast` crée une image du dessus à la place des six rendus coûteux, même pour les petits builds. **Le contenu du fichier `.schem` reste complet** ; seul l'aperçu change. Pour restaurer les six vues automatiques sur les petits builds, remettre `GABCON_STUDIO_PREVIEW_MODE=auto` (ou supprimer la variable).
+
+Pour un test reproductible sur le même ordinateur :
+
+```powershell
+uv run python tools/benchmark_schem.py --width 64 --height 32 --length 64
+```
+
+Conseils système : utiliser un SSD pour `gabcon-studio/runs/`, fermer les applications consommant beaucoup de RAM, et garder `uv`/Python à jour sans modifier manuellement les dépendances verrouillées. Vérifier les temps dans `stats.json` avant de chercher à augmenter le nombre de cœurs : le DSL et la génération 3D n'utilisent pas automatiquement tous les cœurs du CPU.
+
 ## Erreur HTTP 422
 
 Un `POST /api/build 422` signifie qu'une erreur du **blueprint, de la palette, d'une limite ou du moteur** s'est produite : ce n'est pas systématiquement la limite de blocs. Le message exact est affiché **sous l'éditeur** et aussi dans la console PowerShell du serveur sous la forme `[studio] Build failed (...): ...`. Conserve ce texte pour diagnostiquer le problème.
