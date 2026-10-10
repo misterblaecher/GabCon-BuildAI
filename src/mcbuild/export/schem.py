@@ -11,6 +11,7 @@ DataVersion 3955 corresponds to Minecraft 1.21.1.
 from __future__ import annotations
 
 import nbtlib
+import numpy as np
 from nbtlib.tag import ByteArray, Compound, Int, IntArray, List, Short
 
 from mcbuild.palette import get_block_by_index
@@ -34,13 +35,28 @@ def _varint(value: int) -> list[int]:
     return out
 
 
-def _to_signed_byte(b: int) -> int:
-    return b - 256 if b >= 128 else b
+def _encode_block_data(dense: np.ndarray, palette_size: int) -> ByteArray:
+    """Encode the Sponge v3 varint stream without Python lists per voxel.
+
+    The common case (up to 128 palette entries) uses one byte per block and
+    NumPy vectorization. Larger palettes use one cached varint encoding per
+    distinct palette entry rather than encoding every cell independently.
+    """
+    if palette_size <= 128:
+        return ByteArray(dense.astype(np.int8, copy=False))
+
+    varints = tuple(bytes(_varint(index)) for index in range(palette_size))
+    encoded = bytearray()
+    extend = encoded.extend
+    for index in dense:
+        extend(varints[int(index)])
+    return ByteArray(np.frombuffer(encoded, dtype=np.int8))
 
 
-def grid_to_schematic(grid: VoxelGrid) -> Compound:
-    """Build the root NBT compound for a Sponge Schematic v3 file."""
-    validate_structural_blocks(grid)
+def grid_to_schematic(grid: VoxelGrid, *, validate: bool = True) -> Compound:
+    """Build Sponge v3 NBT. Skip validation only if the caller already validated."""
+    if validate:
+        validate_structural_blocks(grid)
     bounds = grid.bounds
     if bounds is None:
         raise ValueError("Cannot export an empty voxel grid.")
@@ -67,15 +83,14 @@ def grid_to_schematic(grid: VoxelGrid) -> Compound:
         palette_compound["minecraft:air"] = Int(air_palette_id)
 
     volume = width * height * length
-    dense = [air_palette_id] * volume
+    dtype = np.uint16 if len(palette_compound) <= 65536 else np.uint32
+    dense = np.full(volume, air_palette_id, dtype=dtype)
     for (x, y, z), idx in grid.items():
         lx, ly, lz = x - minx, y - miny, z - minz
         pos = lx + lz * width + ly * width * length
         dense[pos] = mc_id_to_palette_id[idx]
 
-    block_data_bytes: list[int] = []
-    for v in dense:
-        block_data_bytes.extend(_varint(v))
+    block_data = _encode_block_data(dense, len(palette_compound))
 
     schematic = Compound(
         {
@@ -88,7 +103,7 @@ def grid_to_schematic(grid: VoxelGrid) -> Compound:
             "Blocks": Compound(
                 {
                     "Palette": palette_compound,
-                    "Data": ByteArray([_to_signed_byte(b) for b in block_data_bytes]),
+                    "Data": block_data,
                     "BlockEntities": List[Compound]([]),
                 }
             ),
@@ -98,8 +113,8 @@ def grid_to_schematic(grid: VoxelGrid) -> Compound:
     return Compound({"Schematic": schematic})
 
 
-def export_schem(grid: VoxelGrid, path: str) -> None:
-    """Write the grid to a gzipped Sponge Schematic v3 (.schem) file at `path`."""
-    root = grid_to_schematic(grid)
+def export_schem(grid: VoxelGrid, path: str, *, validate: bool = True) -> None:
+    """Write a gzipped Sponge Schematic v3. Validate unless already checked."""
+    root = grid_to_schematic(grid, validate=validate)
     nbt_file = nbtlib.File(root, gzipped=True, root_name="")
     nbt_file.save(path)
