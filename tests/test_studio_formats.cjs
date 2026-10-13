@@ -32,7 +32,7 @@ for (const fileFormat of ['py','schem','json','mcfunction','md']) {
     assert.doesNotMatch(prompt,/RENVOIE UNIQUEMENT un bloc Markdown.*mcfunction/);
   } else if (fileFormat==='mcfunction') {
     assert.match(prompt,/32768 blocs/);
-    assert.match(prompt,/sans.*\//i);
+    assert.match(prompt,/PAS de \//i);
     assert.match(prompt,/datapack/i);
   } else if (fileFormat==='md') {
     assert.match(prompt,/Markdown/);
