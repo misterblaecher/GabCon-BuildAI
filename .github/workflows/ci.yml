@@ -28,7 +28,10 @@ jobs:
       - name: Check GabCon Studio JavaScript syntax
         run: |
           node --check gabcon-studio/static/app.js
+          node --check gabcon-studio/static/prompt.js
           node --check gabcon-studio/static/sw.js
+      - name: Test AI brief, Python extraction and repair prompts
+        run: node tests/test_studio_prompt.cjs
 
       - name: Lint (ruff)
         run: uv run ruff check src tests tools
