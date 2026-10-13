@@ -156,7 +156,7 @@
       organic_subject: creationType==='organic'
         ? {id:organicSubject,label:ORGANIC_SUBJECTS[organicSubject].label,description:ORGANIC_SUBJECTS[organicSubject].description}
         : null,
-      architectural_style: STYLES[style].description,
+      architectural_style: style==='auto' ? STYLES[style].description : STYLES[style].label+' — '+STYLES[style].description,
       approximate_dimensions: {
         width_x: SIZES[size].width,
         depth_z: SIZES[size].depth,
