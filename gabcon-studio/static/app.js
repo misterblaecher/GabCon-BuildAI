@@ -63,6 +63,33 @@ function currentBrief() {
     blockLimit:studioBlockLimit, fileFormat:selectedPromptFormat
   });
 }
+async function importBrief(event) {
+  const file=event.target.files?.[0];
+  if(!file) return;
+  try {
+    if(file.size>100000) throw Error('Brief JSON trop volumineux.');
+    const parsed=JSON.parse(await file.text());
+    if(!parsed || parsed.schema!=='gabcon-build-brief-v1') {
+      throw Error('Ce JSON n’est pas un cahier des charges ChatGPT (gabcon-build-brief-v1).');
+    }
+    if(typeof parsed.description==='string') {
+      els.idea.value=parsed.description;
+      try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
+    }
+    const prefs=parsed.preferences||{};
+    for(const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
+      const select=$(id);
+      if([...select.options].some(option=>option.value===prefs[key])) {
+        select.value=prefs[key];
+        try { localStorage.setItem('gabcon-brief-'+key,select.value); } catch (_) {}
+      }
+    }
+    setOutputFormat(prefs.fileFormat);
+    notify('Brief ChatGPT importé. Le moteur local n’a pas été modifié.');
+  } catch(err) {
+    notify('Import du brief impossible : '+err.message,true);
+  } finally { event.target.value=''; }
+}
 function downloadBrief() {
   const brief = JSON.stringify(currentBrief(), null, 2) + '\n';
   const blob = new Blob([brief], {type:'application/json;charset=utf-8'});
@@ -586,6 +613,7 @@ function init() {
   $('copyPrompt').addEventListener('click',copyPrompt);
   $('copyRepair').addEventListener('click',copyRepair);
   $('downloadBrief').addEventListener('click',downloadBrief);
+  $('briefInput').addEventListener('change',importBrief);
   $('downloadResponse').addEventListener('click',downloadResponse);
   let formatSaved='auto',engineFormatSaved='py';
   try {
@@ -630,31 +658,16 @@ function init() {
     const file=e.target.files?.[0];if(!file)return;
     if(file.size>500000){notify('Fichier trop volumineux.',true);return;}
     const data=await file.text();
-    if (file.name.toLowerCase().endsWith('.json')) {
+    if(file.name.toLowerCase().endsWith('.json')) {
       try {
-        const parsed=JSON.parse(data);
-        if (parsed && parsed.schema === 'gabcon-build-brief-v1') {
-          if (typeof parsed.description === 'string') {
-            els.idea.value=parsed.description;
-            try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
-          }
-          const prefs=parsed.preferences || {};
-          for (const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
-            const node=$(id);
-            if ([...node.options].some(option=>option.value===prefs[key])) {
-              node.value=prefs[key];
-              try { localStorage.setItem('gabcon-brief-'+key,node.value); } catch (_) {}
-            }
-          }
-          setOutputFormat(prefs.fileFormat);
-          notify('Cahier des charges JSON chargé. Copie maintenant le prompt vers ChatGPT.');
-          e.target.value='';
-          return;
+        if(JSON.parse(data)?.schema==='gabcon-build-brief-v1') {
+          notify('Ce JSON est un brief ChatGPT. Utilise « Importer un brief ChatGPT » dans le parcours A.',true);
+          e.target.value='';return;
         }
-      } catch (_) { /* JSON invalide : le moteur indiquera l'erreur si exécuté. */ }
+      } catch (_) { /* Le compilateur de blueprint indiquera une erreur JSON. */ }
     }
     const ext=file.name.toLowerCase().split('.').pop();
-    let fileFormat=ext==='json'?'json':'py';
+    const fileFormat=ext==='json'?'json':'py';
     if (ext!=='json' && ext!=='py' && ext!=='txt') {
       notify('GabCon BuildAI accepte uniquement les blueprints .py ou .json.',true);
       e.target.value='';return;
