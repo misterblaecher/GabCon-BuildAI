@@ -72,7 +72,7 @@ assert.throws(()=>Formats.compileJsonOps(bad),/inconnue/);
 assert.throws(()=>Formats.compileJsonOps(JSON.stringify({...ops,operations:[{op:'set_block',args:[0,0,0,'stone");__import__("os"'] }]})),/invalide/);
 assert.throws(()=>Formats.compileJsonOps('{garbage}'),/JSON invalide/);
 assert.throws(()=>Formats.compileJsonOps(JSON.stringify({...ops,operations:[]})),/1 à 1200/);
-assert.throws(()=>Formats.contentForBuild('fill 0 0 0 1 0 1 stone','mcfunction'),/ne s’exécute pas/);
+assert.throws(()=>Formats.contentForBuild('fill 0 0 0 1 0 1 stone','mcfunction'),/n’est pas exécuté/);
 
 const brief=Prompt.createBrief({fileFormat:'json',idea:'Tour'});
 const repaired=Prompt.repairJsonPrompt(brief,JSON.stringify(ops),'Erreur de palette');
