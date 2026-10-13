@@ -80,6 +80,45 @@ comme **outils optionnels** ; aucun n'est nécessaire pour demander un fichier �
 5. ChatGPT utilise ses outils disponibles pour **créer le fichier téléchargeable directement**
    et t'indique comment l'installer ou le charger dans Minecraft.
 
+### Types de créations et styles artistiques
+
+Le parcours **A — ChatGPT direct** possède un choix de **type de création** distinct du
+format de fichier. Tous les formats ChatGPT gardent leurs prompts spécialisés et
+reçoivent en plus des instructions adaptées à la géométrie du build :
+
+| Type | Exemples | Règles de génération |
+| --- | --- | --- |
+| **Libre** (par défaut) | Idée de tout type | L'IA détermine la catégorie à partir de la description, sans imposer de bâtiment |
+| **Architecture** | Maison, château, ville | Volumes habitables, proportions, façades, ouvertures et toiture si pertinente |
+| **Organique** | Dragon, animal, humain, arbre géant | **Silhouette 3D**, anatomie, courbes voxelisées, volumes arrondis, jonctions progressives, détails expressifs |
+| **Paysage / terrain** | Montagne, grotte, vallée | Reliefs variés, pentes, transitions entre matériaux, végétation |
+| **Statue / monument** | Sculpture, buste, stèle | Silhouette avant/profil, masses, socle, profondeur |
+| **Pixel art** | Logo, panneau, fresque | Forme 2D assumée sur une grille, couleurs limitées et contrastées |
+
+Après avoir sélectionné **Organique**, un deuxième groupe de boutons propose un
+**sujet organique** : Libre, Créature / animal, Personnage / géant, Dragon / chimère,
+Arbre / végétation ou Abstrait / vivant.
+
+Le champ **Style artistique** se met à jour automatiquement selon le type. Exemples :
+Médiéval, Moderne, Fantasy, Naturel, Gothique, Japonais, Steampunk, Science-fiction,
+Réaliste, Stylisé, Cartoon, Low-poly, Dark fantasy, Ruines et Biomécanique.
+Un style incompatible avec le type choisi revient à **Selon mon idée**.
+Les réglages sont mémorisés dans le navigateur et inclus dans l'export/import du brief
+`gabcon-build-brief-v1` (`preferences.creationType`, `preferences.organicSubject`,
+`preferences.style`) ; les anciens briefs sans ces champs restent compatibles.
+
+Le prompt organique demande **un véritable volume en blocs**, pas une image ou un
+bâtiment cubique avec toit et fenêtres. Les silhouettes, surfaces, proportions,
+courbes et articulations sont traitées en priorité, pour un rendu lisible à 360°.
+Le type et le style s'appliquent quel que soit le fichier demandé dans le parcours A
+(`.schem`, `.litematic`, `.nbt`, datapack, `.py`, etc.).
+
+Dans le parcours **B — moteur local**, le bouton **Exemple organique** charge un
+**arbre géant en Python DSL** (tronc, racines, branches et feuillage). Clique ensuite
+sur **Générer avec BuildAI** pour l'exécuter et produire un vrai `.schem`.
+Les presets du parcours A ne modifient pas automatiquement le code du parcours B ;
+le moteur exécute le blueprint présent dans son éditeur.
+
 ### Catalogue : formats réellement utilisables pour un build Java 1.21.1
 
 Les **cartes cliquables** sont regroupées par **destination réelle**, et les prompts ChatGPT sont distincts pour chaque format.

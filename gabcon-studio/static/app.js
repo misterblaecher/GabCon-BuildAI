@@ -10,6 +10,7 @@ const els = {
 };
 let current = null, model = null, mode = '3d', busy = false, toastTimer = 0;
 let studioBlockLimit = 1_000_000;
+let selectedCreationType='auto',selectedOrganicSubject='auto';
 let selectedPromptFormat = 'auto';
 let engineInputFormat = 'py';
 let deferredInstallPrompt = null;
@@ -32,6 +33,21 @@ const SAMPLE = [
   'cylinder(0, 0, 22, 1, 3, "dark_oak_planks")',
   'cylinder(0, 0, 23, 1, 2, "dark_oak_planks")',
   'set_block(0, 24, 0, "lightning_rod")'
+].join('\n');
+const SAMPLE_ORGANIC = [
+  '# GabCon-BuildAI : arbre géant organique (exemple moteur local)',
+  '# Tronc irrégulier, racines, ramures et houppier 3D',
+  'fill(-12, -1, -12, 12, -1, 12, "grass_block")',
+  'for y in range(0, 16):',
+  '    r = 4 if y < 5 else 3 if y < 11 else 2',
+  '    cylinder(0, 0, y, 1, r, "spruce_log")',
+  'for x, z in [(-7, -5), (7, -4), (-5, 7), (5, 7)]:',
+  '    line(0, 2, 0, x, 0, z, "spruce_log")',
+  'for x, y, z in [(-9, 19, 0), (9, 18, 0), (0, 20, -9), (0, 19, 9), (-6, 22, -6), (6, 21, 6)]:',
+  '    line(0, 13, 0, x, y, z, "spruce_log")',
+  '    sphere(x, y, z, 4, "oak_leaves")',
+  'sphere(0, 24, 0, 6, "oak_leaves")',
+  'sphere(0, 29, 0, 3, "oak_leaves")'
 ].join('\n');
 
 function notify(message, isError) {
@@ -60,7 +76,8 @@ function currentBrief() {
   return GabConPrompt.createBrief({
     idea:els.idea.value, style:$('briefStyle').value,
     size:$('briefSize').value, detail:$('briefDetail').value,
-    blockLimit:studioBlockLimit, fileFormat:selectedPromptFormat
+    blockLimit:studioBlockLimit, fileFormat:selectedPromptFormat,
+    creationType:selectedCreationType,organicSubject:selectedOrganicSubject
   });
 }
 async function importBrief(event) {
@@ -77,7 +94,10 @@ async function importBrief(event) {
       try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
     }
     const prefs=parsed.preferences||{};
-    for(const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
+    setCreationType(prefs.creationType);
+    setOrganicSubject(prefs.organicSubject);
+    refreshStyleChoices(prefs.style);
+    for(const [id,key] of [['briefSize','size'],['briefDetail','detail']]) {
       const select=$(id);
       if([...select.options].some(option=>option.value===prefs[key])) {
         select.value=prefs[key];
@@ -90,6 +110,80 @@ async function importBrief(event) {
     notify('Import du brief impossible : '+err.message,true);
   } finally { event.target.value=''; }
 }
+
+function creationChoiceButton(id, info, type) {
+  const button=document.createElement('button');
+  button.type='button';
+  button.className=type==='organic'?'organic-subject-button':'creation-kind-button';
+  button.dataset[type==='organic'?'organicSubject':'creationKind']=id;
+  button.setAttribute('aria-pressed','false');
+  const name=document.createElement('strong');name.textContent=info.label;
+  const detail=document.createElement('span');detail.textContent=info.description;
+  button.append(name,detail);
+  button.addEventListener('click',()=>type==='organic'?setOrganicSubject(id):setCreationType(id));
+  return button;
+}
+function refreshCreationState() {
+  for (const button of document.querySelectorAll('[data-creation-kind]')) {
+    const selected=button.dataset.creationKind===selectedCreationType;
+    button.classList.toggle('is-selected',selected);
+    button.setAttribute('aria-pressed',selected?'true':'false');
+  }
+  $('organicSubjectWrap').hidden=selectedCreationType!=='organic';
+  for (const button of document.querySelectorAll('[data-organic-subject]')) {
+    const selected=button.dataset.organicSubject===selectedOrganicSubject;
+    button.classList.toggle('is-selected',selected);
+    button.setAttribute('aria-pressed',selected?'true':'false');
+  }
+}
+function refreshStyleChoices(requestedStyle) {
+  const select=$('briefStyle');
+  const previous=requestedStyle||select.value||'auto';
+  const available=GabConPrompt.getStylesForType(selectedCreationType);
+  select.replaceChildren();
+  for (const item of available) {
+    const option=document.createElement('option');
+    option.value=item.id;option.textContent=item.label;
+    select.appendChild(option);
+  }
+  select.value=available.some(item=>item.id===previous)?previous:'auto';
+  const chosen=available.find(item=>item.id===select.value);
+  $('styleHint').textContent=chosen?.description||'';
+  try {localStorage.setItem('gabcon-brief-style',select.value);} catch (_) {}
+}
+function setCreationType(type) {
+  const available=GabConPrompt.getCreationTypes();
+  selectedCreationType=available.some(item=>item.id===type)?type:'auto';
+  refreshCreationState();
+  refreshStyleChoices();
+  try {localStorage.setItem('gabcon-creation-type-v1',selectedCreationType);} catch (_) {}
+}
+function setOrganicSubject(subject) {
+  const available=GabConPrompt.getOrganicSubjects();
+  selectedOrganicSubject=available.some(item=>item.id===subject)?subject:'auto';
+  refreshCreationState();
+  try {localStorage.setItem('gabcon-organic-subject-v1',selectedOrganicSubject);} catch (_) {}
+}
+function initCreationControls() {
+  const types=GabConPrompt.getCreationTypes();
+  for (const item of types) {
+    $('creationKindChoices').appendChild(creationChoiceButton(item.id,item,'kind'));
+  }
+  for (const item of GabConPrompt.getOrganicSubjects()) {
+    $('organicSubjectChoices').appendChild(creationChoiceButton(item.id,item,'organic'));
+  }
+  let savedType='auto',savedOrganic='auto',savedStyle='auto';
+  try {
+    savedType=localStorage.getItem('gabcon-creation-type-v1')||'auto';
+    savedOrganic=localStorage.getItem('gabcon-organic-subject-v1')||'auto';
+    savedStyle=localStorage.getItem('gabcon-brief-style')||'auto';
+  } catch (_) {}
+  setCreationType(savedType);
+  setOrganicSubject(savedOrganic);
+  refreshStyleChoices(savedStyle);
+  $('briefStyle').addEventListener('change',()=>refreshStyleChoices($('briefStyle').value));
+}
+
 function downloadBrief() {
   const brief = JSON.stringify(currentBrief(), null, 2) + '\n';
   const blob = new Blob([brief], {type:'application/json;charset=utf-8'});
@@ -622,12 +716,12 @@ function init() {
   } catch (_) {}
   selectedPromptFormat=GabConPrompt.formatFor(formatSaved);
   renderFormatChoices();
+  initCreationControls();
   for (const button of document.querySelectorAll('[data-engine-format]')) {
     button.addEventListener('click',()=>setEngineFormat(button.dataset.engineFormat));
   }
   setEngineFormat(engineFormatSaved);
   for (const [id, name, allowed] of [
-    ['briefStyle','style',['auto','medieval','modern','fantasy','industrial','natural']],
     ['briefSize','size',['small','medium','large']],
     ['briefDetail','detail',['speed','balanced','detailed']]
   ]) {
@@ -650,9 +744,14 @@ function init() {
   });
   els.build.addEventListener('click',build);
   $('exampleBtn').addEventListener('click',()=>{
-    if(els.code.value.trim() && els.code.value!==SAMPLE && !confirm('Remplacer le code par la tour de démonstration ?'))return;
+    if(els.code.value.trim() && els.code.value!==SAMPLE && !confirm('Remplacer le code local par la tour de démonstration ?'))return;
     setEngineFormat('py');els.code.value=SAMPLE;
-    refreshEditor();notify('Exemple de tour médiévale chargé.');
+    refreshEditor();notify('Exemple de bâtiment chargé dans le moteur local.');
+  });
+  $('organicExampleBtn').addEventListener('click',()=>{
+    if(els.code.value.trim() && els.code.value!==SAMPLE && els.code.value!==SAMPLE_ORGANIC && !confirm('Remplacer le code local par l’arbre organique ?'))return;
+    setEngineFormat('py');els.code.value=SAMPLE_ORGANIC;
+    refreshEditor();notify('Exemple organique chargé : clique Générer avec BuildAI.');
   });
   $('fileInput').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;

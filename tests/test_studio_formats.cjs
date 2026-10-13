@@ -169,4 +169,30 @@ assert.match(app,/setOutputFormat\(prefs\.fileFormat\)/);
 assert.match(app,/setEngineFormat\(fileFormat\)/);
 assert.match(app,/const format=engineInputFormat/);
 
-console.log('GabCon Studio file-type prompts, card selection and engine independence tests passed');
+
+assert.match(html,/id="creationKindChoices"/);
+assert.match(html,/id="organicSubjectChoices"/);
+assert.match(html,/id="organicSubjectWrap"[^>]*hidden/);
+assert.match(html,/id="briefStyle"/);
+assert.match(html,/id="styleHint"/);
+assert.match(html,/id="organicExampleBtn"/);
+assert.match(app,/function setCreationType\(/);
+assert.match(app,/function setOrganicSubject\(/);
+assert.match(app,/function refreshStyleChoices\(/);
+assert.match(app,/function initCreationControls\(/);
+assert.match(app,/button\.dataset\[type==='organic'/);
+assert.match(app,/aria-pressed/);
+assert.match(app,/setCreationType\(prefs\.creationType\)/);
+assert.match(app,/setOrganicSubject\(prefs\.organicSubject\)/);
+assert.match(app,/SAMPLE_ORGANIC/);
+assert.match(app,/sphere\(0, 24, 0/);
+assert.match(app,/setEngineFormat\('py'\);els\.code\.value=SAMPLE_ORGANIC/);
+assert.match(app,/creationType:selectedCreationType,organicSubject:selectedOrganicSubject/);
+assert.doesNotMatch(builder,/selectedCreationType|selectedOrganicSubject|briefStyle/);
+const kinds=Prompt.getCreationTypes().map(item=>item.id);
+assert.deepEqual(kinds,['auto','architecture','organic','landscape','sculpture','pixelart']);
+for(const subject of ['creature','humanoid','dragon','vegetation','abstract']) {
+  assert.ok(Prompt.getOrganicSubjects().some(item=>item.id===subject));
+}
+
+console.log('GabCon Studio creative-type, organic subject, style and engine independence tests passed');
