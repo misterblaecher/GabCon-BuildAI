@@ -22,7 +22,7 @@ assert.match(prompt, /floor\(x1, z1, x2, z2, y/);
 assert.match(prompt, /AUCUN import/);
 assert.match(prompt, /160000/);
 assert.match(prompt, /directement ici/);
-assert.match(prompt, /vrai fichier texte/);
+assert.match(prompt, /fichier texte blueprint\.py/);
 assert.match(prompt, /un seul bloc python/);
 
 const fenced = [
