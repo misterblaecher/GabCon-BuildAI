@@ -35,7 +35,7 @@ for (const fileFormat of ['auto','schem','litematic','nbt','datapack','mcfunctio
     assert.match(prompt,/floor\(x1, z1, x2, z2, y/);
   } else if (fileFormat==='schem') {
     assert.match(prompt,/NBT gzip/);
-    assert.match(prompt,/final.schem/);
+    assert.match(prompt,/construction.schem/);
     assert.match(prompt,/outil de code\/fichiers/);
     assert.match(prompt,/faux lien/);
     assert.doesNotMatch(prompt,/GabCon Studio le transformera/);
