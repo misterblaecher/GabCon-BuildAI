@@ -121,6 +121,16 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
         """Place resolving the block per-cell (so WeightedPalette varies per cell)."""
         _place(x, y, z, _resolve_idx(block))
 
+    def _place_many(coords: Iterator[tuple[int, int, int]], block) -> None:
+        """Resolve fixed materials once per primitive, preserving weighted per-cell sampling."""
+        if isinstance(block, WeightedPalette):
+            for x, y, z in coords:
+                _place(x, y, z, _resolve_idx(block))
+        else:
+            idx = _resolve_idx(block)
+            for x, y, z in coords:
+                _place(x, y, z, idx)
+
     # --- transform contexts ---
 
     @contextmanager
@@ -175,8 +185,7 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
                 )
 
     def fill(x1: float, y1: float, z1: float, x2: float, y2: float, z2: float, block) -> None:
-        for x, y, z in _iter_box(x1, y1, z1, x2, y2, z2):
-            _place_block(x, y, z, block)
+        _place_many(_iter_box(x1, y1, z1, x2, y2, z2), block)
 
     def clear(x1: float, y1: float, z1: float, x2: float, y2: float, z2: float) -> None:
         for x, y, z in _iter_box(x1, y1, z1, x2, y2, z2):
@@ -213,30 +222,42 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
         ylo, yhi = sorted((int(round(y1)), int(round(y2))))
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
         t = max(1, int(thickness))
-        for x, y, z in _iter_box(xlo, ylo, zlo, xhi, yhi, zhi):
-            near_edge = x - xlo < t or xhi - x < t or y - ylo < t or yhi - y < t or z - zlo < t or zhi - z < t
-            if near_edge:
-                _place_block(x, y, z, block)
+
+        def edge_coords() -> Iterator[tuple[int, int, int]]:
+            for x, y, z in _iter_box(xlo, ylo, zlo, xhi, yhi, zhi):
+                near_edge = x - xlo < t or xhi - x < t or y - ylo < t or yhi - y < t or z - zlo < t or zhi - z < t
+                if near_edge:
+                    yield x, y, z
+
+        _place_many(edge_coords(), block)
 
     def walls(x1: float, z1: float, x2: float, z2: float, y1: float, y2: float, block, thickness: int = 1) -> None:
         xlo, xhi = sorted((int(round(x1)), int(round(x2))))
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
         ylo, yhi = sorted((int(round(y1)), int(round(y2))))
         t = max(1, int(thickness))
-        for x in range(xlo, xhi + 1):
-            for z in range(zlo, zhi + 1):
-                near_edge = x - xlo < t or xhi - x < t or z - zlo < t or zhi - z < t
-                if not near_edge:
-                    continue
-                for y in range(ylo, yhi + 1):
-                    _place_block(x, y, z, block)
+
+        def wall_coords() -> Iterator[tuple[int, int, int]]:
+            for x in range(xlo, xhi + 1):
+                for z in range(zlo, zhi + 1):
+                    near_edge = x - xlo < t or xhi - x < t or z - zlo < t or zhi - z < t
+                    if not near_edge:
+                        continue
+                    for y in range(ylo, yhi + 1):
+                        yield x, y, z
+
+        _place_many(wall_coords(), block)
 
     def floor(x1: float, z1: float, x2: float, z2: float, y: float, block) -> None:
         xlo, xhi = sorted((int(round(x1)), int(round(x2))))
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
-        for x in range(xlo, xhi + 1):
-            for z in range(zlo, zhi + 1):
-                _place_block(x, y, z, block)
+
+        def floor_coords() -> Iterator[tuple[int, int, int]]:
+            for x in range(xlo, xhi + 1):
+                for z in range(zlo, zhi + 1):
+                    yield x, y, z
+
+        _place_many(floor_coords(), block)
 
     def line(x1: float, y1: float, z1: float, x2: float, y2: float, z2: float, block) -> None:
         x1i, y1i, z1i, x2i, y2i, z2i = (int(round(v)) for v in (x1, y1, z1, x2, y2, z2))

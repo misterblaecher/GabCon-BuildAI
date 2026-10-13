@@ -103,7 +103,17 @@ Puis arrêter le serveur (Ctrl+C), et relancer :
 uv run python gabcon-studio/server.py
 ```
 
-Le mode `fast` crée une image du dessus à la place des six rendus coûteux, même pour les petits builds. **Le contenu du fichier `.schem` reste complet** ; seul l'aperçu change. Pour restaurer les six vues automatiques sur les petits builds, remettre `GABCON_STUDIO_PREVIEW_MODE=auto` (ou supprimer la variable).
+**Depuis l'éditeur Studio, sélectionne le mode de rendu par génération :**
+
+- **⚡ Rapide (choix initial de l'interface)** : une seule vue isométrique **sans ombres** sur les petits builds, plutôt que six vues avec calcul d'ombres. Adapté aux essais et aux constructions importantes.
+- **✦ Qualité** : six vues détaillées avec ombres pour les projets de 160 000 blocs ou moins.
+- **Au-delà de 160 000 blocs** : les deux modes utilisent automatiquement une vue du dessus légère pour éviter de saturer la RAM. Le fichier `.schem` conserve tous les blocs.
+
+La valeur `GABCON_STUDIO_PREVIEW_MODE=fast` définit aussi un mode rapide lors de l'utilisation du worker directement en ligne de commande (sans l'interface Web). Dans l'interface, le menu de rendu fait autorité. Le mode précédent `auto` garde son comportement de compatibilité : qualité pour les petits projets et vue du dessus pour les grands.
+
+L'export `.schem` choisit automatiquement une grille dense NumPy de 8, 16 ou 32 bits suivant la taille de la palette (au lieu de réserver systématiquement 16 bits). La validation structurale, faite avant l'export Studio, n'est pas répétée. La compatibilité Sponge Schematic v3 et Minecraft 1.21.1 est couverte par les tests.
+
+Pour comparer la vitesse sur un même PC, génère exactement le même blueprint et la même seed dans chaque mode, puis lis les durées `render` et `schematic` du panneau de statistiques. Aucun gain chiffré n'est garanti sans mesure sur ta machine.
 
 Pour un test reproductible sur le même ordinateur :
 

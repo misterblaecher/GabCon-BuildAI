@@ -71,12 +71,12 @@ def render_view(grid: VoxelGrid, spec: dict) -> tuple[str, Image.Image]:
     slice_axis = spec.get("slice_axis")
     slice_at = spec.get("slice_at")
     if slice_axis is not None and slice_at is not None:
-        img = render_iso(grid, yaw=yaw, slice_spec=(slice_axis, int(slice_at)))
+        img = render_iso(grid, yaw=yaw, slice_spec=(slice_axis, int(slice_at)), shadows=spec.get("shadows", True))
         return f"yaw {yaw * 90}deg, slice {slice_axis}={int(slice_at)}", img
 
     cutaway = spec.get("cutaway", "none")
     clip = None if cutaway in (None, "none") else cutaway
-    img = render_iso(grid, yaw=yaw, clip=clip)
+    img = render_iso(grid, yaw=yaw, clip=clip, shadows=spec.get("shadows", True))
     label = f"yaw {yaw * 90}deg" + (f", cutaway {cutaway}" if clip else "")
     return label, img
 

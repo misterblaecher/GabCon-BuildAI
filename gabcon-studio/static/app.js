@@ -209,6 +209,7 @@ async function openBuild(item) {
       .map(([key, label]) => label + ' ' + (timings[key] / 1000).toFixed(2) + ' s').join(' · ')
     : 'Mesures indisponibles pour cette ancienne construction.';
   $('previewSubtitle').textContent = item.name;
+  $('previewMode').textContent = {fast:'RAPIDE · SANS OMBRES',quality:'QUALITÉ · 6 VUES',top_down:'GRAND BUILD · TOP'}[stats.preview_mode] || 'APERÇU SIMPLIFIÉ';
   $('exportBadge').textContent = 'FICHIERS PRÊTS';
   $('exportBadge').classList.add('ready');
   $('viewLabel').textContent = 'GABCON BUILD / ' + item.id.slice(0, 15).toUpperCase();
@@ -243,7 +244,7 @@ async function build() {
   try {
     const response = await fetch('/api/build', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({source, name:els.idea.value.trim() || 'Construction', seed})
+      body:JSON.stringify({source, name:els.idea.value.trim() || 'Construction', seed, preview_mode:$('renderMode').value})
     });
     const data = await response.json();
     if (!response.ok) throw Error(data.error || 'Erreur du moteur BuildAI');
@@ -463,6 +464,10 @@ function init() {
   $('copyPrompt').addEventListener('click',copyPrompt);
   $('installBtn').addEventListener('click',installApp);
   $('mobileInstallBtn').addEventListener('click',installApp);
+  $('renderMode').value = localStorage.getItem('gabcon-render-mode') === 'quality' ? 'quality' : 'fast';
+  $('renderMode').addEventListener('change', () => {
+    try { localStorage.setItem('gabcon-render-mode', $('renderMode').value); } catch (_) {}
+  });
   els.build.addEventListener('click',build);
   $('exampleBtn').addEventListener('click',()=>{
     if(els.code.value.trim() && els.code.value!==SAMPLE && !confirm('Remplacer le code par la tour de démonstration ?'))return;

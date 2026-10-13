@@ -171,6 +171,7 @@ def render_iso(
     yaw: int = 0,
     clip: str | None = None,
     slice_spec: tuple[str, int] | None = None,
+    shadows: bool = True,
 ) -> Image.Image:
     """Render an isometric view of the grid via the shared mesh rasterizer.
 
@@ -184,7 +185,7 @@ def render_iso(
     from mcbuild.render.camera import render_isometric
 
     keep = _slice_keep(grid, clip, slice_spec)
-    return render_isometric(grid, yaw=yaw, keep=keep)
+    return render_isometric(grid, yaw=yaw, keep=keep, shadows=shadows)
 
 
 def render_topdown(grid: VoxelGrid, cell: int = 6) -> Image.Image:

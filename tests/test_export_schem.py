@@ -1,7 +1,8 @@
 import nbtlib
+import numpy as np
 
 from mcbuild.dsl.sandbox import run_blueprint
-from mcbuild.export.schem import DATA_VERSION, export_schem
+from mcbuild.export.schem import DATA_VERSION, _encode_block_data, export_schem
 from mcbuild.voxel import VoxelGrid
 
 
@@ -102,3 +103,32 @@ def test_explicit_air_placement_round_trips_as_minecraft_air(tmp_path):
     # the explicitly-placed air cell serializes as minecraft:air (carves terrain on paste)
     assert id_to_name[values[idx_of(1, 0, 1)]] == "minecraft:air"
     assert id_to_name[values[idx_of(0, 0, 0)]] == "minecraft:stone"
+
+
+def test_varint_encoding_small_and_large_palettes():
+    """Palette indices 127/128 and 255/256 cross VarInt byte boundaries."""
+    for palette_size, indices in [
+        (128, [0, 1, 127]),
+        (129, [0, 127, 128, 128, 0]),
+        (257, [0, 127, 128, 255, 256]),
+    ]:
+        dense = np.asarray(indices, dtype=np.uint16)
+        encoded = _encode_block_data(dense, palette_size)
+        payload = bytes(int(value) & 0xFF for value in encoded)
+        assert _decode_varints(payload, len(indices)) == indices
+
+
+def test_prevalidated_export_matches_regular_export(tmp_path):
+    """Callers may skip a repeated validation scan only after they validated."""
+    grid = VoxelGrid()
+    run_blueprint("fill(0,0,0,6,2,6,'stone')", grid)
+    checked = tmp_path / "checked.schem"
+    prevalidated = tmp_path / "prevalidated.schem"
+    export_schem(grid, str(checked))
+    export_schem(grid, str(prevalidated), validate=False)
+    a = nbtlib.load(str(checked))["Schematic"]
+    b = nbtlib.load(str(prevalidated))["Schematic"]
+    assert int(a["Width"]) == int(b["Width"])
+    assert list(a["Offset"]) == list(b["Offset"])
+    assert dict(a["Blocks"]["Palette"]) == dict(b["Blocks"]["Palette"])
+    assert list(a["Blocks"]["Data"]) == list(b["Blocks"]["Data"])
