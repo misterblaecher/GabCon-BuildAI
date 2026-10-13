@@ -10,9 +10,12 @@ assert.equal(brief.schema, 'gabcon-build-brief-v1');
 assert.equal(brief.deliverable.filename, 'blueprint.py');
 assert.equal(brief.deliverable.export_by_engine, null);
 assert.equal(brief.deliverable.generation, 'directly_in_chatgpt_without_gabcon_studio');
-assert.equal(brief.limits.max_placed_blocks, 160000);
-assert.equal(brief.approximate_dimensions.width_x, 24);
-assert.equal(brief.approximate_dimensions.height_y, 20);
+assert.equal(brief.preferences.size, 'auto');
+assert.equal(brief.approximate_dimensions.policy, 'ai_decides_from_project');
+assert.equal(brief.approximate_dimensions.fixed_size, false);
+assert.equal(brief.approximate_dimensions.width_x, undefined);
+assert.equal(brief.approximate_dimensions.height_y, undefined);
+assert.equal(brief.limits.max_placed_blocks, undefined);
 assert.equal(brief.architectural_style.includes('Médiéval'), true);
 
 const prompt = buildPrompt(brief);
@@ -20,7 +23,10 @@ assert.match(prompt, /\.py/);
 assert.match(prompt, /cylinder\(cx, cz, y, height, r/);
 assert.match(prompt, /floor\(x1, z1, x2, z2, y/);
 assert.match(prompt, /AUCUN import/);
-assert.match(prompt, /160000/);
+assert.match(prompt, /ÉCHELLE LIBRE/);
+assert.match(prompt, /choisis les dimensions utiles/);
+assert.match(prompt, /dimensions réelles du build final/);
+assert.doesNotMatch(prompt, /160000|24×24×20|48×48×40|96×96×72/);
 assert.match(prompt, /directement ici/);
 assert.match(prompt, /fichier texte blueprint\.py/);
 assert.match(prompt, /un seul bloc python/);
@@ -48,8 +54,10 @@ const fallback = createBrief({
   idea: ' ', style: 'invalid', size: 'invalid',
   detail: 'invalid', blockLimit: 999999999
 });
-assert.equal(fallback.limits.max_placed_blocks, 4000000);
-assert.equal(fallback.approximate_dimensions.width_x, 48);
+assert.equal(fallback.preferences.size, 'auto');
+assert.equal(fallback.approximate_dimensions.policy, 'ai_decides_from_project');
+assert.equal(fallback.approximate_dimensions.width_x, undefined);
+assert.equal(fallback.limits.max_placed_blocks, undefined);
 assert.equal(fallback.architectural_style.startsWith('Aucun style'), true);
 assert.equal(fallback.preferences.creationType, 'auto');
 assert.equal(fallback.preferences.organicSubject, 'auto');
@@ -72,6 +80,17 @@ assert.equal(styles.includes('medieval'),false);
 assert.ok(Prompt.getStylesForType('architecture').some(item=>item.id==='gothic'));
 assert.ok(Prompt.getStylesForType('architecture').some(item=>item.id==='japanese'));
 assert.ok(Prompt.getStylesForType('auto').length>12);
+
+// Legacy size and local Studio block limits must never affect ChatGPT prompts.
+const oldSmall=Prompt.createBrief({idea:'Temple flottant',size:'small',blockLimit:10,fileFormat:'schem'});
+const oldLarge=Prompt.createBrief({idea:'Temple flottant',size:'large',blockLimit:4000000,fileFormat:'schem'});
+assert.deepEqual(oldSmall,oldLarge);
+assert.equal(Prompt.buildPrompt(oldSmall),Prompt.buildPrompt(oldLarge));
+assert.match(Prompt.buildPrompt(oldSmall),/ne réduis pas artificiellement/);
+assert.doesNotMatch(JSON.stringify(oldSmall),/"width_x"|"depth_z"|"height_y"|"max_placed_blocks"/);
+const userSized=Prompt.createBrief({idea:'Tour de 90 blocs de haut',size:'small',fileFormat:'nbt'});
+assert.match(Prompt.buildPrompt(userSized),/Tour de 90 blocs de haut/);
+assert.match(Prompt.buildPrompt(userSized),/Si la demande précise elle-même des dimensions, respecte-les/);
 
 const organic=Prompt.createBrief({
   idea:'Dragon gigantesque aux ailes déployées',

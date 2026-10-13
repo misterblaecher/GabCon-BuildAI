@@ -10,6 +10,10 @@ for (const fileFormat of ['auto','schem','litematic','nbt','datapack','mcfunctio
     size:'small',detail:'balanced',blockLimit:300000,fileFormat
   });
   assert.equal(brief.preferences.fileFormat,fileFormat);
+  assert.equal(brief.preferences.size,'auto');
+  assert.equal(brief.approximate_dimensions.policy,'ai_decides_from_project');
+  assert.equal(brief.approximate_dimensions.width_x,undefined);
+  assert.equal(brief.limits.max_placed_blocks,undefined);
   assert.equal(brief.deliverable.filename,Prompt.getFormat(fileFormat).filename);
   assert.ok(Prompt.getFormat(fileFormat).good.length>25);
   assert.ok(Prompt.getFormat(fileFormat).bad.length>25);
@@ -21,6 +25,9 @@ for (const fileFormat of ['auto','schem','litematic','nbt','datapack','mcfunctio
   assert.equal(brief.deliverable.generation,'directly_in_chatgpt_without_gabcon_studio');
   const prompt=Prompt.buildPrompt(brief);
   assert.match(prompt,/Tour fortifiée/);
+  assert.match(prompt,/ÉCHELLE LIBRE/);
+  assert.match(prompt,/largeur \(X\).*hauteur \(Y\).*profondeur \(Z\)/);
+  assert.doesNotMatch(prompt,/24×24×20|48×48×40|96×96×72|max_placed_blocks/);
   assert.match(prompt,/vrais? fichiers? téléchargeables?/i);
   assert.doesNotMatch(prompt,/GitHub Actions comme moteur/i);
   if (fileFormat==='auto') {
@@ -175,6 +182,10 @@ assert.match(html,/id="organicSubjectChoices"/);
 assert.match(html,/id="organicSubjectWrap"[^>]*hidden/);
 assert.match(html,/id="briefStyle"/);
 assert.match(html,/id="styleHint"/);
+assert.match(html,/L’IA choisit les dimensions/);
+assert.doesNotMatch(html,/id="briefSize"|24×24×20|48×48×40|96×96×72/);
+assert.doesNotMatch(app,/\$\('briefSize'\)|\['briefSize','size'/);
+assert.match(app,/Legacy briefs may contain preferences\.size/);
 assert.match(html,/id="organicExampleBtn"/);
 assert.match(app,/function setCreationType\(/);
 assert.match(app,/function setOrganicSubject\(/);

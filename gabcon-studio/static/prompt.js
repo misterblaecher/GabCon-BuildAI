@@ -51,11 +51,6 @@
   function getOrganicSubjects() {
     return Object.entries(ORGANIC_SUBJECTS).map(([id,item])=>({id,label:item.label,description:item.description}));
   }
-  const SIZES = {
-    small: { label: 'Petit', width: 24, depth: 24, height: 20 },
-    medium: { label: 'Moyen', width: 48, depth: 48, height: 40 },
-    large: { label: 'Grand', width: 96, depth: 96, height: 72 }
-  };
   const DETAIL = {
     speed: 'Priorité vitesse : formes simples et peu de placements individuels',
     balanced: 'Équilibré : structure, ouvertures et détails lisibles',
@@ -136,7 +131,6 @@
     return Object.prototype.hasOwnProperty.call(options, value) ? value : fallback;
   }
   function createBrief(values) {
-    const size = pick(values.size, SIZES, 'medium');
     const creationType = pick(values.creationType, CREATION_TYPES, 'auto');
     const availableStyles=getStylesForType(creationType).map(item=>item.id);
     const preferredStyle=pick(values.style,STYLES,'auto');
@@ -144,12 +138,11 @@
     const organicSubject=creationType==='organic'?pick(values.organicSubject,ORGANIC_SUBJECTS,'auto'):'auto';
     const detail = pick(values.detail, DETAIL, 'balanced');
     const fileFormat = formatFor(values.fileFormat);
-    const limit = Math.max(1, Math.min(4000000, Number(values.blockLimit) || 1000000));
     const description = String(values.idea || '').trim().slice(0, 3500) || 'Une construction Minecraft architecturalement cohérente';
     return {
       schema: 'gabcon-build-brief-v1',
       description: description,
-      preferences: { style: style, size: size, detail: detail, fileFormat: fileFormat,
+      preferences: { style: style, size: 'auto', detail: detail, fileFormat: fileFormat,
         creationType: creationType, organicSubject: organicSubject },
       creation_kind: {id:creationType,label:CREATION_TYPES[creationType].label,description:CREATION_TYPES[creationType].description},
       visual_style: {id:style,label:STYLES[style].label,description:STYLES[style].description},
@@ -158,16 +151,15 @@
         : null,
       architectural_style: style==='auto' ? STYLES[style].description : STYLES[style].label+' — '+STYLES[style].description,
       approximate_dimensions: {
-        width_x: SIZES[size].width,
-        depth_z: SIZES[size].depth,
-        height_y: SIZES[size].height,
+        policy: 'ai_decides_from_project',
         unit: 'minecraft_blocks',
-        strict: false
+        fixed_size: false,
+        guidance: 'Détermine librement largeur X, hauteur Y et profondeur Z selon le sujet, les proportions, le niveau de détail et les besoins du projet. Aucune taille prédéfinie ni limite provenant de GabCon Studio.'
       },
       detail_priority: DETAIL[detail],
       target_game: 'Minecraft Java 1.21.1, modpack NeoForge',
       geometry: { axes: 'x,z horizontaux; y vertical positif', start_near: [0, 0, 0] },
-      limits: { max_placed_blocks: limit, max_extent_per_axis: 512, max_bounding_volume: 20000000 },
+      limits: { policy: 'Respecter uniquement les contraintes techniques réelles du format Minecraft et des outils disponibles, sans plafond de blocs arbitraire issu du moteur local.' },
       deliverable: {
         ai_output: fileFormat === 'auto' ? 'choose_best_real_downloadable_minecraft_artifact' :
           fileFormat === 'schem' ? 'real_binary_sponge_schematic_v3' :
@@ -232,6 +224,10 @@
       JSON.stringify(brief,null,2),
       '',
       ...shapeRules,
+      'ÉCHELLE LIBRE — Tu choisis les dimensions utiles au projet, sans petite/moyenne/grande taille imposée.',
+      'Détermine la largeur (X), la hauteur (Y) et la profondeur (Z) selon la description, la silhouette, les proportions, la complexité et le niveau de détail. Si la demande précise elle-même des dimensions, respecte-les.',
+      'Ne pars pas d’un cube prédéfini et ne réduis pas artificiellement une création complexe pour correspondre à une limite du Studio local.',
+      'Précise les dimensions réelles du build final et adapte le découpage si le format Minecraft ou les outils ont des limites techniques.',
       ''
     ];
     if(format==='auto') return [
