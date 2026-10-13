@@ -225,14 +225,7 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
 
         def edge_coords() -> Iterator[tuple[int, int, int]]:
             for x, y, z in _iter_box(xlo, ylo, zlo, xhi, yhi, zhi):
-                near_edge = (
-                    x - xlo < t
-                    or xhi - x < t
-                    or y - ylo < t
-                    or yhi - y < t
-                    or z - zlo < t
-                    or zhi - z < t
-                )
+                near_edge = x - xlo < t or xhi - x < t or y - ylo < t or yhi - y < t or z - zlo < t or zhi - z < t
                 if near_edge:
                     yield x, y, z
 
