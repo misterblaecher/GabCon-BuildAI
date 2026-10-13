@@ -21,24 +21,25 @@
         <div><div class="brand-name">GABCON<span> / </span>STUDIO</div><div class="brand-subtitle">BUILD ARTIFICIAL INTELLIGENCE</div></div>
       </div>
       <div class="side-caption">WORKSPACE</div>
-      <button class="nav-item active" data-jump="editor"><span class="nav-icon">◈</span> Construction <span class="nav-pill">01</span></button>
+      <button class="nav-item active" data-jump="chatgptWorkflow"><span class="nav-icon">✦</span> ChatGPT direct <span class="nav-pill">A</span></button>
+      <button class="nav-item" data-jump="engineWorkflow"><span class="nav-icon">◈</span> Moteur BuildAI <span class="nav-pill">B</span></button>
       <button class="nav-item" data-jump="history"><span class="nav-icon">▤</span> Mes créations</button>
       <button class="nav-item" data-jump="how"><span class="nav-icon">⌘</span> Mode d'emploi</button>
 
       <div class="sidebar-divider"></div>
-      <div class="side-caption">PIPELINE</div>
+      <div class="side-caption">PARCOURS B / MOTEUR LOCAL</div>
       <div class="steps">
-        <div class="step-item current" id="step1"><div class="step-num">01</div><div><strong>Créer le code</strong><small>Avec ChatGPT</small></div></div>
+        <div class="step-item current" id="step1"><div class="step-num">01</div><div><strong>Charger un fichier</strong><small>.py ou .json</small></div></div>
         <div class="step-line"></div>
-        <div class="step-item" id="step2"><div class="step-num">02</div><div><strong>Coller le Python</strong><small>Blueprint DSL</small></div></div>
+        <div class="step-item" id="step2"><div class="step-num">02</div><div><strong>Générer les blocs</strong><small>Moteur GabCon BuildAI</small></div></div>
         <div class="step-line"></div>
-        <div class="step-item" id="step3"><div class="step-num">03</div><div><strong>Visualiser</strong><small>Rendu et vue 3D</small></div></div>
+        <div class="step-item" id="step3"><div class="step-num">03</div><div><strong>Visualiser</strong><small>Rendu et vue 3D du PC</small></div></div>
         <div class="step-line"></div>
         <div class="step-item" id="step4"><div class="step-num">04</div><div><strong>Exporter</strong><small>WorldEdit .schem</small></div></div>
       </div>
 
       <div class="side-bottom">
-        <div class="side-tip"><span class="tip-ico">✦</span><strong>Sans API d'IA</strong><p>ChatGPT écrit le plan. Ton PC l'exécute avec BuildAI, en local.</p></div>
+        <div class="side-tip"><span class="tip-ico">✦</span><strong>Deux parcours indépendants</strong><p>ChatGPT crée directement un fichier à télécharger. BuildAI exécute séparément du Python DSL ou des opérations JSON sur ton PC.</p></div>
         <div class="connection"><span id="onlineDot" class="online-dot"></span><span id="onlineLabel">Vérification du moteur...</span></div>
         <div class="version">GABCON STUDIO <span>V1.0</span></div>
       </div>
@@ -51,14 +52,14 @@
       </header>
       <main class="page-content">
         <div class="page-heading" id="editor">
-          <div><div class="eyebrow"><span class="eyebrow-dash"></span> CRÉATIVE WORKSPACE <span class="eyebrow-version">/ 001</span></div><h1>Donne vie à tes <em>idées.</em></h1><p>Prépare un prompt adapté. ChatGPT crée le fichier Minecraft directement ; teste-le en jeu, sans étape obligatoire dans Studio.</p></div>
+          <div><div class="eyebrow"><span class="eyebrow-dash"></span> CRÉATIVE WORKSPACE <span class="eyebrow-version">/ 001</span></div><h1>Une idée. <em>Deux chemins.</em></h1><p>Avec ChatGPT, crée directement un fichier Minecraft. Avec GabCon BuildAI, génère et prévisualise un blueprint grâce au moteur installé sur ton PC. Ces deux parcours sont indépendants.</p></div>
           <div class="heading-deco" aria-hidden="true"><div class="deco-diamond">▧</div><div class="deco-lines"></div></div>
         </div>
 
-        <section class="work-grid" aria-label="Éditeur et visualiseur">
-          <div class="left-column">
-            <section class="panel prompt-panel">
-              <div class="panel-heading"><div class="titlegroup"><span class="panel-num">01</span><div><h2>Préparer le prompt pour ChatGPT</h2><p>ChatGPT réalisera directement le fichier de construction téléchargeable.</p></div></div><span class="label-pill">SANS API</span></div>
+        <section class="chatgpt-workflow" id="chatgptWorkflow" aria-label="Parcours A : ChatGPT génère directement le fichier Minecraft">
+          <div class="workflow-heading"><div class="workflow-letter">A</div><div><span class="workflow-kicker">PARCOURS A · GÉNÉRATION DIRECTE AVEC CHATGPT</span><h2>ChatGPT crée ton fichier Minecraft</h2><p>Choisis un format par bouton, copie le prompt et récupère le vrai fichier dans ChatGPT. Aucun passage par le moteur BuildAI.</p></div></div>
+          <section class="panel prompt-panel">
+              <div class="panel-heading"><div class="titlegroup"><span class="panel-num">A</span><div><h2>Préparer le prompt</h2><p>Le format n'agit que sur la demande envoyée à ChatGPT.</p></div></div><span class="label-pill">SANS API</span></div>
               <label for="idea" class="small-label">TON IDÉE</label>
               <textarea id="idea" class="idea-input" rows="3" placeholder="Ex : Une cité médiévale avec des tours, un port et un pont en pierre...">Une tour de guet médiévale en pierre, avec un toit en bois et des fenêtres.</textarea>
               <div class="brief-fields" aria-label="Contraintes architecturales pour ChatGPT">
@@ -66,59 +67,52 @@
                 <label for="briefSize">ÉCHELLE <select id="briefSize"><option value="small">Petit · 24×24×20</option><option value="medium" selected>Moyen · 48×48×40</option><option value="large">Grand · 96×96×72</option></select></label>
                 <label for="briefDetail">DÉTAIL <select id="briefDetail"><option value="speed">Rapide</option><option value="balanced" selected>Équilibré</option><option value="detailed">Très détaillé</option></select></label>
               </div>
-              <div class="format-picker">
-                <label for="outputFormat">FORMAT SOUHAITÉ (FACULTATIF)</label>
-                <select id="outputFormat">
-                  <option value="auto" selected>✦ Aucun format imposé — ChatGPT choisit</option>
-                  <optgroup label="Fichiers de construction utilisables dans Minecraft">
-                    <option value="schem">★ WorldEdit · .schem — conseillé pour construire rapidement</option>
-                    <option value="litematic">Litematica / Forgematica · .litematic</option>
-                    <option value="nbt">Structure vanilla · .nbt</option>
-                    <option value="datapack">Datapack complet · .zip — sans WorldEdit</option>
-                  </optgroup>
-                  <optgroup label="Formats intermédiaires — conversion ou installation nécessaire">
-                    <option value="mcfunction">Fonction Minecraft · .mcfunction</option>
-                    <option value="py">Python BuildAI · .py</option>
-                    <option value="json">Opérations BuildAI · .json</option>
-                  </optgroup>
-                  <optgroup label="Documentation — ne crée pas de blocs">
-                    <option value="md">Plan architectural · .md</option>
-                  </optgroup>
-                </select>
-                <div class="format-details" id="formatDetails" aria-live="polite">
-                  <strong id="formatTitle">Sans préférence · ChatGPT choisit</strong>
-                  <p><span class="format-plus">✓ Avantages</span> <span id="formatPros"></span></p>
-                  <p><span class="format-minus">△ Limites</span> <span id="formatCons"></span></p>
-                  <small id="formatCapabilities"></small>
-                  <small id="formatWorkflow"></small>
+              <div class="format-picker" aria-labelledby="formatHeading">
+                <div class="format-picker-heading"><h3 id="formatHeading">FORMAT SOUHAITÉ (FACULTATIF)</h3><span>Choisis une carte : points forts et limites visibles pour chaque option.</span></div>
+                <div id="formatChoices" class="format-choice-groups" role="group" aria-label="Format du fichier demandé à ChatGPT"></div>
+                <div class="format-selection-summary" aria-live="polite">
+                  <strong id="formatTitle">Aucun format imposé</strong>
+                  <span id="formatCapabilities"></span>
+                  <span id="formatWorkflow"></span>
                 </div>
               </div>
-              <div class="brief-export"><button id="downloadBrief" type="button" class="link-btn" title="Sauvegarder la demande structurée réutilisable">⇩ Télécharger le cahier des charges JSON</button><span id="briefFlow">Studio prépare le prompt → ChatGPT crée le fichier → test dans Minecraft.</span></div>
+              <div class="brief-export"><button id="downloadBrief" type="button" class="link-btn" title="Sauvegarder la demande structurée réutilisable">⇩ Télécharger le cahier des charges JSON</button><label class="link-btn import-label" for="briefInput">⇧ Importer un brief ChatGPT</label><input id="briefInput" type="file" accept=".json,application/json" hidden /><span id="briefFlow">Studio prépare le prompt → ChatGPT crée le fichier → test dans Minecraft.</span></div>
               <div class="prompt-controls"><button class="btn btn-accent" id="copyPrompt">✦ <span>Copier le prompt pour ChatGPT</span> <span class="arrow">↗</span></button><a class="icon-btn chatgpt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener" aria-label="Ouvrir ChatGPT" title="Ouvrir ChatGPT">↗</a></div>
-              <div class="inline-note"><span>ⓘ</span> ChatGPT crée directement le fichier à télécharger et tester dans Minecraft. Il n'est pas nécessaire de revenir dans Studio ; les outils d'édition et d'aperçu ci-dessous sont facultatifs.</div>
-            </section>
+              <div class="inline-note"><span>ⓘ</span> Après avoir copié le prompt, crée et télécharge le fichier dans ChatGPT. Le parcours B ci-dessous est indépendant : il ne sert pas à convertir automatiquement les fichiers reçus ici.</div>
+          </section>
+        </section>
 
+        <section class="engine-workflow" id="engineWorkflow" aria-label="Parcours B : génération et export par le moteur GabCon BuildAI">
+          <div class="workflow-heading workflow-heading-engine"><div class="workflow-letter">B</div><div><span class="workflow-kicker">PARCOURS B · MOTEUR LOCAL GABCON BUILDAI</span><h2>GabCon BuildAI génère sur ton PC</h2><p>Importe un blueprint <strong>.py</strong> ou des opérations <strong>.json</strong>, lance le moteur Python, inspecte le rendu et exporte un véritable <strong>.schem</strong>. Le choix de format ChatGPT du parcours A n'a aucun effet ici.</p></div></div>
+          <section class="work-grid" aria-label="Moteur local, éditeur et visualiseur">
+            <div class="left-column">
             <section class="panel editor-panel">
-              <div class="panel-heading editor-title"><div class="titlegroup"><span class="panel-num">02</span><div><h2>Éditeur local (facultatif)</h2><p>Uniquement si tu souhaites modifier ou visualiser le résultat sur ton PC.</p></div></div></div>
+              <div class="panel-heading editor-title"><div class="titlegroup"><span class="panel-num">B1</span><div><h2>Entrée du moteur GabCon BuildAI</h2><p>Insère du Python DSL ou du JSON d'opérations. Le moteur fonctionne indépendamment de ChatGPT.</p></div></div></div>
+              <div class="engine-input-selector" role="group" aria-label="Type de fichier exécuté par le moteur local">
+                <button type="button" class="engine-type-button is-selected" id="engineTypePy" data-engine-format="py" aria-pressed="true">⌘ Python DSL <small>.py</small></button>
+                <button type="button" class="engine-type-button" id="engineTypeJson" data-engine-format="json" aria-pressed="false">▦ Opérations <small>.json</small></button>
+              </div>
+              <p class="engine-input-hint">Ces boutons ne changent pas le prompt ChatGPT. Le moteur convertit le JSON en DSL avant de construire.</p>
               <div class="editor-toolbar"><div class="filetab"><span class="tab-dot"></span><span id="filenameLabel">blueprint.py</span><span class="file-close">×</span></div><span class="lang-label" id="editorLanguage">PYTHON <span class="tiny-square"></span> DSL</span></div>
               <div class="code-container"><div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div><textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="Code Python Blueprint" placeholder="# Colle ici le Python généré par ChatGPT..."></textarea></div>
-              <div class="editor-bottom"><div class="editor-meta"><span class="green-dot"></span><span id="codeCount">0 ligne</span><span>·</span><span>UTF-8</span></div><div class="editor-utilities"><button class="link-btn" id="exampleBtn" title="Insérer un exemple fonctionnel">Exemple ↗</button><button type="button" id="downloadResponse" class="link-btn">⇩ Télécharger le fichier</button><label class="link-btn import-label" for="fileInput">⇧ Importer un fichier</label><input type="file" id="fileInput" accept=".py,.json,.md,.txt,.mcfunction,text/x-python,text/plain,application/json,text/markdown" hidden /></div></div>
-              <div class="build-footer"><label class="render-profile" for="renderMode">RENDU <select id="renderMode" aria-label="Mode de rendu"><option value="fast" selected>⚡ Rapide</option><option value="quality">✦ Qualité</option></select></label><label class="seed-label" for="seed">SEED <input id="seed" type="number" min="0" max="2147483647" value="0" /></label><button class="btn btn-primary" id="buildBtn"> <span id="buildBtnIcon">◩</span> <span id="buildBtnText">Visualiser la construction</span> <span class="btn-arrow">→</span></button></div>
+              <div class="editor-bottom"><div class="editor-meta"><span class="green-dot"></span><span id="codeCount">0 ligne</span><span>·</span><span>UTF-8</span></div><div class="editor-utilities"><button class="link-btn" id="exampleBtn" title="Insérer un exemple fonctionnel">Exemple ↗</button><button type="button" id="downloadResponse" class="link-btn">⇩ Sauvegarder le blueprint local</button><label class="link-btn import-label" for="fileInput">⇧ Importer .py / .json</label><input type="file" id="fileInput" accept=".py,.json,.txt,text/x-python,text/plain,application/json" hidden /></div></div>
+              <div class="build-footer"><label class="render-profile" for="renderMode">RENDU <select id="renderMode" aria-label="Mode de rendu"><option value="fast" selected>⚡ Rapide</option><option value="quality">✦ Qualité</option></select></label><label class="seed-label" for="seed">SEED <input id="seed" type="number" min="0" max="2147483647" value="0" /></label><button class="btn btn-primary" id="buildBtn"> <span id="buildBtnIcon">◩</span> <span id="buildBtnText">Générer avec BuildAI</span> <span class="btn-arrow">→</span></button></div>
               <div id="buildError" class="build-error hidden" role="alert"><strong>⚠ Erreur pendant la génération</strong><p>Le moteur a renvoyé ce message. Corrige le blueprint dans ChatGPT ou vérifie les limites ci-dessus.</p><pre id="buildErrorText"></pre><button class="repair-button" id="copyRepair" type="button">✦ Copier une demande de correction pour ChatGPT</button></div>
             </section>
           </div>
 
           <div class="right-column">
             <section class="panel preview-panel">
-              <div class="preview-head"><div class="titlegroup"><span class="panel-num">03</span><div><h2>Visualisation</h2><p id="previewSubtitle">Explore ta construction avant de l'exporter</p></div></div><div class="status-chip" id="statusChip"><span class="status-dot"></span><span id="statusText">DÉMONSTRATION</span></div></div>
+              <div class="preview-head"><div class="titlegroup"><span class="panel-num">B2</span><div><h2>Rendu du moteur BuildAI</h2><p id="previewSubtitle">Résultat calculé sur le PC, indépendant du fichier ChatGPT direct</p></div></div><div class="status-chip" id="statusChip"><span class="status-dot"></span><span id="statusText">DÉMONSTRATION</span></div></div>
               <div class="preview-tabs"><button class="viewtab selected" id="view3d">▧ Vue interactive</button><button class="viewtab" id="viewRender">◧ Rendu BuildAI</button><div class="view-spacer"></div><span class="view-subtitle" id="previewMode">APERÇU SIMPLIFIÉ</span></div>
               <div class="viewport" id="viewport"><canvas id="voxelCanvas" role="img" aria-label="Vue 3D de la construction à la souris"></canvas><img id="renderImage" class="render-image hidden" alt="Feuille de rendu isométrique BuildAI" /><div class="viewport-top"><span id="viewLabel" class="viewport-label">STUDIO PREVIEW <span class="muted">/</span> DEMO</span><span class="view-zoom" id="zoomValue">100%</span></div><div class="viewport-bottom"><span class="drag-hint" id="dragHint">⤧ Glisser pour pivoter · Molette pour zoomer · Shift + glisser pour déplacer</span><div class="camera-actions"><button class="camera-btn" id="rotateL" title="Tourner à gauche" aria-label="Tourner à gauche">↶</button><button class="camera-btn" id="rotateR" title="Tourner à droite" aria-label="Tourner à droite">↷</button><button class="camera-btn" id="topView" title="Vue du dessus">TOP</button><button class="camera-btn" id="resetCam" title="Réinitialiser la caméra">⌖</button></div></div><div class="viewport-processing hidden" id="processing"><div class="spinner"></div><strong>Construction en cours</strong><p>Exécution du blueprint, validation des blocs et rendu des vues...</p></div></div>
               <div class="stats-container"><div class="stat-box"><div class="stat-label">BLOCS PLACÉS</div><div class="stat-value" id="statBlocks">—</div><div class="stat-mini">total de blocs</div></div><div class="stat-box"><div class="stat-label">DIMENSIONS</div><div class="stat-value smaller" id="statDims">—</div><div class="stat-mini">largeur × hauteur × profondeur</div></div><div class="stat-box"><div class="stat-label">MATÉRIAUX</div><div class="stat-value" id="statMaterials">—</div><div class="stat-mini">types de blocs utilisés</div></div></div>
               <div id="timingInfo" class="performance-line" aria-live="polite">Mesures de génération disponibles après construction.</div>
               <div class="palette-section"><div class="palette-head"><strong>Palette des matériaux</strong><span id="paletteHint">Après génération</span></div><div class="material-bar" id="materialBar"><div class="bar-placeholder"></div></div><div class="material-list" id="materialList"><span class="empty-material">Les matériaux de ta construction s'afficheront ici.</span></div></div>
-              <div class="export-section"><div class="export-top"><div><span class="panel-num inline-num">04</span><strong>Exporter ton projet</strong></div><span id="exportBadge" class="export-muted">EN ATTENTE</span></div><div class="download-grid"><a id="downloadSchem" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">▤</span><span><b>Schematic</b><small>WorldEdit .schem</small></span><span class="download-arrow">↓</span></a><a id="downloadPy" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">⌘</span><span><b>Code Python</b><small>Blueprint .py</small></span><span class="download-arrow">↓</span></a><a id="downloadRender" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">▧</span><span><b>Aperçu</b><small>Rendu .png</small></span><span class="download-arrow">↓</span></a><a id="downloadStats" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">☷</span><span><b>Statistiques</b><small>Rapport .json</small></span><span class="download-arrow">↓</span></a></div></div>
+              <div class="export-section"><div class="export-top"><div><span class="panel-num inline-num">B3</span><strong>Exports du moteur GabCon BuildAI</strong></div><span id="exportBadge" class="export-muted">EN ATTENTE</span></div><div class="download-grid"><a id="downloadSchem" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">▤</span><span><b>Schematic</b><small>WorldEdit .schem</small></span><span class="download-arrow">↓</span></a><a id="downloadPy" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">⌘</span><span><b>Code Python</b><small>Blueprint .py</small></span><span class="download-arrow">↓</span></a><a id="downloadRender" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">▧</span><span><b>Aperçu</b><small>Rendu .png</small></span><span class="download-arrow">↓</span></a><a id="downloadStats" class="download-btn disabled" aria-disabled="true" tabindex="-1"><span class="download-icon">☷</span><span><b>Statistiques</b><small>Rapport .json</small></span><span class="download-arrow">↓</span></a></div></div>
             </section>
           </div>
+          </section>
         </section>
 
         <section class="history-section" id="history"><div class="section-head"><div><div class="eyebrow"><span class="eyebrow-dash"></span> COLLECTION</div><h2>Mes dernières créations <span>↗</span></h2><p>Tous les projets restent sur ton ordinateur.</p></div><button class="light-button" id="refreshHistory">↻ Actualiser</button></div><div class="history-grid" id="historyGrid"><div class="history-empty"><span>▧</span><strong>Ton atelier est prêt.</strong><p>Ta première création apparaîtra ici.</p></div></div></section>
@@ -130,7 +124,7 @@
           </div>
           <button class="light-button" id="mobileInstallBtn" type="button">⬇ Ajouter à l'écran d'accueil</button>
         </section>
-        <section class="how-section" id="how"><div class="how-number">HOW IT WORKS / 04</div><div><h2>Une idée. Du code. Des blocs.</h2><p>Dans cette version, ChatGPT sert uniquement à écrire le blueprint. Aucune connexion à l'API OpenAI n'est utilisée. BuildAI exécute ensuite le code dans son environnement Python local, génère les vues et produit un schematic WorldEdit. Utilise uniquement du code provenant d'une source de confiance.</p></div><a class="how-link" href="https://github.com/misterblaecher/GabCon-BuildAI/blob/main/src/mcbuild/dsl/REFERENCE.md" target="_blank" rel="noopener">Documentation DSL ↗</a></section>
+        <section class="how-section" id="how"><div class="how-number">DEUX PARCOURS / A + B</div><div><h2>Choisis comment créer ton build.</h2><p><strong>A — ChatGPT direct :</strong> la sélection de format prépare un prompt ; ChatGPT crée le fichier à télécharger et à tester dans Minecraft. Aucun moteur BuildAI nécessaire. <strong>B — GabCon BuildAI :</strong> charge du Python DSL ou un JSON d'opérations dans l'éditeur local, exécute le moteur sur ton PC, prévisualise et exporte un véritable .schem. Les formats ChatGPT ne modifient jamais les réglages du moteur. Utilise uniquement du code de confiance.</p></div><a class="how-link" href="https://github.com/misterblaecher/GabCon-BuildAI/blob/main/src/mcbuild/dsl/REFERENCE.md" target="_blank" rel="noopener">Documentation DSL ↗</a></section>
       </main>
     </div>
   </div>

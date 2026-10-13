@@ -135,4 +135,38 @@ assert.match(repaired,/gabcon-block-ops-v1/);
 assert.match(repaired,/Erreur de palette/);
 assert.match(repaired,/JSON COMPLET/);
 
-console.log('GabCon Studio file-type prompt and safe JSON conversion tests passed');
+
+/* UI regression: direct ChatGPT and local BuildAI remain independent controls.
+   The nine format buttons are built from metadata containing visible pros/cons. */
+const fs=require('node:fs');
+const path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../gabcon-studio/static/index.html'),'utf8');
+const app=fs.readFileSync(path.join(__dirname,'../gabcon-studio/static/app.js'),'utf8');
+assert.match(html,/id="chatgptWorkflow"/);
+assert.match(html,/id="engineWorkflow"/);
+assert.match(html,/id="formatChoices"/);
+assert.doesNotMatch(html,/<select[^>]*id="outputFormat"/);
+assert.match(html,/data-engine-format="py"/);
+assert.match(html,/data-engine-format="json"/);
+assert.match(html,/id="briefInput"/);
+assert.match(html,/id="fileInput"/);
+assert.match(app,/button\.type='button'/);
+assert.match(app,/button\.setAttribute\('aria-pressed'/);
+assert.match(app,/positive\.append\(plus,document\.createTextNode\(' '\+info\.good\)\)/);
+assert.match(app,/negative\.append\(minus,document\.createTextNode\(' '\+info\.bad\)\)/);
+assert.match(app,/setOutputFormat\(format\)/);
+for(const option of ['auto','schem','litematic','nbt','datapack','mcfunction','py','json','md']) {
+  assert.match(app.slice(app.indexOf('const PROMPT_FORMAT_GROUPS'),app.indexOf('function outputFormat()')),new RegExp("'"+option+"'"));
+}
+const builder=app.slice(app.indexOf('async function build()'),app.indexOf('async function refreshHistory()'));
+assert.match(builder,/const format=engineInputFormat/);
+assert.doesNotMatch(builder,/outputFormat\(|selectedPromptFormat/);
+const chooseChatGpt=app.slice(app.indexOf('function updateOutputFormat()'),app.indexOf('function setEngineFormat('));
+assert.doesNotMatch(chooseChatGpt,/engineInputFormat|els\.build|downloadResponse/);
+const chooseEngine=app.slice(app.indexOf('function setEngineFormat('),app.indexOf('function downloadResponse()'));
+assert.doesNotMatch(chooseEngine,/selectedPromptFormat|setOutputFormat\(/);
+assert.match(app,/setOutputFormat\(prefs\.fileFormat\)/);
+assert.match(app,/setEngineFormat\(fileFormat\)/);
+assert.match(app,/const format=engineInputFormat/);
+
+console.log('GabCon Studio file-type prompts, card selection and engine independence tests passed');

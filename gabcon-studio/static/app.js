@@ -10,6 +10,8 @@ const els = {
 };
 let current = null, model = null, mode = '3d', busy = false, toastTimer = 0;
 let studioBlockLimit = 1_000_000;
+let selectedPromptFormat = 'auto';
+let engineInputFormat = 'py';
 let deferredInstallPrompt = null;
 const cam = { yaw: Math.PI / 4, elev: 0.56, zoom: 1, px: 0, py: 0 };
 const SAMPLE = [
@@ -48,7 +50,7 @@ function loading(active) {
   if (active) $('buildError').classList.add('hidden');
   busy = active;
   els.build.disabled = active;
-  $('buildBtnText').textContent = active ? 'Construction en cours...' : 'Visualiser la construction';
+  $('buildBtnText').textContent = active ? 'Construction en cours...' : 'Générer avec BuildAI';
   $('buildBtnIcon').textContent = active ? '◌' : '◩';
   $('processing').classList.toggle('hidden', !active);
   if (active) status('GÉNÉRATION...');
@@ -58,8 +60,35 @@ function currentBrief() {
   return GabConPrompt.createBrief({
     idea:els.idea.value, style:$('briefStyle').value,
     size:$('briefSize').value, detail:$('briefDetail').value,
-    blockLimit:studioBlockLimit, fileFormat:$('outputFormat').value
+    blockLimit:studioBlockLimit, fileFormat:selectedPromptFormat
   });
+}
+async function importBrief(event) {
+  const file=event.target.files?.[0];
+  if(!file) return;
+  try {
+    if(file.size>100000) throw Error('Brief JSON trop volumineux.');
+    const parsed=JSON.parse(await file.text());
+    if(!parsed || parsed.schema!=='gabcon-build-brief-v1') {
+      throw Error('Ce JSON n’est pas un cahier des charges ChatGPT (gabcon-build-brief-v1).');
+    }
+    if(typeof parsed.description==='string') {
+      els.idea.value=parsed.description;
+      try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
+    }
+    const prefs=parsed.preferences||{};
+    for(const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
+      const select=$(id);
+      if([...select.options].some(option=>option.value===prefs[key])) {
+        select.value=prefs[key];
+        try { localStorage.setItem('gabcon-brief-'+key,select.value); } catch (_) {}
+      }
+    }
+    setOutputFormat(prefs.fileFormat);
+    notify('Brief ChatGPT importé. Le moteur local n’a pas été modifié.');
+  } catch(err) {
+    notify('Import du brief impossible : '+err.message,true);
+  } finally { event.target.value=''; }
 }
 function downloadBrief() {
   const brief = JSON.stringify(currentBrief(), null, 2) + '\n';
@@ -78,48 +107,105 @@ function refreshEditor() {
   try { localStorage.setItem('gabcon-code', els.code.value); } catch (_) {}
 }
 function blueprintPrompt() { return GabConPrompt.buildPrompt(currentBrief()); }
-function outputFormat() { return GabConPrompt.formatFor($('outputFormat').value); }
+const PROMPT_FORMAT_GROUPS = [
+  {label:'Sans préférence', description:'ChatGPT décide du format le plus adapté.', ids:['auto']},
+  {label:'Fichiers utilisables dans Minecraft', description:'Télécharge et importe le vrai fichier créé par ChatGPT.', ids:['schem','litematic','nbt','datapack']},
+  {label:'Formats intermédiaires', description:'Nécessitent un moteur, une conversion ou un datapack.', ids:['mcfunction','py','json']},
+  {label:'Document de conception', description:'Ne place pas de blocs dans le jeu.', ids:['md']}
+];
+
+function outputFormat() { return selectedPromptFormat; }
+function createFormatCard(format) {
+  const info = GabConPrompt.getFormat(format);
+  const button = document.createElement('button');
+  button.type='button';
+  button.className='format-card';
+  button.dataset.format=format;
+  button.setAttribute('aria-pressed',format===selectedPromptFormat?'true':'false');
+  const top=document.createElement('span');top.className='format-card-top';
+  const title=document.createElement('strong');title.textContent=info.name;
+  const status=document.createElement('small');
+  status.textContent=info.category==='game'?'✓ Prêt en jeu':info.category==='intermediate'?'△ Conversion nécessaire':
+    info.category==='document'?'× Plan uniquement':'✦ Choix libre';
+  top.append(title,status);
+  const positive=document.createElement('span');positive.className='format-card-point';
+  const plus=document.createElement('b');plus.className='format-plus';plus.textContent='+ Pour';
+  positive.append(plus,document.createTextNode(' '+info.good));
+  const negative=document.createElement('span');negative.className='format-card-point';
+  const minus=document.createElement('b');minus.className='format-minus';minus.textContent='− Contre';
+  negative.append(minus,document.createTextNode(' '+info.bad));
+  const effort=document.createElement('span');effort.className='format-card-effort';
+  effort.textContent='Difficulté IA : '+info.difficulty;
+  button.append(top,positive,negative,effort);
+  button.addEventListener('click',()=>setOutputFormat(format));
+  return button;
+}
+function renderFormatChoices() {
+  const holder=$('formatChoices');
+  holder.replaceChildren();
+  for (const group of PROMPT_FORMAT_GROUPS) {
+    const section=document.createElement('section');section.className='format-choice-group';
+    const heading=document.createElement('div');heading.className='format-group-header';
+    const title=document.createElement('h4');title.textContent=group.label;
+    const help=document.createElement('span');help.textContent=group.description;
+    heading.append(title,help);
+    const grid=document.createElement('div');grid.className='format-card-grid';
+    for (const format of group.ids) grid.appendChild(createFormatCard(format));
+    section.append(heading,grid);holder.appendChild(section);
+  }
+  updateOutputFormat();
+}
+function setOutputFormat(format) {
+  selectedPromptFormat=GabConPrompt.formatFor(format);
+  updateOutputFormat();
+}
 function updateOutputFormat() {
-  const format=outputFormat(),info=GabConPrompt.getFormat(format);
-  $('formatTitle').textContent=info.name;
-  $('formatPros').textContent=info.good;
-  $('formatCons').textContent=info.bad;
+  const info=GabConPrompt.getFormat(selectedPromptFormat);
+  for (const button of document.querySelectorAll('#formatChoices .format-card')) {
+    const active=button.dataset.format===selectedPromptFormat;
+    button.classList.toggle('is-selected',active);
+    button.setAttribute('aria-pressed',active?'true':'false');
+  }
+  $('formatTitle').textContent='Format ChatGPT choisi : '+info.name;
+  const capability=info.category==='game'?'Fichier de construction à charger avec les outils indiqués' :
+    info.category==='intermediate'?'Conversion ou installation nécessaire avant le jeu' :
+      info.category==='document'?'Document non constructible' : 'Format choisi librement par ChatGPT';
+  $('formatCapabilities').textContent=capability;
   $('formatWorkflow').textContent=info.workflow;
-  const capability = info.category==='game'?'✓ Fichier de build testable en jeu avec les prérequis indiqués' :
-    info.category==='intermediate'?'△ Fichier intermédiaire : conversion / installation nécessaire' :
-      info.category==='document'?'× Document seulement : ne place aucun bloc' :
-        '✦ ChatGPT choisit un format de build adapté';
-  $('formatCapabilities').textContent=capability+' · Difficulté de génération IA : '+info.difficulty;
   $('briefFlow').textContent=info.workflow;
-  $('editorLanguage').textContent=info.language.toUpperCase()+' / '+info.extension.toUpperCase();
-  $('buildBtnText').textContent=GabConFormats.canExecute(format)?'Aperçu local facultatif':'Aperçu local indisponible';
-  els.build.disabled=!GabConFormats.canExecute(format);
-  els.build.title=info.executable?'Exécuter avec le moteur BuildAI local':'Télécharge le fichier : ce format ne s’exécute pas dans Studio';
-  const textSupported=GabConFormats.canSaveText(format);
-  $('downloadResponse').textContent=textSupported?'⇩ Sauvegarder '+GabConFormats.downloadName(format)+' (texte)':'⇩ Récupérer le fichier directement dans ChatGPT';
-  $('downloadResponse').disabled=!textSupported;
-  $('downloadResponse').title=textSupported
-    ? 'Sauvegarde facultative du texte si ChatGPT ne joint pas le fichier'
-    : 'Fichier binaire ou format libre : utilise le téléchargement réel fourni par ChatGPT';
-  $('copyRepair').classList.toggle('hidden',format!=='py'&&format!=='json');
-  try { localStorage.setItem('gabcon-output-format-direct-v1',format); } catch (_) {}
+  try { localStorage.setItem('gabcon-output-format-direct-v1',selectedPromptFormat); } catch (_) {}
+}
+
+function setEngineFormat(format) {
+  engineInputFormat=format==='json'?'json':'py';
+  for (const button of document.querySelectorAll('[data-engine-format]')) {
+    const active=button.dataset.engineFormat===engineInputFormat;
+    button.classList.toggle('is-selected',active);
+    button.setAttribute('aria-pressed',active?'true':'false');
+  }
+  $('editorLanguage').textContent=engineInputFormat==='json'?'JSON / OPÉRATIONS':'PYTHON / DSL';
+  $('filenameLabel').textContent=engineInputFormat==='json'?'blueprint.json':'blueprint.py';
+  $('downloadResponse').textContent='⇩ Sauvegarder '+GabConFormats.downloadName(engineInputFormat);
+  $('code').placeholder=engineInputFormat==='json'
+    ? '{"schema":"gabcon-block-ops-v1","operations":[...]}'
+    : '# Colle le code Python DSL pour le moteur GabCon BuildAI...';
+  $('copyRepair').classList.toggle('hidden',false);
+  try { localStorage.setItem('gabcon-engine-input-format-v1',engineInputFormat); } catch (_) {}
 }
 function downloadResponse() {
-  const format=outputFormat();
-  if (!GabConFormats.canSaveText(format)) return notify('Pour ce format, télécharge le vrai fichier créé directement dans ChatGPT.',true);
+  const format=engineInputFormat;
   let body=GabConFormats.textForFormat(els.code.value,format);
-  if (!body.trim()) return notify('Colle d’abord la réponse de ChatGPT dans l’éditeur.',true);
+  if (!body.trim()) return notify('Entre un blueprint pour le moteur local.',true);
   if (format==='json') {
     try { GabConFormats.compileJsonOps(body); }
     catch(err) { return notify('JSON invalide : '+err.message,true); }
   }
-  const type=format==='json'?'application/json':'text/plain';
-  const blob=new Blob([body],{type:type+';charset=utf-8'});
+  const blob=new Blob([body],{type:(format==='json'?'application/json':'text/x-python')+';charset=utf-8'});
   const url=URL.createObjectURL(blob),link=document.createElement('a');
   link.href=url;link.download=GabConFormats.downloadName(format);
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),30000);
-  notify('Fichier '+link.download+' sauvegardé.');
+  notify('Blueprint local '+link.download+' sauvegardé.');
 }
 
 async function copyForChatGPT(value, successMessage) {
@@ -143,13 +229,14 @@ async function copyPrompt() {
 async function copyRepair() {
   const message=$('buildErrorText').textContent.trim();
   if(!message) return notify('Aucune erreur à corriger.',true);
-  const code=extractCode(els.code.value);
-  if(!code.trim()) return notify('Aucun Python à corriger.',true);
+  const code=engineInputFormat==='json'?els.code.value:extractCode(els.code.value);
+  if(!code.trim()) return notify('Aucun blueprint à corriger.',true);
   try {
-    const prompt=outputFormat()==='json'
-      ? GabConPrompt.repairJsonPrompt(currentBrief(),els.code.value,message)
-      : GabConPrompt.repairPrompt(currentBrief(),code,message);
-    await copyForChatGPT(prompt, 'Demande de correction copiée ! ChatGPT pourra renvoyer blueprint.py complet.');
+    const engineBrief={...currentBrief(),preferences:{...currentBrief().preferences,fileFormat:engineInputFormat}};
+    const prompt=engineInputFormat==='json'
+      ? GabConPrompt.repairJsonPrompt(engineBrief,code,message)
+      : GabConPrompt.repairPrompt(engineBrief,code,message);
+    await copyForChatGPT(prompt, 'Demande de correction du blueprint '+engineInputFormat+' copiée.');
   } catch (err) { notify(err.message || 'Impossible de préparer la correction.', true); }
 }
 async function installApp() {
@@ -289,8 +376,7 @@ async function openBuild(item) {
 }
 async function build() {
   if (busy) return;
-  const format=outputFormat();
-  if (!GabConFormats.canExecute(format)) return notify('Ce format ne s’exécute pas ici. Télécharge le fichier texte.',true);
+  const format=engineInputFormat;
   let source;
   try { source=GabConFormats.contentForBuild(els.code.value,format); }
   catch(err) {
@@ -298,7 +384,7 @@ async function build() {
     $('buildError').classList.remove('hidden');
     return notify('Le format demandé comporte une erreur.',true);
   }
-  if (!source.trim()) return notify('Colle d’abord la réponse de ChatGPT.', true);
+  if (!source.trim()) return notify('Ajoute un blueprint .py ou .json dans le moteur local.', true);
   const seed = Number(els.seed.value);
   if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647) return notify('Seed invalide.', true);
   if (format!=='json' && source !== els.code.value) { els.code.value = source; refreshEditor(); }
@@ -344,11 +430,11 @@ async function refreshHistory() {
     card.addEventListener('click', async () => {
       try {
         await openBuild(item);
-        $('outputFormat').value='py';updateOutputFormat();
+        setEngineFormat('py');
         els.code.value = await (await fetch(item.urls.blueprint)).text();
         els.idea.value = item.name;
         refreshEditor();
-        $('editor').scrollIntoView({behavior:'smooth'});
+        $('engineWorkflow').scrollIntoView({behavior:'smooth'});
       } catch (_) { notify('Impossible de charger ce projet.', true); }
     });
     els.history.appendChild(card);
@@ -527,12 +613,19 @@ function init() {
   $('copyPrompt').addEventListener('click',copyPrompt);
   $('copyRepair').addEventListener('click',copyRepair);
   $('downloadBrief').addEventListener('click',downloadBrief);
+  $('briefInput').addEventListener('change',importBrief);
   $('downloadResponse').addEventListener('click',downloadResponse);
-  let formatSaved='auto';
-  try { formatSaved=localStorage.getItem('gabcon-output-format-direct-v1'); } catch (_) {}
-  $('outputFormat').value=GabConPrompt.formatFor(formatSaved);
-  $('outputFormat').addEventListener('change',updateOutputFormat);
-  updateOutputFormat();
+  let formatSaved='auto',engineFormatSaved='py';
+  try {
+    formatSaved=localStorage.getItem('gabcon-output-format-direct-v1');
+    engineFormatSaved=localStorage.getItem('gabcon-engine-input-format-v1');
+  } catch (_) {}
+  selectedPromptFormat=GabConPrompt.formatFor(formatSaved);
+  renderFormatChoices();
+  for (const button of document.querySelectorAll('[data-engine-format]')) {
+    button.addEventListener('click',()=>setEngineFormat(button.dataset.engineFormat));
+  }
+  setEngineFormat(engineFormatSaved);
   for (const [id, name, allowed] of [
     ['briefStyle','style',['auto','medieval','modern','fantasy','industrial','natural']],
     ['briefSize','size',['small','medium','large']],
@@ -549,54 +642,39 @@ function init() {
   }
   $('installBtn').addEventListener('click',installApp);
   $('mobileInstallBtn').addEventListener('click',installApp);
-  $('renderMode').value = localStorage.getItem('gabcon-render-mode') === 'quality' ? 'quality' : 'fast';
+  let renderModeSaved='fast';
+  try { renderModeSaved=localStorage.getItem('gabcon-render-mode'); } catch (_) {}
+  $('renderMode').value = renderModeSaved === 'quality' ? 'quality' : 'fast';
   $('renderMode').addEventListener('change', () => {
     try { localStorage.setItem('gabcon-render-mode', $('renderMode').value); } catch (_) {}
   });
   els.build.addEventListener('click',build);
   $('exampleBtn').addEventListener('click',()=>{
     if(els.code.value.trim() && els.code.value!==SAMPLE && !confirm('Remplacer le code par la tour de démonstration ?'))return;
-    els.code.value=SAMPLE;$('filenameLabel').textContent='blueprint.py';
+    setEngineFormat('py');els.code.value=SAMPLE;
     refreshEditor();notify('Exemple de tour médiévale chargé.');
   });
   $('fileInput').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     if(file.size>500000){notify('Fichier trop volumineux.',true);return;}
     const data=await file.text();
-    if (file.name.toLowerCase().endsWith('.json')) {
+    if(file.name.toLowerCase().endsWith('.json')) {
       try {
-        const parsed=JSON.parse(data);
-        if (parsed && parsed.schema === 'gabcon-build-brief-v1') {
-          if (typeof parsed.description === 'string') {
-            els.idea.value=parsed.description;
-            try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
-          }
-          const prefs=parsed.preferences || {};
-          for (const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
-            const node=$(id);
-            if ([...node.options].some(option=>option.value===prefs[key])) {
-              node.value=prefs[key];
-              try { localStorage.setItem('gabcon-brief-'+key,node.value); } catch (_) {}
-            }
-          }
-          $('outputFormat').value=GabConPrompt.formatFor(prefs.fileFormat);
-          updateOutputFormat();
-          notify('Cahier des charges JSON chargé. Copie maintenant le prompt vers ChatGPT.');
-          e.target.value='';
-          return;
+        if(JSON.parse(data)?.schema==='gabcon-build-brief-v1') {
+          notify('Ce JSON est un brief ChatGPT. Utilise « Importer un brief ChatGPT » dans le parcours A.',true);
+          e.target.value='';return;
         }
-      } catch (_) { /* JSON invalide : le moteur indiquera l'erreur si exécuté. */ }
+      } catch (_) { /* Le compilateur de blueprint indiquera une erreur JSON. */ }
     }
     const ext=file.name.toLowerCase().split('.').pop();
-    if (ext==='mcfunction') $('outputFormat').value='mcfunction';
-    else if (ext==='json') {
-      try { if (JSON.parse(data)?.schema==='gabcon-block-ops-v1') $('outputFormat').value='json'; }
-      catch (_) {}
-    } else if (ext==='md' && !/\x60\x60\x60(?:python|py)/i.test(data)) $('outputFormat').value='md';
-    else if (ext==='py') $('outputFormat').value='py';
-    updateOutputFormat();
-    els.code.value=GabConFormats.textForFormat(data,outputFormat());
-    $('filenameLabel').textContent=file.name;refreshEditor();
+    const fileFormat=ext==='json'?'json':'py';
+    if (ext!=='json' && ext!=='py' && ext!=='txt') {
+      notify('GabCon BuildAI accepte uniquement les blueprints .py ou .json.',true);
+      e.target.value='';return;
+    }
+    setEngineFormat(fileFormat);
+    els.code.value=GabConFormats.textForFormat(data,engineInputFormat);
+    refreshEditor();
     notify(file.name+' importé.');e.target.value='';
   });
   $('view3d').addEventListener('click',()=>viewMode('3d'));
