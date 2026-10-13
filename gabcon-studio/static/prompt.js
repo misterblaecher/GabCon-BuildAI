@@ -176,12 +176,12 @@
     ].join('\n');
     if(format==='py') return [
       ...beginning,
-      'FORMAT EXIGÉ : un véritable fichier texte blueprint.py téléchargeable, pour le moteur DSL de GabCon-BuildAI.',
+      'FORMAT EXIGÉ : un véritable fichier texte blueprint.py téléchargeable, pour mcbuild.dsl.sandbox.run_blueprint (GabCon-BuildAI).',
       'Le fichier .py n’est PAS directement installable dans Minecraft : ne le présente pas comme un schematic.',
       'Utilise exclusivement les fonctions de ce DSL (coordonnées x,z horizontales, y verticales) :',
       ...DSL,
       'math et rng sont disponibles sans import ; boucles for/range, if et petites fonctions def autorisées.',
-      'Aucun import, aucun accès aux fichiers, réseau, exec/eval ni appel à des outils absents du DSL.',
+      'AUCUN import, aucun accès aux fichiers, réseau, exec/eval ni appel à des outils absents du DSL.',
       'Les blocs doivent exister dans Minecraft Java 1.21.1, avec des états valides.',
       'Privilégie fill, floor, walls et les primitives de volume pour limiter la taille du code.',
       'Construit la base, les volumes, les ouvertures, le toit et les finitions.',
