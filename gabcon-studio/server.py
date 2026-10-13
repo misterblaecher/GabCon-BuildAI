@@ -112,6 +112,7 @@ class Handler(BaseHTTPRequestHandler):
                 "api_required": False,
                 "studio_max_blocks": studio_block_limit(),
                 "detailed_preview_max_blocks": DETAILED_PREVIEW_MAX_BLOCKS,
+                "render_modes": ["fast", "quality"],
             })
         if path == "/api/builds":
             ids = sorted((d.name for d in RUNS_DIR.iterdir() if d.is_dir()), reverse=True)
@@ -155,6 +156,9 @@ class Handler(BaseHTTPRequestHandler):
             source = data.get("source", "")
             name = str(data.get("name", "Construction"))[:100].strip()
             seed = int(data.get("seed", 0))
+            preview_mode = str(data.get("preview_mode", "fast")).strip().lower()
+            if preview_mode not in ("fast", "quality", "auto"):
+                raise ValueError("Mode de rendu invalide (fast, quality ou auto).")
             if not isinstance(source, str) or not source.strip():
                 raise ValueError("Colle du code Python avant de lancer la génération.")
             if not 0 <= seed < 2**31:
@@ -177,7 +181,7 @@ class Handler(BaseHTTPRequestHandler):
             }, ensure_ascii=False), encoding="utf-8")
             try:
                 proc = subprocess.run(
-                    [sys.executable, str(STUDIO_DIR / "worker.py"), str(source_path), str(output), str(seed)],
+                    [sys.executable, str(STUDIO_DIR / "worker.py"), str(source_path), str(output), str(seed), preview_mode],
                     cwd=PROJECT_DIR, capture_output=True, text=True,
                     timeout=BUILD_TIMEOUT, check=False, stdin=subprocess.DEVNULL,
                 )
