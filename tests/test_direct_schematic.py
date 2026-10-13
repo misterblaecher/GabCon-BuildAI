@@ -28,9 +28,7 @@ def _run(*args: str) -> subprocess.CompletedProcess[str]:
 def test_direct_from_chatgpt_blueprint_without_api(tmp_path: Path) -> None:
     source = tmp_path / "house.py"
     source.write_text(
-        'floor(0, 0, 4, 4, 0, "oak_planks")\n'
-        'walls(0, 0, 4, 4, 1, 3, "stone_bricks")\n'
-        'clear(2, 1, 0, 2, 2, 0)\n',
+        'floor(0, 0, 4, 4, 0, "oak_planks")\nwalls(0, 0, 4, 4, 1, 3, "stone_bricks")\nclear(2, 1, 0, 2, 2, 0)\n',
         encoding="utf-8",
     )
     output = tmp_path / "direct"
