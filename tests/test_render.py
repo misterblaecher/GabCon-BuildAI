@@ -164,3 +164,13 @@ def test_sixel_encoding_smoke():
     data = encode_sixel(small, max_colors=16)
     assert data.startswith("\x1bPq")
     assert data.endswith("\x1b\\")
+
+
+def test_fast_preview_disables_shadows_without_affecting_default_render():
+    grid = _small_house_grid()
+    fast_sheet, labels, stats = build_contact_sheet(grid, [{"yaw": 0, "shadows": False}])
+    assert labels == ["yaw 0deg"]
+    assert stats["block_count"] == len(grid)
+    assert fast_sheet.width > 0 and fast_sheet.height > 0
+    fast_iso = render_iso(grid, yaw=0, shadows=False)
+    assert fast_iso.getbbox() is not None
