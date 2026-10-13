@@ -516,7 +516,8 @@ function init() {
   $('copyRepair').addEventListener('click',copyRepair);
   $('downloadBrief').addEventListener('click',downloadBrief);
   $('downloadResponse').addEventListener('click',downloadResponse);
-  const formatSaved=localStorage.getItem('gabcon-output-format');
+  let formatSaved='py';
+  try { formatSaved=localStorage.getItem('gabcon-output-format'); } catch (_) {}
   $('outputFormat').value=GabConPrompt.formatFor(formatSaved);
   $('outputFormat').addEventListener('change',updateOutputFormat);
   updateOutputFormat();
