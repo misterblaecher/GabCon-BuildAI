@@ -85,20 +85,28 @@ function updateOutputFormat() {
   $('formatPros').textContent=info.good;
   $('formatCons').textContent=info.bad;
   $('formatWorkflow').textContent=info.workflow;
+  const capability = info.category==='game'?'✓ Fichier de build testable en jeu avec les prérequis indiqués' :
+    info.category==='intermediate'?'△ Fichier intermédiaire : conversion / installation nécessaire' :
+      info.category==='document'?'× Document seulement : ne place aucun bloc' :
+        '✦ ChatGPT choisit un format de build adapté';
+  $('formatCapabilities').textContent=capability+' · Difficulté de génération IA : '+info.difficulty;
   $('briefFlow').textContent=info.workflow;
   $('editorLanguage').textContent=info.language.toUpperCase()+' / '+info.extension.toUpperCase();
   $('buildBtnText').textContent=GabConFormats.canExecute(format)?'Aperçu local facultatif':'Aperçu local indisponible';
   els.build.disabled=!GabConFormats.canExecute(format);
   els.build.title=info.executable?'Exécuter avec le moteur BuildAI local':'Télécharge le fichier : ce format ne s’exécute pas dans Studio';
-  $('downloadResponse').textContent=format==='auto'?'⇩ Téléchargement dans ChatGPT':'⇩ Sauvegarder '+GabConFormats.downloadName(format)+' (texte)';
-  $('downloadResponse').disabled=format==='auto';
-  $('downloadResponse').title=format==='auto'?'Le type de fichier est déterminé par ChatGPT : télécharge-le depuis la conversation.':'Sauvegarder le texte localement si besoin';
-  $('copyRepair').classList.toggle('hidden',format==='mcfunction'||format==='md');
+  const textSupported=GabConFormats.canSaveText(format);
+  $('downloadResponse').textContent=textSupported?'⇩ Sauvegarder '+GabConFormats.downloadName(format)+' (texte)':'⇩ Récupérer le fichier directement dans ChatGPT';
+  $('downloadResponse').disabled=!textSupported;
+  $('downloadResponse').title=textSupported
+    ? 'Sauvegarde facultative du texte si ChatGPT ne joint pas le fichier'
+    : 'Fichier binaire ou format libre : utilise le téléchargement réel fourni par ChatGPT';
+  $('copyRepair').classList.toggle('hidden',format!=='py'&&format!=='json');
   try { localStorage.setItem('gabcon-output-format-direct-v1',format); } catch (_) {}
 }
 function downloadResponse() {
   const format=outputFormat();
-  if (format==='auto') return notify('Télécharge le fichier directement dans ChatGPT, qui en choisit le format.',true);
+  if (!GabConFormats.canSaveText(format)) return notify('Pour ce format, télécharge le vrai fichier créé directement dans ChatGPT.',true);
   let body=GabConFormats.textForFormat(els.code.value,format);
   if (!body.trim()) return notify('Colle d’abord la réponse de ChatGPT dans l’éditeur.',true);
   if (format==='json') {
@@ -111,7 +119,7 @@ function downloadResponse() {
   link.href=url;link.download=GabConFormats.downloadName(format);
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),30000);
-  notify(format==='schem'?'Blueprint Python sauvegardé. Pour obtenir final.schem, clique sur Visualiser.':'Fichier '+link.download+' sauvegardé.');
+  notify('Fichier '+link.download+' sauvegardé.');
 }
 
 async function copyForChatGPT(value, successMessage) {

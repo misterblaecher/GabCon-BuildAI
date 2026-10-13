@@ -70,16 +70,26 @@
                 <label for="outputFormat">FORMAT SOUHAITÉ (FACULTATIF)</label>
                 <select id="outputFormat">
                   <option value="auto" selected>✦ Aucun format imposé — ChatGPT choisit</option>
-                  <option value="py">Python DSL · .py — code à exécuter avec BuildAI</option>
-                  <option value="schem">WorldEdit · .schem — généré directement par ChatGPT</option>
-                  <option value="json">Opérations structurées · .json</option>
-                  <option value="mcfunction">Datapack Minecraft · .mcfunction</option>
-                  <option value="md">Plan architectural · .md</option>
+                  <optgroup label="Fichiers de construction utilisables dans Minecraft">
+                    <option value="schem">★ WorldEdit · .schem — conseillé pour construire rapidement</option>
+                    <option value="litematic">Litematica / Forgematica · .litematic</option>
+                    <option value="nbt">Structure vanilla · .nbt</option>
+                    <option value="datapack">Datapack complet · .zip — sans WorldEdit</option>
+                  </optgroup>
+                  <optgroup label="Formats intermédiaires — conversion ou installation nécessaire">
+                    <option value="mcfunction">Fonction Minecraft · .mcfunction</option>
+                    <option value="py">Python BuildAI · .py</option>
+                    <option value="json">Opérations BuildAI · .json</option>
+                  </optgroup>
+                  <optgroup label="Documentation — ne crée pas de blocs">
+                    <option value="md">Plan architectural · .md</option>
+                  </optgroup>
                 </select>
                 <div class="format-details" id="formatDetails" aria-live="polite">
                   <strong id="formatTitle">Sans préférence · ChatGPT choisit</strong>
                   <p><span class="format-plus">✓ Avantages</span> <span id="formatPros"></span></p>
                   <p><span class="format-minus">△ Limites</span> <span id="formatCons"></span></p>
+                  <small id="formatCapabilities"></small>
                   <small id="formatWorkflow"></small>
                 </div>
               </div>

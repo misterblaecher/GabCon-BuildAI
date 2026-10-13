@@ -23,48 +23,71 @@
     balanced: 'Équilibré : structure, ouvertures et détails lisibles',
     detailed: 'Détaillé : toiture, reliefs, encadrements et intérieur'
   };
+  // Catalog for Minecraft Java 1.21.1. Distinguish in-game artifacts from
+  // editable intermediates and planning documents; never promise conversion.
   const FORMATS = {
     auto: {
-      name:'Sans préférence · ChatGPT choisit', filename:null, extension:'auto',
-      language:'text', executable:false,
-      good:'Prompt général : ChatGPT peut choisir un livrable réellement utilisable dans Minecraft selon le projet et ses outils.',
-      bad:'Résultat moins prévisible : le format retenu et les outils disponibles dépendent de la conversation ChatGPT.',
-      workflow:'Studio prépare le prompt → ChatGPT choisit et crée le fichier → test dans Minecraft.'
-    },
-    py: {
-      name:'Python DSL · .py', filename:'blueprint.py', extension:'py',
-      language:'python', executable:true,
-      good:'Code compact et modifiable, parfait pour les formes complexes et pour le moteur GabCon-BuildAI.',
-      bad:'Non importable directement dans Minecraft : ce format nécessite un moteur Python comme GabCon-BuildAI.',
-      workflow:'Studio prépare le prompt → ChatGPT crée blueprint.py → à exécuter avec un moteur compatible.'
+      name:'Aucun format imposé', filename:null, extension:'auto', language:'text',
+      category:'auto', difficulty:'Variable', gameReady:false, executable:false,
+      good:'Laisse ChatGPT choisir le meilleur fichier selon le projet et les outils réellement disponibles.',
+      bad:'Le résultat et les prérequis sont moins prévisibles ; le format peut varier selon la conversation.',
+      workflow:'Studio prépare le prompt général → ChatGPT génère un fichier → tu le testes dans Minecraft.'
     },
     schem: {
-      name:'WorldEdit · .schem', filename:'final.schem', extension:'schem',
-      language:'python', executable:true,
-      good:'Fichier binaire directement chargeable par WorldEdit ; idéal pour tester une construction en jeu.',
-      bad:'Création binaire plus délicate : ChatGPT doit disposer d’outils de génération de fichiers, puis vérifier le NBT/gzip.',
-      workflow:'Studio prépare le prompt → ChatGPT crée final.schem téléchargeable → WorldEdit en jeu.'
+      name:'WorldEdit · .schem', filename:'construction.schem', extension:'schem', language:'binary',
+      category:'game', difficulty:'Intermédiaire', gameReady:true, executable:false,
+      good:'Très adapté aux gros builds, blocs et états modernes ; importation et collage rapides avec WorldEdit.',
+      bad:'WorldEdit ou compatible nécessaire ; ChatGPT doit encoder et contrôler un vrai fichier NBT gzip Sponge v3.',
+      workflow:'ChatGPT génère construction.schem → WorldEdit /schem load → //paste.'
     },
-    json: {
-      name:'Opérations structurées · .json', filename:'blueprint.json', extension:'json',
-      language:'json', executable:true,
-      good:'Format texte structuré, lisible et vérifiable ; facile à convertir ou modifier avec des outils compatibles.',
-      bad:'Minecraft ne charge pas directement ce JSON de construction. Un convertisseur compatible est nécessaire.',
-      workflow:'Studio prépare le prompt → ChatGPT crée blueprint.json → import via convertisseur adapté.'
+    litematic: {
+      name:'Litematica/Forgematica · .litematic', filename:'construction.litematic', extension:'litematic', language:'binary',
+      category:'game', difficulty:'Difficile', gameReady:true, executable:false,
+      good:'Visualisation fantôme, liste de matériaux et guide de construction, idéal pour rebâtir en survie.',
+      bad:'Mod compatible obligatoire (Forgematica et MaFgLib sur NeoForge 1.21.1) ; palette et données binaires compactées difficiles à produire.',
+      workflow:'ChatGPT génère construction.litematic → charge le schematic avec Forgematica/Litematica.'
+    },
+    nbt: {
+      name:'Structure Minecraft · .nbt', filename:'construction.nbt', extension:'nbt', language:'binary',
+      category:'game', difficulty:'Intermédiaire', gameReady:true, executable:false,
+      good:'Format natif Minecraft Java, utilisable sans WorldEdit avec un bloc de structure ou une structure de datapack.',
+      bad:'Chargement avec commandes ou bloc de structure ; le bloc de structure est limité pour les grands volumes.',
+      workflow:'ChatGPT génère construction.nbt → structure de datapack / bloc de structure → placement en jeu.'
+    },
+    datapack: {
+      name:'Datapack prêt à installer · .zip', filename:'gabcon-construction-datapack.zip', extension:'zip', language:'binary',
+      category:'game', difficulty:'Facile à intermédiaire', gameReady:true, executable:false,
+      good:'ZIP complet, compatible Minecraft Java vanilla, installation directe dans datapacks sans logiciel de conversion.',
+      bad:'Il faut lancer /function avec les permissions nécessaires ; beaucoup de commandes peuvent ralentir le monde.',
+      workflow:'ChatGPT génère un ZIP datapack → installe le ZIP dans le monde → /reload puis /function.'
     },
     mcfunction: {
-      name:'Datapack · .mcfunction', filename:'construction.mcfunction', extension:'mcfunction',
-      language:'mcfunction', executable:false,
-      good:'Commandes Minecraft Java vanilla, sans WorldEdit ; peut être livré dans un datapack ZIP prêt à installer.',
-      bad:'Installation du datapack et exécution de /function nécessaires ; grosses créations parfois lentes à placer.',
-      workflow:'Studio prépare le prompt → ChatGPT crée .mcfunction + ZIP datapack → test avec /function.'
+      name:'Commandes Minecraft · .mcfunction', filename:'construction.mcfunction', extension:'mcfunction', language:'mcfunction',
+      category:'intermediate', difficulty:'Facile', gameReady:false, executable:false,
+      good:'Format texte simple et fiable à générer ; commandes vanilla setblock et fill, sans WorldEdit.',
+      bad:'Fichier seul non détecté par Minecraft : il faut l’intégrer dans un datapack (ou demander le ZIP complet).',
+      workflow:'ChatGPT crée construction.mcfunction → insère-le dans un datapack → /function.'
+    },
+    py: {
+      name:'Python DSL · .py', filename:'blueprint.py', extension:'py', language:'python',
+      category:'intermediate', difficulty:'Facile à intermédiaire', gameReady:false, executable:true,
+      good:'Compacité, boucles et primitives avancées : très pratique pour des architectures complexes et itératives.',
+      bad:'Minecraft ne lit pas le Python ; il faut exécuter le DSL avec GabCon-BuildAI pour exporter le .schem.',
+      workflow:'ChatGPT crée blueprint.py → moteur GabCon-BuildAI → fichier WorldEdit.'
+    },
+    json: {
+      name:'Opérations · .json', filename:'blueprint.json', extension:'json', language:'json',
+      category:'intermediate', difficulty:'Facile', gameReady:false, executable:true,
+      good:'Schéma structuré, vérifiable par un parseur et facile à éditer ou transmettre à un convertisseur.',
+      bad:'Non importable directement dans Minecraft ; au plus 1 200 opérations simples et sans boucles.',
+      workflow:'ChatGPT crée blueprint.json → conversion en blocs par outil compatible → .schem.'
     },
     md: {
-      name:'Plan architectural · .md', filename:'plan-construction.md', extension:'md',
-      language:'markdown', executable:false,
-      good:'Bon pour préparer les volumes, matériaux et étages avant une construction plus détaillée.',
-      bad:'Un plan Markdown ne construit rien dans Minecraft ; une conversion sera nécessaire.',
-      workflow:'Studio prépare le prompt → ChatGPT crée plan-construction.md → utilisation comme référence.'
+      name:'Plan uniquement · .md', filename:'plan-construction.md', extension:'md', language:'markdown',
+      category:'document', difficulty:'Facile', gameReady:false, executable:false,
+      good:'Bon pour préparer matériaux, géométrie et étapes avant une véritable génération de build.',
+      bad:'Ce fichier ne construit AUCUN bloc et ne peut pas être importé comme une structure.',
+      workflow:'ChatGPT crée un plan Markdown → nouveau prompt avec un format Minecraft pour réaliser le build.'
     }
   };
   function formatFor(id) {
@@ -158,7 +181,7 @@
     ].join('\n');
     if(format==='schem') return [
       ...beginning,
-      'FORMAT EXIGÉ : final.schem, un véritable fichier binaire Sponge Schematic v3 (WorldEdit 7.3+, Minecraft Java 1.21.1).',
+      'FORMAT EXIGÉ : construction.schem, un véritable fichier binaire Sponge Schematic v3 (WorldEdit 7.3+, Minecraft Java 1.21.1).',
       'GÉNÈRE directement le schématique ici avec un outil de code/fichiers (Python si disponible) : PAS de passage par GabCon Studio.',
       'Construis une grille de blocs à partir du cahier des charges, puis encode-la en NBT gzip.',
       'Exigences NBT : racine compound sans nom contenant le compound "Schematic" ;',
@@ -169,10 +192,54 @@
       'Prévois minecraft:air dans la palette pour les volumes non remplis.',
       'Utilise des noms de blocs Minecraft 1.21.1 valides ; n’invente pas de namespaces.',
       'Vérifie par relecture du fichier gzip/NBT : dimensions, palette, volume, nombre de blocs et ordre des varints.',
-      'Fournis le VRAI lien vers final.schem, puis explique brièvement son chargement dans WorldEdit.',
+      'Fournis le VRAI lien vers construction.schem, puis explique /schem load construction puis //paste dans WorldEdit.',
       'Ne remplace pas le .schem par du code ou du JSON. Si la création binaire est impossible dans cette conversation,',
       'explique-le honnêtement et fournis éventuellement un générateur exécutable en pièce jointe comme solution de secours.',
       'Ne donne jamais un faux lien de téléchargement.'
+    ].join('\n');
+    if(format==='litematic') return [
+      ...beginning,
+      'FORMAT EXIGÉ : construction.litematic, VRAI fichier binaire NBT compressé lisible par Forgematica/Litematica pour Minecraft Java 1.21.1.',
+      'Ce fichier est destiné à un affichage de construction fantôme et à la liste des matériaux, pas à WorldEdit directement.',
+      'Sur NeoForge 1.21.1, indique la nécessité du port Forgematica compatible et de MaFgLib ; ne demande pas une installation Fabric.',
+      'Utilise tes outils de création de fichiers ; privilégie une bibliothèque/conversion .litematic documentée et compatible avec cette version.',
+      'Le NBT contient Metadata, Regions, MinecraftDataVersion et la version du schéma Litematica réellement visé.',
+      'Chaque région inclut Position, Size, BlockStatePalette (avec Name et Properties pour les états) et BlockStates (TAG_Long_Array).',
+      'Pour BlockStates, calcule correctement les bits par indice, empaquette les indices palette en bits et vérifie les limites de longs signés.',
+      'Réserve la palette air selon le format ; utilise DataVersion 3955 pour Minecraft Java 1.21.1 et des blocs valides.',
+      'Ne devine pas un numéro de format Litematica sans le vérifier dans la bibliothèque/implémentation ciblée.',
+      'Relis le fichier NBT gzip, vérifie nombre de régions, tailles, palette et données de chaque bloc ; si possible fais un test de lecture Litematica.',
+      'Joins le vrai fichier construction.litematic et explique comment le charger avec le mod compatible.',
+      'Si tu ne peux pas assurer le format binaire, annonce la limite et propose un vrai .schem à la place, clairement identifié.',
+      'Ne renomme jamais un .schem en .litematic.'
+    ].join('\n');
+    if(format==='nbt') return [
+      ...beginning,
+      'FORMAT EXIGÉ : construction.nbt, un vrai template de structure vanilla Minecraft Java 1.21.1 (PAS un fichier WorldEdit .schem).',
+      'Crée un vrai NBT compressé avec : DataVersion=3955, size (liste de 3 TAG_Int : X,Y,Z),',
+      'palette (liste de TAG_Compound avec Name minecraft:... et Properties si état nécessaire),',
+      'blocks (liste de compounds : pos [x,y,z] en TAG_Int, state indice dans palette, nbt optionnel), entities (liste).',
+      'Toutes les positions blocks doivent être locales, entières, dans les bornes de size ; index palette valide ; pas de doublons.',
+      'Si la structure est grande, ne promets pas que le bloc de structure saura la charger : vérifie sa limite (souvent 48 par axe).',
+      'Si utile, joins aussi un datapack ZIP avec la structure dans data/gabcon/structure/construction.nbt pour /place template gabcon:construction.',
+      'Pour Minecraft Java 1.21.1, n’utilise pas les chemins d’une version future.',
+      'Génère et relis réellement le binaire compressé ; vérifie size, palette, nombre de blocs et coordonnées.',
+      'Fournis le lien de téléchargement construction.nbt et les instructions de placement avec bloc de structure ou /place template.',
+      'Si la génération binaire n’est pas possible, explique la limite et fournis un vrai autre format sans prétendre que c’est un .nbt.'
+    ].join('\n');
+    if(format==='datapack') return [
+      ...beginning,
+      'FORMAT EXIGÉ : gabcon-construction-datapack.zip, un vrai datapack Minecraft Java 1.21.1 complet.',
+      'Crée un ZIP valide dont la racine contient pack.mcmeta et data/gabcon/function/construction.mcfunction (singulier : function en 1.21.1).',
+      'Dans pack.mcmeta : {"pack":{"pack_format":48,"description":"GabCon construction Minecraft 1.21.1"}}.',
+      'Écris construction.mcfunction avec des commandes Java vanilla valides, SANS / initial : setblock et fill avec minecraft:...',
+      'Utilise des coordonnées ENTIÈRES ABSOLUES pour un placement reproductible et documente leur origine.',
+      'Chaque fill doit cibler au plus 32768 positions ; découpe les volumes plus grands en plusieurs lignes.',
+      'Pour les très gros projets, organise les commandes en plusieurs .mcfunction et ajoute une fonction principale.',
+      'Vérifie le ZIP en l’ouvrant, vérifie le JSON de pack.mcmeta, les chemins et les commandes.',
+      'Livre le vrai fichier .zip, pas seulement un bloc texte ; indique de placer le ZIP dans <monde>/datapacks,',
+      'puis de lancer /reload et /function gabcon:construction avec les permissions nécessaires.',
+      'N’invente pas de fonctions ou de blocs absents de Minecraft 1.21.1 ; si les outils fichiers manquent, signale-le.'
     ].join('\n');
     if(format==='py') return [
       ...beginning,
@@ -207,16 +274,16 @@
     ].join('\n');
     if(format==='mcfunction') return [
       ...beginning,
-      'FORMAT EXIGÉ : construction.mcfunction et, si les outils le permettent, un ZIP datapack complet pour Minecraft Java 1.21.1.',
+      'FORMAT EXIGÉ : construction.mcfunction (fichier texte seul) pour Minecraft Java 1.21.1 ; propose aussi un ZIP prêt à installer uniquement si demandé.',
       'Les lignes .mcfunction doivent être des commandes vanilla valides sans slash initial.',
       'Utilise setblock et fill avec identifiants minecraft:... ; les coordonnées sont absolues et entières.',
       'Une commande fill ne doit pas excéder 32768 blocs/positions, découpe les grandes zones.',
       'Favorise un petit nombre de commandes, sans boucles fictives ni variables inexistantes.',
-      'Si tu fabriques un datapack ZIP, ajoute un pack.mcmeta dont pack_format est correct pour Java 1.21.1 ;',
+      'Si un datapack ZIP est aussi demandé, son pack.mcmeta utilise pack_format=48 pour Java 1.21.1 ;',
       'place la fonction dans data/gabcon/function/construction.mcfunction avec le chemin conforme à cette version.',
-      'Vérifie le contenu du ZIP, puis fournis ses vrais liens de téléchargement.',
+      'Vérifie le texte de construction.mcfunction et joins le vrai fichier ; vérifie aussi le ZIP si un pack est demandé.',
       'Explique comment installer le pack dans le dossier datapacks du monde, recharger et lancer /function gabcon:construction.',
-      'Ne prétends pas que le datapack est installé sur le serveur ou dans Minecraft sans action du joueur.'
+      'Un fichier .mcfunction isolé doit être inséré dans un datapack pour être chargé. Ne prétends pas qu’il est installé sans action du joueur.'
     ].join('\n');
     return [
       ...beginning,

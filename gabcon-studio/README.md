@@ -75,16 +75,45 @@ comme **outils optionnels** ; aucun n'est nécessaire pour demander un fichier �
 5. ChatGPT utilise ses outils disponibles pour **créer le fichier téléchargeable directement**
    et t'indique comment l'installer ou le charger dans Minecraft.
 
-### Formats possibles
+### Catalogue : formats réellement utilisables pour un build Java 1.21.1
 
-| Choix | Utilisation et avantages | Points négatifs |
-| --- | --- | --- |
-| **Aucun format imposé** (par défaut) | Prompt sans préférence de format, pour laisser ChatGPT décider d'un fichier approprié à la construction | Résultat moins prévisible |
-| **`.schem` WorldEdit** | ChatGPT est chargé de créer le vrai binaire **Sponge Schematic v3** (Minecraft 1.21.1), à charger dans WorldEdit | Nécessite que ChatGPT dispose d'outils de génération et de vérification de fichiers binaires |
-| **`.mcfunction` datapack** | Commandes Minecraft Java; demande aussi un **ZIP de datapack** si les outils permettent de le produire | Installation manuelle du datapack et lancement de `/function` ; les grosses constructions peuvent être coûteuses |
-| **`.py` Python DSL** | Code réutilisable dans le moteur GabCon-BuildAI, facile à modifier et à étendre | **Non chargeable directement dans Minecraft** ; le moteur doit le convertir |
-| **`.json` opérations** | Opérations structurées `gabcon-block-ops-v1`, validables et convertibles avec les bons outils | Minecraft vanilla ne peut pas lire ce JSON directement |
-| **`.md` plan architectural** | Plan complet pour préparer une construction et les volumes | Document de conception seulement : pas de blocs construits |
+Le menu est classé par **destination réelle**, et les prompts ChatGPT sont distincts pour chaque format.
+La colonne *difficulté IA* est une estimation de la difficulté de produire un fichier **valide**
+avec des outils de code/fichiers, pas une mesure de fiabilité garantie.
+
+| Type de fichier | Atouts | Limites | Difficulté IA / test en jeu |
+| --- | --- | --- | --- |
+| **Aucun format** (par défaut) | ChatGPT choisit une sortie adaptée au projet sans imposer d'extension | Moins prévisible | Variable |
+| **`.schem` Sponge v3 / WorldEdit** | Idéal pour coller rapidement des structures modernes et de grande taille | WorldEdit/compatible nécessaire, NBT gzip + VarInt à vérifier | **Intermédiaire** / prêt avec WorldEdit |
+| **`.litematic` Litematica/Forgematica** | Hologramme, plans guidés, liste des matériaux en survie | Mod + bibliothèque compatibles, palette et tableau LongArray complexe | **Difficile** / prêt avec mod compatible |
+| **`.nbt` structure vanilla Java** | Pas besoin de WorldEdit, format de structure natif | Structure block limité en taille ; commandes / datapack pour placement important | **Intermédiaire** / prêt avec structure block ou commande |
+| **`.zip` datapack** | Installation dans `datapacks`, commandes vanilla, pas de plugin requis | Permissions pour `/function`, génération de beaucoup de blocs potentiellement lourde | **Facile à intermédiaire** / prêt après installation |
+| **`.mcfunction`** | Génération par IA simple : texte de commandes `fill`/`setblock` | Fichier seul non exécutable : nécessite un datapack | **Facile** / intermédiaire |
+| **`.py` DSL BuildAI** | Compact, boucles, formes complexes et finitions | Nécessite le moteur GabCon-BuildAI pour fabriquer un vrai schematic | **Facile à intermédiaire** / intermédiaire |
+| **`.json` opérations** | Facile à valider et modifier ; contrôles stricts de la liste d'opérations | Non chargé par Minecraft sans convertisseur ; 1 200 primitives maximum | **Facile** / intermédiaire |
+| **`.md` plan** | Utile pour conceptualiser architecture, dimensions et matériaux | **N'est pas un build** ; ne place aucun bloc | **Facile** / documentation |
+
+**Choix conseillé :** `.schem` pour charger/coller un build dans WorldEdit ;
+`.litematic` pour l'afficher comme schéma de construction avec Forgematica sur NeoForge ;
+`.nbt` ou un datapack `.zip` si tu veux éviter WorldEdit.
+Si tu ne sélectionnes rien, ChatGPT décide librement : le prompt **ne favorise aucun format**.
+
+Les prompts spécialisés demandent à ChatGPT de **créer directement les vrais fichiers**
+et de vérifier leur structure avec ses outils de code/fichiers : type NBT, dimensions,
+index des palettes, compression, ZIP et emplacements de fichiers. Un fichier binaire
+**ne doit jamais être simulé par du texte renommé** : si la conversation ne dispose
+pas des outils nécessaires, ChatGPT doit signaler la limite et proposer une alternative réelle.
+
+Pour Minecraft Java **1.21.1**, le datapack utilise `pack_format=48` et
+le chemin `data/gabcon/function/construction.mcfunction` (répertoire `function` au singulier).
+Pour `.litematic` sur NeoForge, utiliser **Forgematica** avec **MaFgLib** adaptés à 1.21.1 ;
+la Litematica classique vise principalement Fabric. Un `.nbt` de structure vanilla est
+**différent** d'un `.schem` WorldEdit ; la méthode de placement diffère.
+
+**Non proposés en génération directe Java 1.21.1 :** `.schematic` ancien format
+(IDs historiques / problèmes de conversion), `.mcstructure` (Minecraft Bedrock),
+`.mca` (région de monde, risquée à écraser) et `.obj`/`.vox` (modèles 3D non installables
+comme des blocs Minecraft sans conversion).
 
 ### Le cas du schematic direct
 
