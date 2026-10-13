@@ -1,23 +1,48 @@
-name: Build Minecraft Blueprint
+name: Build Minecraft Schematic (direct)
 
 on:
   workflow_dispatch:
     inputs:
-      blueprint:
-        description: Blueprint file to build
+      source:
+        description: "Choose AI description or Python blueprint already in the repository"
         required: true
+        default: blueprint_file
+        type: choice
+        options:
+          - blueprint_file
+          - ai_prompt
+      prompt:
+        description: "Minecraft build description (AI mode only; requires OPENROUTER_API_KEY secret)"
+        required: false
+        type: string
+      blueprint:
+        description: "Repository .py blueprint path (blueprint_file mode only)"
+        required: false
         default: blueprints/01-central-portal.py
         type: string
+      model:
+        description: "OpenRouter model ID (ai_prompt mode only)"
+        required: false
+        default: anthropic/claude-sonnet-5
+        type: string
+      max_iters:
+        description: "Maximum AI improvement passes (1..12)"
+        required: false
+        default: "4"
+        type: string
       seed:
-        description: Deterministic DSL seed
+        description: "Deterministic DSL seed"
         required: true
         default: "0"
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,15 +55,51 @@ jobs:
           uv python install 3.11
           uv sync
 
-      - name: Build blueprint
+      - name: Convert existing ChatGPT blueprint (no API key)
+        if: ${{ inputs.source == 'blueprint_file' }}
+        env:
+          BLUEPRINT: ${{ inputs.blueprint }}
+          SEED: ${{ inputs.seed }}
         run: |
-          uv run python tools/build_blueprint.py "${{ inputs.blueprint }}" \
-            --seed "${{ inputs.seed }}" \
-            --out generated/action-build
+          uv run python tools/create_schematic.py \
+            --blueprint "$BLUEPRINT" --seed "$SEED" \
+            --preview fast --out generated/action-build
 
-      - name: Upload render and schematic
+      - name: Generate schematic from description with AI
+        if: ${{ inputs.source == 'ai_prompt' }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          USER_PROMPT: ${{ inputs.prompt }}
+          MODEL: ${{ inputs.model }}
+          MAX_ITERS: ${{ inputs.max_iters }}
+          SEED: ${{ inputs.seed }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::error::Set OPENROUTER_API_KEY as a repository Actions secret to run AI prompts."
+            exit 1
+          fi
+          if [ -z "$USER_PROMPT" ]; then
+            echo "::error::Enter a Minecraft building description."
+            exit 1
+          fi
+          uv run python tools/create_schematic.py \
+            --prompt "$USER_PROMPT" --model "$MODEL" \
+            --max-iters "$MAX_ITERS" --seed "$SEED" \
+            --preview fast --out generated/action-build
+
+      - name: Confirm schematic exists
+        run: |
+          test -s generated/action-build/final.schem
+          echo "Direct schematic export ready."
+
+      - name: Download WorldEdit schematic and source
         uses: actions/upload-artifact@v4
         with:
-          name: minecraft-build-${{ github.run_number }}
-          path: generated/action-build/
+          name: minecraft-schematic-${{ github.run_number }}
+          path: |
+            generated/action-build/final.schem
+            generated/action-build/blueprint.py
+            generated/action-build/render.png
+            generated/action-build/stats.json
+            generated/action-build/prompt.txt
           if-no-files-found: error
