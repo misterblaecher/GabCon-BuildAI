@@ -94,7 +94,7 @@ function updateOutputFormat() {
   $('downloadResponse').disabled=format==='auto';
   $('downloadResponse').title=format==='auto'?'Le type de fichier est déterminé par ChatGPT : télécharge-le depuis la conversation.':'Sauvegarder le texte localement si besoin';
   $('copyRepair').classList.toggle('hidden',format==='mcfunction'||format==='md');
-  try { localStorage.setItem('gabcon-output-format',format); } catch (_) {}
+  try { localStorage.setItem('gabcon-output-format-direct-v1',format); } catch (_) {}
 }
 function downloadResponse() {
   const format=outputFormat();
@@ -521,7 +521,7 @@ function init() {
   $('downloadBrief').addEventListener('click',downloadBrief);
   $('downloadResponse').addEventListener('click',downloadResponse);
   let formatSaved='auto';
-  try { formatSaved=localStorage.getItem('gabcon-output-format'); } catch (_) {}
+  try { formatSaved=localStorage.getItem('gabcon-output-format-direct-v1'); } catch (_) {}
   $('outputFormat').value=GabConPrompt.formatFor(formatSaved);
   $('outputFormat').addEventListener('change',updateOutputFormat);
   updateOutputFormat();
