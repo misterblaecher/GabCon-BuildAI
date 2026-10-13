@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const Prompt = require('../gabcon-studio/static/prompt.js');
 const Formats = require('../gabcon-studio/static/formats.js');
 
-for (const fileFormat of ['py','schem','json','mcfunction','md']) {
+for (const fileFormat of ['auto','py','schem','json','mcfunction','md']) {
   const brief = Prompt.createBrief({
     idea: 'Tour fortifiée près de la rivière', style:'medieval',
     size:'small',detail:'balanced',blockLimit:300000,fileFormat
@@ -16,31 +16,44 @@ for (const fileFormat of ['py','schem','json','mcfunction','md']) {
   assert.ok(Prompt.getFormat(fileFormat).workflow.length>25);
   const prompt=Prompt.buildPrompt(brief);
   assert.match(prompt,/Tour fortifiée/);
-  if (fileFormat==='py') {
+  assert.match(prompt,/vrais? fichiers? téléchargeables?/i);
+  assert.doesNotMatch(prompt,/GitHub Actions comme moteur/i);
+  if (fileFormat==='auto') {
+    assert.equal(brief.deliverable.filename, null);
+    assert.match(prompt,/AUCUN TYPE DE FICHIER N’EST IMPOSÉ/);
+    assert.match(prompt,/ChatGPT choisit|Choisis librement/);
+    assert.doesNotMatch(prompt,/Sponge Schematic v3/);
+    assert.doesNotMatch(prompt,/construction\.mcfunction/);
+  } else if (fileFormat==='py') {
     assert.match(prompt,/blueprint.py/);
     assert.match(prompt,/run_blueprint/);
     assert.match(prompt,/floor\(x1, z1, x2, z2, y/);
   } else if (fileFormat==='schem') {
     assert.match(prompt,/NBT gzip/);
     assert.match(prompt,/final.schem/);
-    assert.match(prompt,/blueprint.py/);
-    assert.match(prompt,/faux binaire/);
+    assert.match(prompt,/génération de fichiers/);
+    assert.match(prompt,/faux lien/);
+    assert.doesNotMatch(prompt,/GabCon Studio le transformera/);
   } else if (fileFormat==='json') {
     assert.match(prompt,/gabcon-block-ops-v1/);
     assert.match(prompt,/JSON valide/);
     assert.match(prompt,/1200 opérations/);
+    assert.match(prompt,/Minecraft vanilla ne lit pas ce JSON/);
     assert.doesNotMatch(prompt,/RENVOIE UNIQUEMENT un bloc Markdown.*mcfunction/);
   } else if (fileFormat==='mcfunction') {
     assert.match(prompt,/32768 blocs/);
-    assert.match(prompt,/PAS de \//i);
+    assert.match(prompt,/sans slash initial/i);
     assert.match(prompt,/datapack/i);
   } else if (fileFormat==='md') {
     assert.match(prompt,/Markdown/);
     assert.match(prompt,/Dimensions/);
-    assert.match(prompt,/Ne fournis ni binaire/);
+    assert.match(prompt,/un plan de conception|non une construction importable/i);
   }
 }
-assert.equal(Prompt.formatFor('bad_type'),'py');
+assert.equal(Prompt.formatFor('bad_type'),'auto');
+assert.equal(Prompt.formatFor(null),'auto');
+assert.equal(Prompt.formatFor(''),'auto');
+assert.equal(Formats.canExecute('auto'),false);
 assert.equal(Formats.downloadName('schem'),'blueprint.py');
 assert.equal(Formats.downloadName('mcfunction'),'construction.mcfunction');
 assert.equal(Formats.canExecute('mcfunction'),false);
