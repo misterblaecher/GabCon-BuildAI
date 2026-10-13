@@ -33,3 +33,15 @@
 .render-profile{display:inline-flex;gap:7px;align-items:center;color:#9eaeb0;font:700 10px var(--mono);white-space:nowrap}
 .render-profile select{appearance:auto;background:#182a28;border:1px solid #54725d;border-radius:6px;color:#d4f5c2;font:600 12px var(--mono);padding:7px 9px;max-width:150px}
 @media(max-width:650px){.build-footer{flex-wrap:wrap;gap:10px}.render-profile{flex:1}.render-profile select{font-size:16px}.build-footer #buildBtn{flex:1 1 100%;justify-content:center}}
+
+/* Structured AI brief controls: compact on desktop, touch-friendly on phones. */
+.brief-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 10px}
+.brief-fields label{min-width:0;display:flex;flex-direction:column;gap:6px;font:700 9px var(--mono);color:#8fa6a1;letter-spacing:.4px}
+.brief-fields select{width:100%;min-width:0;background:#101f20;border:1px solid #405a53;border-radius:6px;padding:9px 7px;color:#e7f2e7;font:11px var(--mono)}
+.brief-export{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin:2px 0 13px}
+.brief-export span{color:#8aa89d;font-size:10px}
+.brief-export button{border:0;background:none;color:var(--lime);text-align:left;padding:4px 0;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.repair-button{background:#332a26;color:#ffdfbd;border:1px solid #b58d6b;padding:11px 13px;border-radius:7px;margin-top:11px;font-size:12px;font-weight:700}
+.repair-button:hover{background:#45352d}
+@media(max-width:740px){.brief-fields{grid-template-columns:1fr 1fr}.brief-fields label:last-child{grid-column:1/-1}.brief-fields select{font-size:16px}.repair-button{width:100%}}
+@media(max-width:450px){.brief-fields{grid-template-columns:1fr}.brief-fields label:last-child{grid-column:auto}}

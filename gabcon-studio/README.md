@@ -59,6 +59,40 @@ Tu peux alors lancer Studio depuis son icône. Le bouton *Installer l'app* de St
 
 Documentation : [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) et [installation des applications Web sur mobile](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
 
+## Prompts IA optimisés — cahier des charges JSON + fichier Python
+
+Le moteur **n'attend pas que l'IA invente un fichier binaire** : le format qu'il exécute est un
+**blueprint DSL Python** (`blueprint.py`), puis le moteur exporte le
+**Sponge Schematic v3** (`final.schem`) compatible avec WorldEdit / Minecraft Java 1.21.1.
+Le JSON améliore la **définition des contraintes de la demande**, il n'est pas exécuté
+comme un blueprint.
+
+1. Décris la construction dans **Ton idée**, puis sélectionne **Style**, **Échelle** et **Détail**.
+2. Clique **Copier le prompt pour ChatGPT**. La demande inclut automatiquement un cahier des charges
+   JSON (`gabcon-build-brief-v1`), la limite courante du moteur, des signatures DSL vérifiées
+   sur `src/mcbuild/dsl/REFERENCE.md` et un contrat de réponse strict :
+   **un seul bloc de code Python `blueprint.py`, aucun JSON de sortie**.
+3. Colle la demande dans ChatGPT normal (aucune clé API). Copie sa réponse ou importe son
+   fichier `.py`, `.md`, `.txt` ou `.json` contenant le champ `code`, puis génère localement.
+4. **Télécharger le cahier des charges JSON** sauvegarde le brief. Réimporte ce
+   `.json` par **Importer .py** pour restaurer description/style/échelle/détail
+   sans remplacer le blueprint actuel.
+5. En cas d'erreur `422`, clique **Copier une demande de correction pour ChatGPT** dans le panneau
+   d'erreur. Cette demande transmet le **Python courant**, le brief et l'erreur précise,
+   et réclame un `blueprint.py` complet corrigé plutôt qu'un patch impossible à exécuter seul.
+   Pour éviter de fabriquer un correctif incomplet, les très longs blueprints (plus de
+   60 000 caractères) ne sont pas envoyés automatiquement en correction en un seul prompt.
+
+**Pourquoi ces formats ?** Un objet JSON porte de façon explicite et stable les contraintes
+(dimension, style, priorité de détail, limites) ; le DSL Python réutilise directement les
+primitives exactes du moteur (`fill`, `walls`, `floor`, `cylinder`, etc.) ; le format
+`.schem` requiert un véritable encodeur NBT/VarInt et doit être généré par BuildAI,
+pas par un texte fourni par l'IA.
+
+Ce flux ne contacte aucune API OpenAI et ne garantit pas que tous les blueprints proposés
+par ChatGPT sont valides. La validation par le moteur reste nécessaire ; le sandbox
+continue de protéger seulement contre des erreurs, pas contre du code hostile.
+
 ## Fonctionnalités
 
 - Copie d'un prompt spécialisé pour ChatGPT, sans appel à l'API OpenAI.

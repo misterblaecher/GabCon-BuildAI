@@ -1,7 +1,7 @@
 /* GabCon Studio PWA: static shell only; NEVER cache builds, blueprints or API data. */
 'use strict';
-const CACHE = 'gabcon-studio-shell-v1';
-const STATIC = ['/', '/style.css', '/app.js', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'gabcon-studio-shell-v2';
+const STATIC = ['/', '/style.css', '/app.js', '/prompt.js', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 const ALLOWED = new Set(STATIC);
 self.addEventListener('install', event => {
   event.waitUntil(

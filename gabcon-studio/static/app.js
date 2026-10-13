@@ -52,9 +52,23 @@ function loading(active) {
   $('processing').classList.toggle('hidden', !active);
   if (active) status('GÉNÉRATION...');
 }
-function extractCode(s) {
-  const found = s.match(/```(?:python|py)?\s*\n([\s\S]*?)\n```/i);
-  return found ? found[1].trim() + '\n' : s;
+function extractCode(s) { return GabConPrompt.extractBlueprint(s); }
+function currentBrief() {
+  return GabConPrompt.createBrief({
+    idea:els.idea.value, style:$('briefStyle').value,
+    size:$('briefSize').value, detail:$('briefDetail').value,
+    blockLimit:studioBlockLimit
+  });
+}
+function downloadBrief() {
+  const brief = JSON.stringify(currentBrief(), null, 2) + '\n';
+  const blob = new Blob([brief], {type:'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url;link.download='gabcon-construction-brief.json';
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  notify('Cahier des charges JSON sauvegardé. Pour construire, demande le fichier blueprint.py à ChatGPT.');
 }
 function refreshEditor() {
   const lines = els.code.value.split('\n').length;
@@ -62,41 +76,33 @@ function refreshEditor() {
   $('codeCount').textContent = lines + (lines > 1 ? ' lignes' : ' ligne');
   try { localStorage.setItem('gabcon-code', els.code.value); } catch (_) {}
 }
-function blueprintPrompt() {
-  return [
-    'Tu es architecte Minecraft et tu connais parfaitement le DSL Python de GabCon-BuildAI (mcbuild).',
-    'Projet : ' + (els.idea.value.trim() || 'Une construction Minecraft détaillée'),
-    '',
-    'Réponds UNIQUEMENT avec du code Python compatible avec mcbuild.dsl.sandbox.run_blueprint.',
-    'Fonctions disponibles :',
-    'set_block(x, y, z, "stone_bricks")',
-    'fill(x1, y1, z1, x2, y2, z2, "spruce_planks")',
-    'cylinder(cx, cz, y, height, r, "stone_bricks", hollow=False)',
-    'sphere(cx, cy, cz, r, "stone_bricks", hollow=False)',
-    'Boucles for/range, if, variables et listes Python simples sont autorisées.',
-    'Le bloc "air" sert à créer des ouvertures.',
-    'Les coordonnées X/Z sont horizontales, Y est verticale.',
-    'Aucun import, aucune API externe, pas de fonctions inexistantes.',
-    'Utilise des blocs Minecraft valides et limite la construction à ' + numberText(studioBlockLimit) + ' blocs.',
-    'Ajoute des détails, des entrées et une architecture cohérente.',
-    'Le script sera collé directement dans GabCon Studio.',
-    'Documentation : https://github.com/misterblaecher/GabCon-BuildAI/blob/main/src/mcbuild/dsl/REFERENCE.md'
-  ].join('\n');
-}
-async function copyPrompt() {
-  const value = blueprintPrompt();
+function blueprintPrompt() { return GabConPrompt.buildPrompt(currentBrief()); }
+async function copyForChatGPT(value, successMessage) {
   try {
     await navigator.clipboard.writeText(value);
-    notify('Prompt copié ! Colle-le dans ChatGPT, puis copie le Python ici.');
+    notify(successMessage);
   } catch (_) {
     const temp = document.createElement('textarea');
     temp.value = value;
     temp.style.cssText = 'position:fixed;left:-10000px';
-    document.body.appendChild(temp); temp.select();
-    const ok = document.execCommand('copy');
+    document.body.appendChild(temp);temp.select();
+    const ok=document.execCommand('copy');
     temp.remove();
-    notify(ok ? 'Prompt copié pour ChatGPT.' : 'La copie automatique est indisponible.', !ok);
+    notify(ok ? successMessage : 'La copie automatique est indisponible.', !ok);
   }
+}
+async function copyPrompt() {
+  await copyForChatGPT(blueprintPrompt(), 'Prompt structuré copié ! Colle-le dans ChatGPT pour obtenir blueprint.py.');
+}
+async function copyRepair() {
+  const message=$('buildErrorText').textContent.trim();
+  if(!message) return notify('Aucune erreur à corriger.',true);
+  const code=extractCode(els.code.value);
+  if(!code.trim()) return notify('Aucun Python à corriger.',true);
+  try {
+    const prompt=GabConPrompt.repairPrompt(currentBrief(),code,message);
+    await copyForChatGPT(prompt, 'Demande de correction copiée ! ChatGPT pourra renvoyer blueprint.py complet.');
+  } catch (err) { notify(err.message || 'Impossible de préparer la correction.', true); }
 }
 async function installApp() {
   if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
@@ -462,6 +468,22 @@ function init() {
     try{localStorage.setItem('gabcon-idea',els.idea.value);}catch(_){}
   });
   $('copyPrompt').addEventListener('click',copyPrompt);
+  $('copyRepair').addEventListener('click',copyRepair);
+  $('downloadBrief').addEventListener('click',downloadBrief);
+  for (const [id, name, allowed] of [
+    ['briefStyle','style',['auto','medieval','modern','fantasy','industrial','natural']],
+    ['briefSize','size',['small','medium','large']],
+    ['briefDetail','detail',['speed','balanced','detailed']]
+  ]) {
+    const select=$(id);
+    try {
+      const saved=localStorage.getItem('gabcon-brief-'+name);
+      if (allowed.includes(saved)) select.value=saved;
+    } catch (_) {}
+    select.addEventListener('change',()=>{
+      try { localStorage.setItem('gabcon-brief-'+name,select.value); } catch (_) {}
+    });
+  }
   $('installBtn').addEventListener('click',installApp);
   $('mobileInstallBtn').addEventListener('click',installApp);
   $('renderMode').value = localStorage.getItem('gabcon-render-mode') === 'quality' ? 'quality' : 'fast';
@@ -477,7 +499,30 @@ function init() {
   $('fileInput').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     if(file.size>500000){notify('Fichier trop volumineux.',true);return;}
-    els.code.value=extractCode(await file.text());
+    const data=await file.text();
+    if (file.name.toLowerCase().endsWith('.json')) {
+      try {
+        const parsed=JSON.parse(data);
+        if (parsed && parsed.schema === 'gabcon-build-brief-v1') {
+          if (typeof parsed.description === 'string') {
+            els.idea.value=parsed.description;
+            try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
+          }
+          const prefs=parsed.preferences || {};
+          for (const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
+            const node=$(id);
+            if ([...node.options].some(option=>option.value===prefs[key])) {
+              node.value=prefs[key];
+              try { localStorage.setItem('gabcon-brief-'+key,node.value); } catch (_) {}
+            }
+          }
+          notify('Cahier des charges JSON chargé. Copie maintenant le prompt vers ChatGPT.');
+          e.target.value='';
+          return;
+        }
+      } catch (_) { /* JSON invalide : le moteur indiquera l'erreur si exécuté. */ }
+    }
+    els.code.value=extractCode(data);
     $('filenameLabel').textContent=file.name;refreshEditor();
     notify(file.name+' importé.');e.target.value='';
   });
