@@ -222,11 +222,16 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
         ylo, yhi = sorted((int(round(y1)), int(round(y2))))
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
         t = max(1, int(thickness))
+
         def edge_coords() -> Iterator[tuple[int, int, int]]:
             for x, y, z in _iter_box(xlo, ylo, zlo, xhi, yhi, zhi):
                 near_edge = (
-                    x - xlo < t or xhi - x < t or y - ylo < t or yhi - y < t
-                    or z - zlo < t or zhi - z < t
+                    x - xlo < t
+                    or xhi - x < t
+                    or y - ylo < t
+                    or yhi - y < t
+                    or z - zlo < t
+                    or zhi - z < t
                 )
                 if near_edge:
                     yield x, y, z
@@ -238,6 +243,7 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
         ylo, yhi = sorted((int(round(y1)), int(round(y2))))
         t = max(1, int(thickness))
+
         def wall_coords() -> Iterator[tuple[int, int, int]]:
             for x in range(xlo, xhi + 1):
                 for z in range(zlo, zhi + 1):
@@ -252,6 +258,7 @@ def make_stdlib(grid: VoxelGrid, seed: int = 0) -> dict[str, object]:
     def floor(x1: float, z1: float, x2: float, z2: float, y: float, block) -> None:
         xlo, xhi = sorted((int(round(x1)), int(round(x2))))
         zlo, zhi = sorted((int(round(z1)), int(round(z2))))
+
         def floor_coords() -> Iterator[tuple[int, int, int]]:
             for x in range(xlo, xhi + 1):
                 for z in range(zlo, zhi + 1):
