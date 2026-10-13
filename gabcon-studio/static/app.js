@@ -99,8 +99,10 @@ async function copyRepair() {
   if(!message) return notify('Aucune erreur à corriger.',true);
   const code=extractCode(els.code.value);
   if(!code.trim()) return notify('Aucun Python à corriger.',true);
-  await copyForChatGPT(GabConPrompt.repairPrompt(currentBrief(),code,message),
-    'Demande de correction copiée ! ChatGPT pourra renvoyer blueprint.py complet.');
+  try {
+    const prompt=GabConPrompt.repairPrompt(currentBrief(),code,message);
+    await copyForChatGPT(prompt, 'Demande de correction copiée ! ChatGPT pourra renvoyer blueprint.py complet.');
+  } catch (err) { notify(err.message || 'Impossible de préparer la correction.', true); }
 }
 async function installApp() {
   if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
@@ -497,7 +499,30 @@ function init() {
   $('fileInput').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
     if(file.size>500000){notify('Fichier trop volumineux.',true);return;}
-    els.code.value=extractCode(await file.text());
+    const data=await file.text();
+    if (file.name.toLowerCase().endsWith('.json')) {
+      try {
+        const parsed=JSON.parse(data);
+        if (parsed && parsed.schema === 'gabcon-build-brief-v1') {
+          if (typeof parsed.description === 'string') {
+            els.idea.value=parsed.description;
+            try { localStorage.setItem('gabcon-idea',els.idea.value); } catch (_) {}
+          }
+          const prefs=parsed.preferences || {};
+          for (const [id,key] of [['briefStyle','style'],['briefSize','size'],['briefDetail','detail']]) {
+            const node=$(id);
+            if ([...node.options].some(option=>option.value===prefs[key])) {
+              node.value=prefs[key];
+              try { localStorage.setItem('gabcon-brief-'+key,node.value); } catch (_) {}
+            }
+          }
+          notify('Cahier des charges JSON chargé. Copie maintenant le prompt vers ChatGPT.');
+          e.target.value='';
+          return;
+        }
+      } catch (_) { /* JSON invalide : le moteur indiquera l'erreur si exécuté. */ }
+    }
+    els.code.value=extractCode(data);
     $('filenameLabel').textContent=file.name;refreshEditor();
     notify(file.name+' importé.');e.target.value='';
   });
