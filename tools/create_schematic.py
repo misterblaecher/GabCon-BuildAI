@@ -14,9 +14,8 @@ import sys
 import uuid
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 from build_blueprint import build as build_blueprint
+from dotenv import load_dotenv
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
