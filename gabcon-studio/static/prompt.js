@@ -315,8 +315,12 @@
       'math et rng sont disponibles sans import ; boucles for/range, if et petites fonctions def autorisées.',
       'AUCUN import, aucun accès aux fichiers, réseau, exec/eval ni appel à des outils absents du DSL.',
       'Les blocs doivent exister dans Minecraft Java 1.21.1, avec des états valides.',
-      'Privilégie fill, floor, walls et les primitives de volume pour limiter la taille du code.',
-      'Construit la base, les volumes, les ouvertures, le toit et les finitions.',
+      'Privilégie les primitives de volume compatibles avec la forme : sphères/cylindres/lignes pour organiques, fill/floor/walls pour architecture.',
+      kind==='architecture'
+        ? 'Construit les fondations, les volumes, les portes/fenêtres, les toits et les finitions.'
+        : kind==='organic'
+          ? 'Construis d’abord les volumes anatomiques principaux et la silhouette 3D, puis branches/membres/ailes, courbes voxelisées et détails ; pas de portes ni toit.'
+          : 'Construis la forme globale, les détails caractéristiques, les transitions et une géométrie lisible dans Minecraft.',
       'Contrôle syntaxe et cohérence du code ; livre blueprint.py comme vrai fichier texte si tes outils le permettent.',
       'Sinon fournis son code intégral dans un seul bloc python et indique clairement que le fichier n’a pas été créé.',
       'Pour tester ce fichier dans Minecraft, il faut d’abord l’exécuter avec un moteur compatible.'
@@ -353,8 +357,12 @@
     return [
       ...beginning,
       'FORMAT EXIGÉ : plan-construction.md, document Markdown téléchargeable.',
-      'Dimensions X/Y/Z : décris les matériaux, le plan par étage, l’implantation, les façades,',
-      'les portes, fenêtres, la toiture, les détails et des plages de coordonnées reproductibles.',
+      'Dimensions X/Y/Z : décris les matériaux, les volumes principaux et les coordonnées reproductibles.',
+      kind==='organic'
+        ? 'Présente la silhouette sous plusieurs angles, les masses anatomiques, les proportions, la posture, les membres/racines et les couleurs.'
+        : kind==='architecture'
+          ? 'Décris les étages, façades, portes, fenêtres, toiture et finitions.'
+          : 'Précise la géométrie et les matériaux caractéristiques du type de création choisi.',
       'Ce Markdown est un plan de conception, non une construction importable.',
       'Produis le document complet en fichier ; si les outils ne permettent pas de créer un fichier, renvoie le Markdown intégral.',
       'Indique qu’il faudra générer ensuite un format utilisable par Minecraft pour le tester.'
