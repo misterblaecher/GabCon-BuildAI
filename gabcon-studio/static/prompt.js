@@ -23,48 +23,71 @@
     balanced: 'Équilibré : structure, ouvertures et détails lisibles',
     detailed: 'Détaillé : toiture, reliefs, encadrements et intérieur'
   };
+  // Catalog for Minecraft Java 1.21.1. Distinguish in-game artifacts from
+  // editable intermediates and planning documents; never promise conversion.
   const FORMATS = {
     auto: {
-      name:'Sans préférence · ChatGPT choisit', filename:null, extension:'auto',
-      language:'text', executable:false,
-      good:'Prompt général : ChatGPT peut choisir un livrable réellement utilisable dans Minecraft selon le projet et ses outils.',
-      bad:'Résultat moins prévisible : le format retenu et les outils disponibles dépendent de la conversation ChatGPT.',
-      workflow:'Studio prépare le prompt → ChatGPT choisit et crée le fichier → test dans Minecraft.'
-    },
-    py: {
-      name:'Python DSL · .py', filename:'blueprint.py', extension:'py',
-      language:'python', executable:true,
-      good:'Code compact et modifiable, parfait pour les formes complexes et pour le moteur GabCon-BuildAI.',
-      bad:'Non importable directement dans Minecraft : ce format nécessite un moteur Python comme GabCon-BuildAI.',
-      workflow:'Studio prépare le prompt → ChatGPT crée blueprint.py → à exécuter avec un moteur compatible.'
+      name:'Aucun format imposé', filename:null, extension:'auto', language:'text',
+      category:'auto', difficulty:'Variable', gameReady:false, executable:false,
+      good:'Laisse ChatGPT choisir le meilleur fichier selon le projet et les outils réellement disponibles.',
+      bad:'Le résultat et les prérequis sont moins prévisibles ; le format peut varier selon la conversation.',
+      workflow:'Studio prépare le prompt général → ChatGPT génère un fichier → tu le testes dans Minecraft.'
     },
     schem: {
-      name:'WorldEdit · .schem', filename:'final.schem', extension:'schem',
-      language:'python', executable:true,
-      good:'Fichier binaire directement chargeable par WorldEdit ; idéal pour tester une construction en jeu.',
-      bad:'Création binaire plus délicate : ChatGPT doit disposer d’outils de génération de fichiers, puis vérifier le NBT/gzip.',
-      workflow:'Studio prépare le prompt → ChatGPT crée final.schem téléchargeable → WorldEdit en jeu.'
+      name:'WorldEdit · .schem', filename:'construction.schem', extension:'schem', language:'binary',
+      category:'game', difficulty:'Intermédiaire', gameReady:true, executable:false,
+      good:'Très adapté aux gros builds, blocs et états modernes ; importation et collage rapides avec WorldEdit.',
+      bad:'WorldEdit ou compatible nécessaire ; ChatGPT doit encoder et contrôler un vrai fichier NBT gzip Sponge v3.',
+      workflow:'ChatGPT génère construction.schem → WorldEdit /schem load → //paste.'
     },
-    json: {
-      name:'Opérations structurées · .json', filename:'blueprint.json', extension:'json',
-      language:'json', executable:true,
-      good:'Format texte structuré, lisible et vérifiable ; facile à convertir ou modifier avec des outils compatibles.',
-      bad:'Minecraft ne charge pas directement ce JSON de construction. Un convertisseur compatible est nécessaire.',
-      workflow:'Studio prépare le prompt → ChatGPT crée blueprint.json → import via convertisseur adapté.'
+    litematic: {
+      name:'Litematica/Forgematica · .litematic', filename:'construction.litematic', extension:'litematic', language:'binary',
+      category:'game', difficulty:'Difficile', gameReady:true, executable:false,
+      good:'Visualisation fantôme, liste de matériaux et guide de construction, idéal pour rebâtir en survie.',
+      bad:'Mod compatible obligatoire (Forgematica et MaFgLib sur NeoForge 1.21.1) ; palette et données binaires compactées difficiles à produire.',
+      workflow:'ChatGPT génère construction.litematic → charge le schematic avec Forgematica/Litematica.'
+    },
+    nbt: {
+      name:'Structure Minecraft · .nbt', filename:'construction.nbt', extension:'nbt', language:'binary',
+      category:'game', difficulty:'Intermédiaire', gameReady:true, executable:false,
+      good:'Format natif Minecraft Java, utilisable sans WorldEdit avec un bloc de structure ou une structure de datapack.',
+      bad:'Chargement avec commandes ou bloc de structure ; le bloc de structure est limité pour les grands volumes.',
+      workflow:'ChatGPT génère construction.nbt → structure de datapack / bloc de structure → placement en jeu.'
+    },
+    datapack: {
+      name:'Datapack prêt à installer · .zip', filename:'gabcon-construction-datapack.zip', extension:'zip', language:'binary',
+      category:'game', difficulty:'Facile à intermédiaire', gameReady:true, executable:false,
+      good:'ZIP complet, compatible Minecraft Java vanilla, installation directe dans datapacks sans logiciel de conversion.',
+      bad:'Il faut lancer /function avec les permissions nécessaires ; beaucoup de commandes peuvent ralentir le monde.',
+      workflow:'ChatGPT génère un ZIP datapack → installe le ZIP dans le monde → /reload puis /function.'
     },
     mcfunction: {
-      name:'Datapack · .mcfunction', filename:'construction.mcfunction', extension:'mcfunction',
-      language:'mcfunction', executable:false,
-      good:'Commandes Minecraft Java vanilla, sans WorldEdit ; peut être livré dans un datapack ZIP prêt à installer.',
-      bad:'Installation du datapack et exécution de /function nécessaires ; grosses créations parfois lentes à placer.',
-      workflow:'Studio prépare le prompt → ChatGPT crée .mcfunction + ZIP datapack → test avec /function.'
+      name:'Commandes Minecraft · .mcfunction', filename:'construction.mcfunction', extension:'mcfunction', language:'mcfunction',
+      category:'intermediate', difficulty:'Facile', gameReady:false, executable:false,
+      good:'Format texte simple et fiable à générer ; commandes vanilla setblock et fill, sans WorldEdit.',
+      bad:'Fichier seul non détecté par Minecraft : il faut l’intégrer dans un datapack (ou demander le ZIP complet).',
+      workflow:'ChatGPT crée construction.mcfunction → insère-le dans un datapack → /function.'
+    },
+    py: {
+      name:'Python DSL · .py', filename:'blueprint.py', extension:'py', language:'python',
+      category:'intermediate', difficulty:'Facile à intermédiaire', gameReady:false, executable:true,
+      good:'Compacité, boucles et primitives avancées : très pratique pour des architectures complexes et itératives.',
+      bad:'Minecraft ne lit pas le Python ; il faut exécuter le DSL avec GabCon-BuildAI pour exporter le .schem.',
+      workflow:'ChatGPT crée blueprint.py → moteur GabCon-BuildAI → fichier WorldEdit.'
+    },
+    json: {
+      name:'Opérations · .json', filename:'blueprint.json', extension:'json', language:'json',
+      category:'intermediate', difficulty:'Facile', gameReady:false, executable:true,
+      good:'Schéma structuré, vérifiable par un parseur et facile à éditer ou transmettre à un convertisseur.',
+      bad:'Non importable directement dans Minecraft ; au plus 1 200 opérations simples et sans boucles.',
+      workflow:'ChatGPT crée blueprint.json → conversion en blocs par outil compatible → .schem.'
     },
     md: {
-      name:'Plan architectural · .md', filename:'plan-construction.md', extension:'md',
-      language:'markdown', executable:false,
-      good:'Bon pour préparer les volumes, matériaux et étages avant une construction plus détaillée.',
-      bad:'Un plan Markdown ne construit rien dans Minecraft ; une conversion sera nécessaire.',
-      workflow:'Studio prépare le prompt → ChatGPT crée plan-construction.md → utilisation comme référence.'
+      name:'Plan uniquement · .md', filename:'plan-construction.md', extension:'md', language:'markdown',
+      category:'document', difficulty:'Facile', gameReady:false, executable:false,
+      good:'Bon pour préparer matériaux, géométrie et étapes avant une véritable génération de build.',
+      bad:'Ce fichier ne construit AUCUN bloc et ne peut pas être importé comme une structure.',
+      workflow:'ChatGPT crée un plan Markdown → nouveau prompt avec un format Minecraft pour réaliser le build.'
     }
   };
   function formatFor(id) {
@@ -100,7 +123,7 @@
       deliverable: {
         ai_output: fileFormat === 'auto' ? 'choose_best_real_downloadable_minecraft_artifact' :
           fileFormat === 'schem' ? 'real_binary_sponge_schematic_v3' :
-            'real_downloadable_'+fileFormat+'_file',
+            'real_downloadable_'+fileFormat+'_file,
         filename: FORMATS[fileFormat].filename,
         export_by_engine: null,
         generation: 'directly_in_chatgpt_without_gabcon_studio'
