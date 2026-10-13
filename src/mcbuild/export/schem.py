@@ -83,7 +83,7 @@ def grid_to_schematic(grid: VoxelGrid, *, validate: bool = True) -> Compound:
         palette_compound["minecraft:air"] = Int(air_palette_id)
 
     volume = width * height * length
-    dtype = np.uint16 if len(palette_compound) <= 65536 else np.uint32
+    dtype = np.uint8 if len(palette_compound) <= 256 else (np.uint16 if len(palette_compound) <= 65536 else np.uint32)
     dense = np.full(volume, air_palette_id, dtype=dtype)
     for (x, y, z), idx in grid.items():
         lx, ly, lz = x - minx, y - miny, z - minz
