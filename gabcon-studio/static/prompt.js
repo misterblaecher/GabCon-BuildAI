@@ -201,7 +201,7 @@
       'sphere [cx,cy,cz,rayon,"bloc"], line [x1,y1,z1,x2,y2,z2,"bloc"].',
       'Coordonnées entières, y vertical ; maximum 1200 opérations, pas de macros ou de Python.',
       'Utilise les volumes plutôt que lister chaque bloc individuellement.',
-      'Valide le JSON avec un parseur si possible puis joins directement blueprint.json.',
+      'Valide le JSON avec un parseur et fournis un JSON valide ; joins directement blueprint.json si les outils le permettent.',
       'Explique honnêtement que Minecraft vanilla ne lit pas ce JSON sans convertisseur.',
       'Si aucun outil de fichiers n’est disponible, donne le JSON complet dans un bloc json.'
     ].join('\n');
@@ -210,7 +210,7 @@
       'FORMAT EXIGÉ : construction.mcfunction et, si les outils le permettent, un ZIP datapack complet pour Minecraft Java 1.21.1.',
       'Les lignes .mcfunction doivent être des commandes vanilla valides sans slash initial.',
       'Utilise setblock et fill avec identifiants minecraft:... ; les coordonnées sont absolues et entières.',
-      'Une commande fill ne doit pas excéder 32768 positions, découpe les grandes zones.',
+      'Une commande fill ne doit pas excéder 32768 blocs/positions, découpe les grandes zones.',
       'Favorise un petit nombre de commandes, sans boucles fictives ni variables inexistantes.',
       'Si tu fabriques un datapack ZIP, ajoute un pack.mcmeta dont pack_format est correct pour Java 1.21.1 ;',
       'place la fonction dans data/gabcon/function/construction.mcfunction avec le chemin conforme à cette version.',
@@ -221,7 +221,7 @@
     return [
       ...beginning,
       'FORMAT EXIGÉ : plan-construction.md, document Markdown téléchargeable.',
-      'Décris les dimensions X/Y/Z, les matériaux, le plan par étage, l’implantation, les façades,',
+      'Dimensions X/Y/Z : décris les matériaux, le plan par étage, l’implantation, les façades,'
       'les portes, fenêtres, la toiture, les détails et des plages de coordonnées reproductibles.',
       'Ce Markdown est un plan de conception, non une construction importable.',
       'Produis le document complet en fichier ; si les outils ne permettent pas de créer un fichier, renvoie le Markdown intégral.',
