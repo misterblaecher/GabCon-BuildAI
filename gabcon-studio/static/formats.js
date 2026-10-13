@@ -1,5 +1,6 @@
-/* Strict text-file ingestion and optional JSON block-operation → Python DSL conversion.
- * Binary schematics are created by the existing mcbuild engine, never by ChatGPT text.
+/* Optional Studio local text editor / JSON converter.
+ * For direct .schem/.litematic/.nbt/.zip output, download the real binary from ChatGPT.
+ * Never create a fake binary by saving ChatGPT text with a binary extension.
  */
 'use strict';
 (function (root) {
@@ -19,7 +20,8 @@
   function textForFormat(input, format) {
     const text = String(input || '').trim();
     if (!text) return '';
-    if (format === 'py' || format === 'schem') return root.GabConPrompt.extractBlueprint(text);
+    if (format === 'py') return root.GabConPrompt.extractBlueprint(text);
+    if (!canSaveText(format)) throw new Error('Ce format nécessite un vrai fichier binaire généré par ChatGPT.');
     let raw = text;
     const suffix = format === 'md' ? '(?:markdown|md)' : format === 'json' ? 'json' : 'mcfunction';
     const escaped = new RegExp(FENCE + '\\s*' + suffix + '[^\\n]*\\r?\\n([\\s\\S]*?)\\r?\\n' + FENCE, 'i');
@@ -73,20 +75,22 @@
     return '# Generated from gabcon-block-ops-v1 JSON; edit the JSON for further changes.\n'+code.join('\n')+'\n';
   }
   function canExecute(format) {
-    return ['py','schem','json'].includes(format);
+    return ['py','json'].includes(format);
   }
+  function canSaveText(format) { return ['py','json','mcfunction','md'].includes(format); }
   function downloadName(format) {
     return {
-      py:'blueprint.py', schem:'blueprint.py', json:'blueprint.json',
-      mcfunction:'construction.mcfunction', md:'plan-construction.md'
-    }[format] || 'blueprint.py';
+      py:'blueprint.py', schem:'construction.schem', litematic:'construction.litematic',
+      nbt:'construction.nbt', datapack:'gabcon-construction-datapack.zip',
+      json:'blueprint.json', mcfunction:'construction.mcfunction', md:'plan-construction.md'
+    }[format] || null;
   }
   function contentForBuild(raw, format) {
     if (format==='json') return compileJsonOps(raw);
-    if (format==='py'||format==='schem') return root.GabConPrompt.extractBlueprint(raw);
+    if (format==='py') return root.GabConPrompt.extractBlueprint(raw);
     throw new Error('Le format sélectionné n’est pas exécuté par BuildAI. Télécharge le fichier texte.');
   }
-  const api={textForFormat,compileJsonOps,canExecute,downloadName,contentForBuild};
+  const api={textForFormat,compileJsonOps,canExecute,canSaveText,downloadName,contentForBuild};
   if (typeof module !== 'undefined' && module.exports) {
     // In node tests the prompt helper can be imported before this module.
     if (!root.GabConPrompt) root.GabConPrompt = require('./prompt.js');
