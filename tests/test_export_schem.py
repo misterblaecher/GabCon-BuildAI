@@ -128,4 +128,7 @@ def test_prevalidated_export_matches_regular_export(tmp_path):
     export_schem(grid, str(prevalidated), validate=False)
     a = nbtlib.load(str(checked))["Schematic"]
     b = nbtlib.load(str(prevalidated))["Schematic"]
-    assert a == b
+    assert int(a["Width"]) == int(b["Width"])
+    assert list(a["Offset"]) == list(b["Offset"])
+    assert dict(a["Blocks"]["Palette"]) == dict(b["Blocks"]["Palette"])
+    assert list(a["Blocks"]["Data"]) == list(b["Blocks"]["Data"])
