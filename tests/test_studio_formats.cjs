@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const Prompt = require('../gabcon-studio/static/prompt.js');
 const Formats = require('../gabcon-studio/static/formats.js');
 
-for (const fileFormat of ['auto','py','schem','json','mcfunction','md']) {
+for (const fileFormat of ['auto','schem','litematic','nbt','datapack','mcfunction','py','json','md']) {
   const brief = Prompt.createBrief({
     idea: 'Tour fortifiée près de la rivière', style:'medieval',
     size:'small',detail:'balanced',blockLimit:300000,fileFormat
@@ -14,6 +14,11 @@ for (const fileFormat of ['auto','py','schem','json','mcfunction','md']) {
   assert.ok(Prompt.getFormat(fileFormat).good.length>25);
   assert.ok(Prompt.getFormat(fileFormat).bad.length>25);
   assert.ok(Prompt.getFormat(fileFormat).workflow.length>25);
+  assert.ok(Prompt.getFormat(fileFormat).difficulty.length>4);
+  assert.ok(['auto','game','intermediate','document'].includes(Prompt.getFormat(fileFormat).category));
+  assert.equal(Prompt.getFormat(fileFormat).gameReady,
+    ['schem','litematic','nbt','datapack'].includes(fileFormat));
+  assert.equal(brief.deliverable.generation,'directly_in_chatgpt_without_gabcon_studio');
   const prompt=Prompt.buildPrompt(brief);
   assert.match(prompt,/Tour fortifiée/);
   assert.match(prompt,/vrais? fichiers? téléchargeables?/i);
@@ -34,6 +39,25 @@ for (const fileFormat of ['auto','py','schem','json','mcfunction','md']) {
     assert.match(prompt,/outil de code\/fichiers/);
     assert.match(prompt,/faux lien/);
     assert.doesNotMatch(prompt,/GabCon Studio le transformera/);
+  } else if (fileFormat==='litematic') {
+    assert.match(prompt,/BlockStatePalette/);
+    assert.match(prompt,/BlockStates/);
+    assert.match(prompt,/TAG_Long_Array/);
+    assert.match(prompt,/Forgematica/);
+    assert.match(prompt,/MaFgLib/);
+    assert.match(prompt,/construction.litematic/);
+    assert.match(prompt,/Ne renomme jamais un .schem en .litematic/);
+  } else if (fileFormat==='nbt') {
+    assert.match(prompt,/construction.nbt/);
+    assert.match(prompt,/DataVersion=3955/);
+    assert.match(prompt,/palette/);
+    assert.match(prompt,/\/place template/);
+    assert.doesNotMatch(prompt,/fichier WorldEdit .schem\s*pour/);
+  } else if (fileFormat==='datapack') {
+    assert.match(prompt,/gabcon-construction-datapack.zip/);
+    assert.match(prompt,/pack_format":48/);
+    assert.match(prompt,/data\/gabcon\/function\/construction.mcfunction/);
+    assert.match(prompt,/\/function/);
   } else if (fileFormat==='json') {
     assert.match(prompt,/gabcon-block-ops-v1/);
     assert.match(prompt,/JSON valide/);
@@ -54,7 +78,21 @@ assert.equal(Prompt.formatFor('bad_type'),'auto');
 assert.equal(Prompt.formatFor(null),'auto');
 assert.equal(Prompt.formatFor(''),'auto');
 assert.equal(Formats.canExecute('auto'),false);
-assert.equal(Formats.downloadName('schem'),'blueprint.py');
+assert.equal(Formats.downloadName('schem'),'construction.schem');
+assert.equal(Formats.downloadName('litematic'),'construction.litematic');
+assert.equal(Formats.downloadName('nbt'),'construction.nbt');
+assert.equal(Formats.downloadName('datapack'),'gabcon-construction-datapack.zip');
+assert.equal(Formats.canExecute('schem'),false);
+assert.equal(Formats.canExecute('litematic'),false);
+assert.equal(Formats.canExecute('nbt'),false);
+assert.equal(Formats.canExecute('datapack'),false);
+assert.equal(Formats.canSaveText('schem'),false);
+assert.equal(Formats.canSaveText('litematic'),false);
+assert.equal(Formats.canSaveText('nbt'),false);
+assert.equal(Formats.canSaveText('datapack'),false);
+assert.equal(Formats.canSaveText('mcfunction'),true);
+assert.equal(Formats.canSaveText('json'),true);
+assert.equal(Formats.canSaveText('py'),true);
 assert.equal(Formats.downloadName('mcfunction'),'construction.mcfunction');
 assert.equal(Formats.canExecute('mcfunction'),false);
 assert.equal(Formats.canExecute('md'),false);
@@ -77,8 +115,12 @@ assert.equal(parsed,Formats.contentForBuild(JSON.stringify(ops),'json'));
 assert.equal(Formats.textForFormat('hi\n```mcfunction\nfill 0 0 0 4 0 4 minecraft:stone\n```','mcfunction'),
   'fill 0 0 0 4 0 4 minecraft:stone\n');
 assert.equal(Formats.textForFormat('text\n```markdown\n# Plan\n```','md'),'# Plan\n');
-assert.equal(Formats.textForFormat('text\n```python\nset_block(0,0,0,"stone")\n```','schem'),
+assert.equal(Formats.textForFormat('text\n```python\nset_block(0,0,0,"stone")\n```','py'),
   'set_block(0,0,0,"stone")\n');
+for (const binary of ['schem','litematic','nbt','datapack']) {
+  assert.throws(() => Formats.textForFormat('fake binary',binary),/vrai fichier binaire/);
+  assert.throws(() => Formats.contentForBuild('fake',binary),/n’est pas exécuté/);
+}
 
 const bad = JSON.stringify({schema:'gabcon-block-ops-v1',operations:[{op:'eval',args:[]}]});
 assert.throws(()=>Formats.compileJsonOps(bad),/inconnue/);
