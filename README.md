@@ -18,6 +18,75 @@ mod + WebSocket server) builds live inside a running Minecraft world.
 *Four rotations of a mansion built end-to-end from the prompt `"make a mansion"` —
 one of the agent's own self-critique renders, unedited.*
 
+## Créer directement un schematic sans GabCon Studio
+
+Le format recommandé pour faire écrire une construction par une IA textuelle est le
+**blueprint Python DSL `.py`** : ses primitives (`fill`, `walls`, `cylinder`, etc.)
+décrivent efficacement de grandes structures. Le moteur BuildAI **convertit ensuite
+ce code en vrai fichier binaire WorldEdit `final.schem`**, plutôt que de demander à
+l'IA d'inventer le binaire NBT. Il n'est **pas nécessaire d'ouvrir Studio**.
+
+### 1. Saisie directe d'une description — IA configurée
+
+Dans PowerShell à la racine du dépôt :
+
+```powershell
+uv sync
+uv run python tools/create_schematic.py --prompt "Un château médiéval avec 4 tours, des remparts et un donjon" --out generated/chateau
+```
+
+Le moteur réutilise son agent LLM existant (OpenRouter via
+`OPENROUTER_API_KEY` ou Ollama configuré dans `.env`) pour créer le Python,
+vérifier les blocs, voir les rendus et produire **`generated/chateau/final.schem`**.
+Les fournisseurs hébergés peuvent facturer des tokens. Pour Ollama local, renseigner
+`MCBUILD_LLM_BACKEND=ollama`, `MCBUILD_BASE_URL` et `MCBUILD_API_KEY=ollama`,
+puis passer `--model qwen3.5:9b --reasoning off` (ou le modèle réellement installé).
+
+### 2. Avec ChatGPT classique — sans clé API
+
+ChatGPT n'est pas pilotable silencieusement depuis PowerShell sans connecteur/API.
+Demande-lui **uniquement un `blueprint.py` compatible avec
+`src/mcbuild/dsl/REFERENCE.md`** ; sauvegarde ce code dans un fichier `.py`.
+Puis exécute :
+
+```powershell
+uv run python tools/create_schematic.py --blueprint "mon-blueprint.py" --out generated/ma-construction
+```
+
+Le fichier `generated/ma-construction/final.schem` est créé **sans Studio et
+sans service IA externe**. Par défaut, le lanceur produit aussi une vue rapide
+`render.png`, la source `blueprint.py` et `stats.json`. Pour accélérer
+encore davantage les grandes créations, utiliser `--preview none`. Pour six vues
+détaillées, utiliser `--preview quality`. Le fichier `.schem` contient les
+mêmes blocs quel que soit ce choix.
+
+`--prompt-file description.txt` est accepté à la place de `--prompt`.
+`--seed`, `--registry chemin/vers/registre.json` et `--max-iters` permettent
+de personnaliser la génération. Un dossier de sortie contenant déjà `final.schem`
+n'est pas écrasé sans `--force`, pour éviter de perdre une construction antérieure.
+
+**Sous Windows :** double-cliquer sur **`creer-schematic.bat`** à la racine du
+dépôt et choisir la description IA (1) ou un fichier `.py` ChatGPT (2).
+Chaque lancement place ses résultats dans un nouveau dossier `generated/direct-...`.
+
+### 3. Depuis GitHub, sans démarrer Studio ni laisser le PC allumé
+
+Ouvre **[Actions → Build Minecraft Schematic (direct)](https://github.com/misterblaecher/GabCon-BuildAI/actions/workflows/build-blueprint.yml)**,
+clique **Run workflow**, choisis :
+
+- **`blueprint_file`** : chemin d'un `.py` déjà présent dans le dépôt. Aucun secret IA requis.
+- **`ai_prompt`** : description en français et modèle OpenRouter.
+  **Nécessite** la clé `OPENROUTER_API_KEY` ajoutée manuellement dans les
+  **Settings → Secrets and variables → Actions** du dépôt GitHub.
+  Les modèles Ollama installés uniquement sur ton PC ne sont pas accessibles aux
+  runners hébergés de GitHub.
+
+À la fin de l'exécution, télécharge l'**artifact ZIP** `minecraft-schematic-...`,
+qui contient `final.schem` (et les sources/rendus présents). N'inclus jamais
+de secrets dans le champ description ; les artifacts et logs suivent les règles
+de visibilité du dépôt. Une description nécessite un fournisseur LLM réellement
+configuré : GitHub Actions n'utilise pas ton compte ChatGPT connecté au navigateur.
+
 ## GabCon Studio (sans API d'IA)
 
 Une interface Web locale permet de générer un blueprint Python avec ChatGPT (dans l'application habituelle), de le coller dans un éditeur, de le visualiser en 3D ou en rendu BuildAI, puis de télécharger le fichier WorldEdit `.schem`.
