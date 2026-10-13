@@ -33,9 +33,6 @@ jobs:
       - name: Lint (ruff)
         run: uv run ruff check src tests tools
 
-      - name: Ruff format diagnostic (temporary)
-        run: uv run ruff format --diff src/mcbuild/dsl/stdlib.py || true
-
       - name: Format check (ruff)
         run: uv run ruff format --check src tests
 
