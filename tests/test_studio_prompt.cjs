@@ -23,7 +23,7 @@ assert.match(prompt, /AUCUN import/);
 assert.match(prompt, /160000/);
 assert.match(prompt, /directement ici/);
 assert.match(prompt, /vrai fichier texte/);
-assert.match(prompt, /\x60\x60\x60python/);
+assert.match(prompt, /un seul bloc python/);
 
 const fenced = [
   'Voici ton code :',
