@@ -83,6 +83,10 @@ def main() -> int:
     out_dir = Path(sys.argv[2])
     seed = int(sys.argv[3])
     load_dotenv()
+    # CLI keeps the previous three-argument invocation compatible.
+    requested_mode = sys.argv[4] if len(sys.argv) > 4 else studio_preview_mode()
+    if requested_mode not in {"auto", "fast", "quality"}:
+        raise ValueError("Mode de rendu invalide.")
     timings_ms: dict[str, int] = {}
     started = time.perf_counter()
     try:
@@ -120,8 +124,17 @@ def main() -> int:
         out_dir.mkdir(parents=True, exist_ok=True)
         # Six detailed rasterizations can be extremely expensive on a million-block build.
         # For large plans, retain all blocks in the schematic but render one top view.
-        detailed_preview = len(grid) <= DETAILED_PREVIEW_MAX_BLOCKS and studio_preview_mode() != "fast"
-        preview_views = VIEWS if detailed_preview else [{"mode": "top-down"}]
+        can_render_iso = len(grid) <= DETAILED_PREVIEW_MAX_BLOCKS
+        detailed_preview = can_render_iso and requested_mode != "fast"
+        if detailed_preview:
+            preview_views = VIEWS
+            effective_mode = "quality"
+        elif can_render_iso:
+            preview_views = [{"yaw": 0, "shadows": False}]
+            effective_mode = "fast"
+        else:
+            preview_views = [{"mode": "top-down"}]
+            effective_mode = "top_down"
         stage_started = time.perf_counter()
         sheet, labels, stats = build_contact_sheet(grid, preview_views)
         sheet.save(out_dir / "render.png")
@@ -150,7 +163,8 @@ def main() -> int:
             "server_profile": palette.registry_metadata(),
             "compatibility": {"valid": True},
             "interactive": not surface["too_large"],
-            "preview_mode": "six_views" if detailed_preview else "top_down",
+            "preview_mode": effective_mode,
+            "requested_preview_mode": requested_mode,
             "studio_block_limit": max_blocks,
             "bounding_volume": bounding_volume,
             "timings_ms": timings_ms,
