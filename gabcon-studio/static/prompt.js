@@ -181,7 +181,7 @@
     ].join('\n');
     if(format==='schem') return [
       ...beginning,
-      'FORMAT EXIGÉ : final.schem, un véritable fichier binaire Sponge Schematic v3 (WorldEdit 7.3+, Minecraft Java 1.21.1).',
+      'FORMAT EXIGÉ : construction.schem, un véritable fichier binaire Sponge Schematic v3 (WorldEdit 7.3+, Minecraft Java 1.21.1).',
       'GÉNÈRE directement le schématique ici avec un outil de code/fichiers (Python si disponible) : PAS de passage par GabCon Studio.',
       'Construis une grille de blocs à partir du cahier des charges, puis encode-la en NBT gzip.',
       'Exigences NBT : racine compound sans nom contenant le compound "Schematic" ;',
@@ -192,10 +192,54 @@
       'Prévois minecraft:air dans la palette pour les volumes non remplis.',
       'Utilise des noms de blocs Minecraft 1.21.1 valides ; n’invente pas de namespaces.',
       'Vérifie par relecture du fichier gzip/NBT : dimensions, palette, volume, nombre de blocs et ordre des varints.',
-      'Fournis le VRAI lien vers final.schem, puis explique brièvement son chargement dans WorldEdit.',
+      'Fournis le VRAI lien vers construction.schem, puis explique /schem load construction puis //paste dans WorldEdit.',
       'Ne remplace pas le .schem par du code ou du JSON. Si la création binaire est impossible dans cette conversation,',
       'explique-le honnêtement et fournis éventuellement un générateur exécutable en pièce jointe comme solution de secours.',
       'Ne donne jamais un faux lien de téléchargement.'
+    ].join('\n');
+    if(format==='litematic') return [
+      ...beginning,
+      'FORMAT EXIGÉ : construction.litematic, VRAI fichier binaire NBT compressé lisible par Forgematica/Litematica pour Minecraft Java 1.21.1.',
+      'Ce fichier est destiné à un affichage de construction fantôme et à la liste des matériaux, pas à WorldEdit directement.',
+      'Sur NeoForge 1.21.1, indique la nécessité du port Forgematica compatible et de MaFgLib ; ne demande pas une installation Fabric.',
+      'Utilise tes outils de création de fichiers ; privilégie une bibliothèque/conversion .litematic documentée et compatible avec cette version.',
+      'Le NBT contient Metadata, Regions, MinecraftDataVersion et la version du schéma Litematica réellement visé.',
+      'Chaque région inclut Position, Size, BlockStatePalette (avec Name et Properties pour les états) et BlockStates (TAG_Long_Array).',
+      'Pour BlockStates, calcule correctement les bits par indice, empaquette les indices palette en bits et vérifie les limites de longs signés.',
+      'Réserve la palette air selon le format ; utilise DataVersion 3955 pour Minecraft Java 1.21.1 et des blocs valides.',
+      'Ne devine pas un numéro de format Litematica sans le vérifier dans la bibliothèque/implémentation ciblée.',
+      'Relis le fichier NBT gzip, vérifie nombre de régions, tailles, palette et données de chaque bloc ; si possible fais un test de lecture Litematica.',
+      'Joins le vrai fichier construction.litematic et explique comment le charger avec le mod compatible.',
+      'Si tu ne peux pas assurer le format binaire, annonce la limite et propose un vrai .schem à la place, clairement identifié.',
+      'Ne renomme jamais un .schem en .litematic.'
+    ].join('\n');
+    if(format==='nbt') return [
+      ...beginning,
+      'FORMAT EXIGÉ : construction.nbt, un vrai template de structure vanilla Minecraft Java 1.21.1 (PAS un fichier WorldEdit .schem).',
+      'Crée un vrai NBT compressé avec : DataVersion=3955, size (liste de 3 TAG_Int : X,Y,Z),',
+      'palette (liste de TAG_Compound avec Name minecraft:... et Properties si état nécessaire),',
+      'blocks (liste de compounds : pos [x,y,z] en TAG_Int, state indice dans palette, nbt optionnel), entities (liste).',
+      'Toutes les positions blocks doivent être locales, entières, dans les bornes de size ; index palette valide ; pas de doublons.',
+      'Si la structure est grande, ne promets pas que le bloc de structure saura la charger : vérifie sa limite (souvent 48 par axe).',
+      'Si utile, joins aussi un datapack ZIP avec la structure dans data/gabcon/structure/construction.nbt pour /place template gabcon:construction.',
+      'Pour Minecraft Java 1.21.1, n’utilise pas les chemins d’une version future.',
+      'Génère et relis réellement le binaire compressé ; vérifie size, palette, nombre de blocs et coordonnées.',
+      'Fournis le lien de téléchargement construction.nbt et les instructions de placement avec bloc de structure ou /place template.',
+      'Si la génération binaire n’est pas possible, explique la limite et fournis un vrai autre format sans prétendre que c’est un .nbt.'
+    ].join('\n');
+    if(format==='datapack') return [
+      ...beginning,
+      'FORMAT EXIGÉ : gabcon-construction-datapack.zip, un vrai datapack Minecraft Java 1.21.1 complet.',
+      'Crée un ZIP valide dont la racine contient pack.mcmeta et data/gabcon/function/construction.mcfunction (singulier : function en 1.21.1).',
+      'Dans pack.mcmeta : {"pack":{"pack_format":48,"description":"GabCon construction Minecraft 1.21.1"}}.',
+      'Écris construction.mcfunction avec des commandes Java vanilla valides, SANS / initial : setblock et fill avec minecraft:...',
+      'Utilise des coordonnées ENTIÈRES ABSOLUES pour un placement reproductible et documente leur origine.',
+      'Chaque fill doit cibler au plus 32768 positions ; découpe les volumes plus grands en plusieurs lignes.',
+      'Pour les très gros projets, organise les commandes en plusieurs .mcfunction et ajoute une fonction principale.',
+      'Vérifie le ZIP en l’ouvrant, vérifie le JSON de pack.mcmeta, les chemins et les commandes.',
+      'Livre le vrai fichier .zip, pas seulement un bloc texte ; indique de placer le ZIP dans <monde>/datapacks,',
+      'puis de lancer /reload et /function gabcon:construction avec les permissions nécessaires.',
+      'N’invente pas de fonctions ou de blocs absents de Minecraft 1.21.1 ; si les outils fichiers manquent, signale-le.'
     ].join('\n');
     if(format==='py') return [
       ...beginning,
@@ -230,16 +274,16 @@
     ].join('\n');
     if(format==='mcfunction') return [
       ...beginning,
-      'FORMAT EXIGÉ : construction.mcfunction et, si les outils le permettent, un ZIP datapack complet pour Minecraft Java 1.21.1.',
+      'FORMAT EXIGÉ : construction.mcfunction (fichier texte seul) pour Minecraft Java 1.21.1 ; propose aussi un ZIP prêt à installer uniquement si demandé.',
       'Les lignes .mcfunction doivent être des commandes vanilla valides sans slash initial.',
       'Utilise setblock et fill avec identifiants minecraft:... ; les coordonnées sont absolues et entières.',
       'Une commande fill ne doit pas excéder 32768 blocs/positions, découpe les grandes zones.',
       'Favorise un petit nombre de commandes, sans boucles fictives ni variables inexistantes.',
-      'Si tu fabriques un datapack ZIP, ajoute un pack.mcmeta dont pack_format est correct pour Java 1.21.1 ;',
+      'Si un datapack ZIP est aussi demandé, son pack.mcmeta utilise pack_format=48 pour Java 1.21.1 ;',
       'place la fonction dans data/gabcon/function/construction.mcfunction avec le chemin conforme à cette version.',
-      'Vérifie le contenu du ZIP, puis fournis ses vrais liens de téléchargement.',
+      'Vérifie le texte de construction.mcfunction et joins le vrai fichier ; vérifie aussi le ZIP si un pack est demandé.',
       'Explique comment installer le pack dans le dossier datapacks du monde, recharger et lancer /function gabcon:construction.',
-      'Ne prétends pas que le datapack est installé sur le serveur ou dans Minecraft sans action du joueur.'
+      'Un fichier .mcfunction isolé doit être inséré dans un datapack pour être chargé. Ne prétends pas qu’il est installé sans action du joueur.'
     ].join('\n');
     return [
       ...beginning,
