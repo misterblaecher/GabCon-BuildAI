@@ -221,7 +221,7 @@
     return [
       ...beginning,
       'FORMAT EXIGÉ : plan-construction.md, document Markdown téléchargeable.',
-      'Dimensions X/Y/Z : décris les matériaux, le plan par étage, l’implantation, les façades,'
+      'Dimensions X/Y/Z : décris les matériaux, le plan par étage, l’implantation, les façades,',
       'les portes, fenêtres, la toiture, les détails et des plages de coordonnées reproductibles.',
       'Ce Markdown est un plan de conception, non une construction importable.',
       'Produis le document complet en fichier ; si les outils ne permettent pas de créer un fichier, renvoie le Markdown intégral.',
