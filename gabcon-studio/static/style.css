@@ -46,15 +46,59 @@
 @media(max-width:740px){.brief-fields{grid-template-columns:1fr 1fr}.brief-fields label:last-child{grid-column:1/-1}.brief-fields select{font-size:16px}.repair-button{width:100%}}
 @media(max-width:450px){.brief-fields{grid-template-columns:1fr}.brief-fields label:last-child{grid-column:auto}}
 
-/* Format-specific AI prompt cards: pros/cons and execution support. */
-.format-picker{margin:13px 0 12px;display:flex;flex-direction:column;gap:8px}
-.format-picker>label{color:#c0ddb6;font:700 10px var(--mono);letter-spacing:.5px}
-.format-picker>select{background:#0c2223;border:1px solid #699374;border-radius:8px;color:#e5f8de;padding:10px 12px;width:100%;min-width:0;font:600 12px var(--mono)}
-.format-details{background:#142527;border:1px solid #36544a;border-radius:9px;padding:12px 14px;display:grid;gap:8px}
-.format-details>strong{color:#d9f7c7;font:700 12px var(--head)}
-.format-details p{margin:0;font-size:11px;line-height:1.55;color:#c8d8d3}
-.format-details p span:first-child{font-weight:700;display:inline-block;margin-right:5px}
-.format-plus{color:#b6ee9e}.format-minus{color:#f4c38b}
-.format-details>small{font-size:10px;color:#88b8a2;line-height:1.6}
+/* Two genuinely independent construction workflows. */
+.chatgpt-workflow,.engine-workflow{scroll-margin-top:24px}
+.workflow-heading{display:flex;align-items:flex-start;gap:16px;margin:18px 0 14px;padding:18px 20px;border:1px solid #426748;border-radius:11px;background:linear-gradient(125deg,#193025,#151e20)}
+.workflow-heading-engine{margin-top:32px;border-color:#385d68;background:linear-gradient(125deg,#18333b,#151e20)}
+.workflow-letter{flex-shrink:0;display:grid;place-items:center;background:#9bdb7a;color:#172917;width:37px;height:37px;border-radius:9px;font:800 18px var(--head)}
+.workflow-heading-engine .workflow-letter{background:#85cbd7;color:#102930}
+.workflow-kicker{color:#a6d789;display:block;font:700 10px var(--mono);letter-spacing:.9px;margin-bottom:6px}
+.workflow-heading-engine .workflow-kicker{color:#8dd3dd}
+.workflow-heading h2{font:700 clamp(16px,2.1vw,22px) var(--head);margin:0 0 8px}
+.workflow-heading p{font-size:12px;line-height:1.6;color:#a8c0b4;margin:0}
+.chatgpt-workflow>.prompt-panel{padding:22px;border-color:#436348}
+.engine-workflow .editor-panel,.engine-workflow .preview-panel{border-color:#3c6166}
+.engine-workflow .work-grid{align-items:stretch}
+
+/* All formats use clickable, keyboard-accessible buttons. Pros and cons remain
+   visible for every format, with no hidden dropdown or hover-only information. */
+.format-picker{margin:16px 0 12px;display:flex;flex-direction:column;gap:13px}
+.format-picker-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.format-picker-heading h3{margin:0;color:#c4e5b9;font:700 11px var(--mono);letter-spacing:.5px}
+.format-picker-heading>span{color:#96b4a4;font-size:11px}
+.format-choice-groups{display:flex;flex-direction:column;gap:18px}
+.format-choice-group{min-width:0}
+.format-group-header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.format-group-header h4{margin:0;color:#dae8de;font:700 12px var(--head)}
+.format-group-header span{color:#8aa89a;font-size:10px}
+.format-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.format-choice-group:first-child .format-card-grid{grid-template-columns:1fr}
+.format-card{display:flex;flex-direction:column;gap:9px;min-width:0;text-align:left;padding:13px 15px;border:1px solid #3d5750;border-radius:9px;background:#142225;color:#c4d7d1;min-height:132px;transition:background .15s,border-color .15s,box-shadow .15s}
+.format-card:hover{background:#203632;border-color:#7aa57f}
+.format-card.is-selected{background:#253e2d;border-color:#a5e880;box-shadow:inset 0 0 0 1px #86bd69}
+.format-card:focus-visible{outline:2px solid #b9ef91;outline-offset:3px}
+.format-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.format-card-top strong{font:700 13px var(--head);color:#f2fff0}
+.format-card-top small{font:700 9px var(--mono);color:#c1d5c4;white-space:nowrap}
+.format-card-point{font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.format-card-point b{margin-right:5px}
+.format-plus{color:#b9f39d}
+.format-minus{color:#ffc28f}
+.format-card-effort{margin-top:auto;color:#91b2aa;font:600 10px var(--mono)}
+.format-selection-summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 17px;background:#101c1b;border:1px solid #456d50;border-radius:8px;padding:11px 13px;font-size:11px;color:#a5c0ad}
+.format-selection-summary strong{color:#e2f7d1}
+.format-selection-summary>span:last-child{flex-basis:100%;line-height:1.55}
 #downloadResponse{color:#bceea3;text-decoration:underline;text-underline-offset:3px}
-@media(max-width:740px){.format-picker>select{font-size:16px}.format-details{padding:13px}.editor-utilities{flex-wrap:wrap;gap:9px}}
+
+/* Engine format is INDEPENDENT of selected ChatGPT file type. */
+.engine-input-selector{display:flex;gap:10px;margin:0 17px 9px;flex-wrap:wrap}
+.engine-type-button{border:1px solid #46646b;background:#182b2d;border-radius:7px;color:#b7d7d7;padding:10px 13px;font:700 12px var(--head);display:inline-flex;align-items:center;gap:7px}
+.engine-type-button small{font:700 10px var(--mono);opacity:.85}
+.engine-type-button:hover{background:#264047}
+.engine-type-button.is-selected{border-color:#8ddbea;background:#254750;color:#ecfeff}
+.engine-input-hint{color:#91acb0;font-size:10px;line-height:1.5;margin:0 18px 13px}
+
+@media(min-width:1450px){.format-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:970px){.format-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:690px){.workflow-heading{padding:14px;gap:12px}.format-card-grid{grid-template-columns:1fr}.format-card{min-height:0}.format-picker-heading{display:block}.format-picker-heading>span{display:block;margin-top:5px}.chatgpt-workflow>.prompt-panel{padding:16px}.engine-input-selector{flex-direction:row}}
+@media(max-width:450px){.engine-input-selector{flex-direction:column}.format-card-top{flex-wrap:wrap}.format-card-top small{white-space:normal}}
