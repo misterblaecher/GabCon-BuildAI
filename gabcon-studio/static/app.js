@@ -75,8 +75,7 @@ function extractCode(s) { return GabConPrompt.extractBlueprint(s); }
 function currentBrief() {
   return GabConPrompt.createBrief({
     idea:els.idea.value, style:$('briefStyle').value,
-    size:$('briefSize').value, detail:$('briefDetail').value,
-    blockLimit:studioBlockLimit, fileFormat:selectedPromptFormat,
+    detail:$('briefDetail').value, fileFormat:selectedPromptFormat,
     creationType:selectedCreationType,organicSubject:selectedOrganicSubject
   });
 }
@@ -97,7 +96,9 @@ async function importBrief(event) {
     setCreationType(prefs.creationType);
     setOrganicSubject(prefs.organicSubject);
     refreshStyleChoices(prefs.style);
-    for(const [id,key] of [['briefSize','size'],['briefDetail','detail']]) {
+    // Legacy briefs may contain preferences.size; intentionally ignored.
+    // ChatGPT now decides build dimensions without a size preset.
+    for(const [id,key] of [['briefDetail','detail']]) {
       const select=$(id);
       if([...select.options].some(option=>option.value===prefs[key])) {
         select.value=prefs[key];
@@ -722,7 +723,6 @@ function init() {
   }
   setEngineFormat(engineFormatSaved);
   for (const [id, name, allowed] of [
-    ['briefSize','size',['small','medium','large']],
     ['briefDetail','detail',['speed','balanced','detailed']]
   ]) {
     const select=$(id);
