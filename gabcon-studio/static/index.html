@@ -51,14 +51,14 @@
       </header>
       <main class="page-content">
         <div class="page-heading" id="editor">
-          <div><div class="eyebrow"><span class="eyebrow-dash"></span> CRÉATIVE WORKSPACE <span class="eyebrow-version">/ 001</span></div><h1>Donne vie à tes <em>idées.</em></h1><p>Du code généré avec ChatGPT aux constructions Minecraft. Aucun abonnement API nécessaire.</p></div>
+          <div><div class="eyebrow"><span class="eyebrow-dash"></span> CRÉATIVE WORKSPACE <span class="eyebrow-version">/ 001</span></div><h1>Donne vie à tes <em>idées.</em></h1><p>Prépare un prompt adapté. ChatGPT crée le fichier Minecraft directement ; teste-le en jeu, sans étape obligatoire dans Studio.</p></div>
           <div class="heading-deco" aria-hidden="true"><div class="deco-diamond">▧</div><div class="deco-lines"></div></div>
         </div>
 
         <section class="work-grid" aria-label="Éditeur et visualiseur">
           <div class="left-column">
             <section class="panel prompt-panel">
-              <div class="panel-heading"><div class="titlegroup"><span class="panel-num">01</span><div><h2>Concevoir avec ChatGPT</h2><p>Décris ta construction en quelques mots.</p></div></div><span class="label-pill">SANS API</span></div>
+              <div class="panel-heading"><div class="titlegroup"><span class="panel-num">01</span><div><h2>Préparer le prompt pour ChatGPT</h2><p>ChatGPT réalisera directement le fichier de construction téléchargeable.</p></div></div><span class="label-pill">SANS API</span></div>
               <label for="idea" class="small-label">TON IDÉE</label>
               <textarea id="idea" class="idea-input" rows="3" placeholder="Ex : Une cité médiévale avec des tours, un port et un pont en pierre...">Une tour de guet médiévale en pierre, avec un toit en bois et des fenêtres.</textarea>
               <div class="brief-fields" aria-label="Contraintes architecturales pour ChatGPT">
@@ -67,28 +67,29 @@
                 <label for="briefDetail">DÉTAIL <select id="briefDetail"><option value="speed">Rapide</option><option value="balanced" selected>Équilibré</option><option value="detailed">Très détaillé</option></select></label>
               </div>
               <div class="format-picker">
-                <label for="outputFormat">TYPE DE FICHIER À DEMANDER À CHATGPT</label>
+                <label for="outputFormat">FORMAT SOUHAITÉ (FACULTATIF)</label>
                 <select id="outputFormat">
-                  <option value="py" selected>★ Python DSL · .py — recommandé pour BuildAI</option>
-                  <option value="schem">WorldEdit · .schem — généré par Studio</option>
+                  <option value="auto" selected>✦ Aucun format imposé — ChatGPT choisit</option>
+                  <option value="py">Python DSL · .py — code à exécuter avec BuildAI</option>
+                  <option value="schem">WorldEdit · .schem — généré directement par ChatGPT</option>
                   <option value="json">Opérations structurées · .json</option>
                   <option value="mcfunction">Datapack Minecraft · .mcfunction</option>
                   <option value="md">Plan architectural · .md</option>
                 </select>
                 <div class="format-details" id="formatDetails" aria-live="polite">
-                  <strong id="formatTitle">Python DSL · .py</strong>
+                  <strong id="formatTitle">Sans préférence · ChatGPT choisit</strong>
                   <p><span class="format-plus">✓ Avantages</span> <span id="formatPros"></span></p>
                   <p><span class="format-minus">△ Limites</span> <span id="formatCons"></span></p>
                   <small id="formatWorkflow"></small>
                 </div>
               </div>
-              <div class="brief-export"><button id="downloadBrief" type="button" class="link-btn" title="Sauvegarder la demande structurée réutilisable">⇩ Télécharger le cahier des charges JSON</button><span id="briefFlow">IA : brief JSON → blueprint.py → .schem local</span></div>
+              <div class="brief-export"><button id="downloadBrief" type="button" class="link-btn" title="Sauvegarder la demande structurée réutilisable">⇩ Télécharger le cahier des charges JSON</button><span id="briefFlow">Studio prépare le prompt → ChatGPT crée le fichier → test dans Minecraft.</span></div>
               <div class="prompt-controls"><button class="btn btn-accent" id="copyPrompt">✦ <span>Copier le prompt pour ChatGPT</span> <span class="arrow">↗</span></button><a class="icon-btn chatgpt-btn" href="https://chatgpt.com/" target="_blank" rel="noopener" aria-label="Ouvrir ChatGPT" title="Ouvrir ChatGPT">↗</a></div>
-              <div class="inline-note"><span>ⓘ</span> Génère le code dans ChatGPT, puis colle sa réponse ci-dessous.</div>
+              <div class="inline-note"><span>ⓘ</span> ChatGPT crée directement le fichier à télécharger et tester dans Minecraft. Il n'est pas nécessaire de revenir dans Studio ; les outils d'édition et d'aperçu ci-dessous sont facultatifs.</div>
             </section>
 
             <section class="panel editor-panel">
-              <div class="panel-heading editor-title"><div class="titlegroup"><span class="panel-num">02</span><div><h2>Éditeur de blueprint</h2><p>Colle ton Python ou importe un fichier .py</p></div></div></div>
+              <div class="panel-heading editor-title"><div class="titlegroup"><span class="panel-num">02</span><div><h2>Éditeur local (facultatif)</h2><p>Uniquement si tu souhaites modifier ou visualiser le résultat sur ton PC.</p></div></div></div>
               <div class="editor-toolbar"><div class="filetab"><span class="tab-dot"></span><span id="filenameLabel">blueprint.py</span><span class="file-close">×</span></div><span class="lang-label" id="editorLanguage">PYTHON <span class="tiny-square"></span> DSL</span></div>
               <div class="code-container"><div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div><textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="Code Python Blueprint" placeholder="# Colle ici le Python généré par ChatGPT..."></textarea></div>
               <div class="editor-bottom"><div class="editor-meta"><span class="green-dot"></span><span id="codeCount">0 ligne</span><span>·</span><span>UTF-8</span></div><div class="editor-utilities"><button class="link-btn" id="exampleBtn" title="Insérer un exemple fonctionnel">Exemple ↗</button><button type="button" id="downloadResponse" class="link-btn">⇩ Télécharger le fichier</button><label class="link-btn import-label" for="fileInput">⇧ Importer un fichier</label><input type="file" id="fileInput" accept=".py,.json,.md,.txt,.mcfunction,text/x-python,text/plain,application/json,text/markdown" hidden /></div></div>

@@ -1,6 +1,7 @@
 'use strict';
 
-// ChatGPT runs outside this application. Studio only handles a pasted mcbuild DSL blueprint.
+// ChatGPT creates the requested file directly. Prompt preparation needs no Studio build step.
+// The existing local preview and converters below remain optional.
 const $ = id => document.getElementById(id);
 const els = {
   code: $('code'), idea: $('idea'), seed: $('seed'), canvas: $('voxelCanvas'),
@@ -86,15 +87,18 @@ function updateOutputFormat() {
   $('formatWorkflow').textContent=info.workflow;
   $('briefFlow').textContent=info.workflow;
   $('editorLanguage').textContent=info.language.toUpperCase()+' / '+info.extension.toUpperCase();
-  $('buildBtnText').textContent=GabConFormats.canExecute(format)?'Visualiser la construction':'Fichier texte · pas de rendu';
+  $('buildBtnText').textContent=GabConFormats.canExecute(format)?'Aperçu local facultatif':'Aperçu local indisponible';
   els.build.disabled=!GabConFormats.canExecute(format);
   els.build.title=info.executable?'Exécuter avec le moteur BuildAI local':'Télécharge le fichier : ce format ne s’exécute pas dans Studio';
-  $('downloadResponse').textContent='⇩ Télécharger '+GabConFormats.downloadName(format);
+  $('downloadResponse').textContent=format==='auto'?'⇩ Téléchargement dans ChatGPT':'⇩ Sauvegarder '+GabConFormats.downloadName(format)+' (texte)';
+  $('downloadResponse').disabled=format==='auto';
+  $('downloadResponse').title=format==='auto'?'Le type de fichier est déterminé par ChatGPT : télécharge-le depuis la conversation.':'Sauvegarder le texte localement si besoin';
   $('copyRepair').classList.toggle('hidden',format==='mcfunction'||format==='md');
-  try { localStorage.setItem('gabcon-output-format',format); } catch (_) {}
+  try { localStorage.setItem('gabcon-output-format-direct-v1',format); } catch (_) {}
 }
 function downloadResponse() {
   const format=outputFormat();
+  if (format==='auto') return notify('Télécharge le fichier directement dans ChatGPT, qui en choisit le format.',true);
   let body=GabConFormats.textForFormat(els.code.value,format);
   if (!body.trim()) return notify('Colle d’abord la réponse de ChatGPT dans l’éditeur.',true);
   if (format==='json') {
@@ -126,7 +130,7 @@ async function copyForChatGPT(value, successMessage) {
 }
 async function copyPrompt() {
   const info=GabConPrompt.getFormat(outputFormat());
-  await copyForChatGPT(blueprintPrompt(), 'Prompt optimisé copié pour '+info.name+'.');
+  await copyForChatGPT(blueprintPrompt(), 'Prompt copié pour ChatGPT : '+info.name+'. Demande-lui le fichier téléchargeable.');
 }
 async function copyRepair() {
   const message=$('buildErrorText').textContent.trim();
@@ -516,8 +520,8 @@ function init() {
   $('copyRepair').addEventListener('click',copyRepair);
   $('downloadBrief').addEventListener('click',downloadBrief);
   $('downloadResponse').addEventListener('click',downloadResponse);
-  let formatSaved='py';
-  try { formatSaved=localStorage.getItem('gabcon-output-format'); } catch (_) {}
+  let formatSaved='auto';
+  try { formatSaved=localStorage.getItem('gabcon-output-format-direct-v1'); } catch (_) {}
   $('outputFormat').value=GabConPrompt.formatFor(formatSaved);
   $('outputFormat').addEventListener('change',updateOutputFormat);
   updateOutputFormat();
