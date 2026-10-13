@@ -39,9 +39,6 @@ jobs:
       - name: Lint (ruff)
         run: uv run ruff check src tests tools
 
-      - name: Show Ruff diff for new test
-        run: uv run ruff format --diff tests/test_direct_schematic.py || true
-
       - name: Format check (ruff)
         run: uv run ruff format --check src tests
 
