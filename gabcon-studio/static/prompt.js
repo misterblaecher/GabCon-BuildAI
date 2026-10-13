@@ -123,7 +123,7 @@
       deliverable: {
         ai_output: fileFormat === 'auto' ? 'choose_best_real_downloadable_minecraft_artifact' :
           fileFormat === 'schem' ? 'real_binary_sponge_schematic_v3' :
-            'real_downloadable_'+fileFormat+'_file,
+            'real_downloadable_'+fileFormat+'_file',
         filename: FORMATS[fileFormat].filename,
         export_by_engine: null,
         generation: 'directly_in_chatgpt_without_gabcon_studio'
