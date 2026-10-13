@@ -29,9 +29,12 @@ jobs:
         run: |
           node --check gabcon-studio/static/app.js
           node --check gabcon-studio/static/prompt.js
+          node --check gabcon-studio/static/formats.js
           node --check gabcon-studio/static/sw.js
       - name: Test AI brief, Python extraction and repair prompts
-        run: node tests/test_studio_prompt.cjs
+        run: |
+          node tests/test_studio_prompt.cjs
+          node tests/test_studio_formats.cjs
 
       - name: Lint (ruff)
         run: uv run ruff check src tests tools
