@@ -102,3 +102,23 @@
 @media(max-width:970px){.format-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:690px){.workflow-heading{padding:14px;gap:12px}.format-card-grid{grid-template-columns:1fr}.format-card{min-height:0}.format-picker-heading{display:block}.format-picker-heading>span{display:block;margin-top:5px}.chatgpt-workflow>.prompt-panel{padding:16px}.engine-input-selector{flex-direction:row}}
 @media(max-width:450px){.engine-input-selector{flex-direction:column}.format-card-top{flex-wrap:wrap}.format-card-top small{white-space:normal}}
+
+/* Creative genres are independent of the chosen ChatGPT file format and of the
+   GabCon local engine. Buttons expose each choice visibly with keyboard support. */
+.creation-config{margin:15px 0 12px;padding:14px;border-radius:10px;border:1px solid #446447;background:#15271f}
+.creation-config-header{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;margin-bottom:10px}
+.creation-config-header h3{font:700 11px var(--mono);letter-spacing:.6px;color:#c7edb4;margin:0}
+.creation-config-header span{font-size:10px;color:#9db2a6}
+.creation-kind-grid,.organic-subject-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.creation-kind-button,.organic-subject-button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;padding:11px 12px;min-width:0;background:#152629;border:1px solid #466153;border-radius:8px;color:#e2eee2;min-height:76px}
+.creation-kind-button strong,.organic-subject-button strong{font:700 12px var(--head)}
+.creation-kind-button span,.organic-subject-button span{font-size:10px;line-height:1.45;color:#9db2aa}
+.creation-kind-button:hover,.organic-subject-button:hover{background:#23392e;border-color:#9ac98e}
+.creation-kind-button.is-selected,.organic-subject-button.is-selected{background:#2b4733;border-color:#c1ed9e;box-shadow:inset 0 0 0 1px #8bd27b}
+.creation-kind-button:focus-visible,.organic-subject-button:focus-visible{outline:2px solid #c1ed9e;outline-offset:2px}
+.organic-subject-wrap{margin-top:15px;padding-top:13px;border-top:1px solid #52745a}
+.organic-subject-wrap[hidden]{display:none}
+.organic-tip{margin:10px 0 0;font-size:11px;line-height:1.5;color:#b2dba8}
+.style-hint{line-height:1.4;font-size:10px;color:#a9bbb5;letter-spacing:0;font-weight:400}
+@media(max-width:970px){.creation-kind-grid,.organic-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.creation-config{padding:11px}.creation-kind-grid,.organic-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.creation-kind-button,.organic-subject-button{padding:9px;min-height:83px}.creation-kind-button strong,.organic-subject-button strong{font-size:11px}}
