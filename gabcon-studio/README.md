@@ -2,7 +2,11 @@
 
 Une interface Web **locale** pour le dépôt [GabCon-BuildAI](https://github.com/misterblaecher/GabCon-BuildAI).
 
-**Workflow sans API d'IA :** décris ton idée → copie le prompt dans ChatGPT (site/app normal) → colle le blueprint Python généré → exécute et visualise avec le moteur Python du projet → exporte `.schem`, `.py`, `.png`, `.json`.
+**Deux parcours indépendants, sans API d'IA intégrée :**
+- **A — ChatGPT direct :** décris la construction → choisis facultativement le format via une **carte-bouton avec pour/contre** → copie le prompt → ChatGPT crée directement le fichier Minecraft téléchargeable.
+- **B — GabCon BuildAI local :** charge un blueprint **`.py` ou `.json`** dans l'éditeur moteur → exécute le moteur sur ton PC → prévisualise et exporte `.schem`, `.py`, `.png`, `.json`.
+
+La sélection de format ChatGPT **ne change jamais** l'entrée, les paramètres ou l'exécution du moteur BuildAI.
 
 ## Installation
 
@@ -59,7 +63,7 @@ Tu peux alors lancer Studio depuis son icône. Le bouton *Installer l'app* de St
 
 Documentation : [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) et [installation des applications Web sur mobile](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
 
-## Générer directement dans ChatGPT (sans passer par Studio pour construire)
+## Parcours A — Génération directe par ChatGPT
 
 **GabCon Studio sert à préparer un prompt**, avec un format de fichier **facultatif**.
 La création du fichier est demandée **dans ChatGPT**, puis le joueur le télécharge et l'essaie
@@ -67,17 +71,18 @@ dans Minecraft. Le moteur local, le visualiseur et l'éditeur Studio restent dis
 comme **outils optionnels** ; aucun n'est nécessaire pour demander un fichier à ChatGPT.
 
 1. Dans **Préparer le prompt pour ChatGPT**, écris ton idée, puis choisis style/échelle/détails.
-2. Laisse **Format souhaité = Aucun format imposé** pour un prompt **général**.
+2. Dans la grille de **cartes-boutons**, laisse **Aucun format imposé** sélectionné pour un prompt **général**.
    ChatGPT décide alors du meilleur format utilisable pour ce projet.
-3. Si tu veux un format spécifique, choisis-le : les **avantages**, **limites** et
-   le prompt s'adaptent réellement à ce choix.
+3. Pour un format particulier, clique sur sa carte. Chaque carte affiche **pour / contre**,
+   difficulté IA et statut *prêt en jeu / conversion requise* sans menu déroulant.
+   La carte sélectionnée est mise en évidence et adapte uniquement le prompt ChatGPT.
 4. Clique **Copier le prompt pour ChatGPT**, ouvre une conversation ChatGPT et colle-le.
 5. ChatGPT utilise ses outils disponibles pour **créer le fichier téléchargeable directement**
    et t'indique comment l'installer ou le charger dans Minecraft.
 
 ### Catalogue : formats réellement utilisables pour un build Java 1.21.1
 
-Le menu est classé par **destination réelle**, et les prompts ChatGPT sont distincts pour chaque format.
+Les **cartes cliquables** sont regroupées par **destination réelle**, et les prompts ChatGPT sont distincts pour chaque format.
 La colonne *difficulté IA* est une estimation de la difficulté de produire un fichier **valide**
 avec des outils de code/fichiers, pas une mesure de fiabilité garantie.
 
@@ -127,18 +132,32 @@ fichier binaire `.schem` en répondant uniquement en texte. Le prompt demande da
 ce cas d'annoncer la limite et de proposer un moyen de génération concret,
 **sans fabriquer de lien de téléchargement fictif**.
 
-Le sélecteur ne lance aucune IA tout seul, ne transmet pas tes demandes
+Les cartes-boutons ne lancent aucune IA toutes seules et ne transmettent pas tes demandes
 à un service API et n'envoie pas le schematic dans le monde Minecraft :
 **tu télécharges et places le fichier toi-même**.
 
-### Éditeur Studio facultatif
+## Parcours B — GabCon BuildAI et son moteur local
 
-L'éditeur de Python et son convertisseur `gabcon-block-ops-v1` restent disponibles
-si tu veux prévisualiser ou modifier une création sur ton PC. Quand tu utilises
-ces outils, c'est le moteur local qui exécute le DSL et exporte éventuellement
-`final.schem`. Il s'agit d'un flux distinct de la **création directe par ChatGPT**.
-Le cahier des charges `gabcon-build-brief-v1` peut toujours être exporté puis réimporté
-pour conserver les réglages du prompt.
+Cette section de l'interface est **complètement indépendante** de la génération ChatGPT.
+
+1. Choisis l'entrée moteur avec les deux boutons **Python DSL (.py)** ou **Opérations (.json)**.
+   Le moteur accepte du Python DSL conforme au projet ou le JSON d'opérations
+   `gabcon-block-ops-v1`. Il **n'exécute pas** les fichiers binaires `.schem`,
+   `.nbt`, `.litematic`, les datapacks ZIP, les fichiers `.mcfunction` ou les plans `.md`.
+2. Colle ou importe le blueprint dans l'éditeur local. Ce choix ne change **jamais**
+   le format sélectionné pour le prompt ChatGPT dans le parcours A.
+3. Lance **Générer avec BuildAI** : le moteur Python du PC valide le fichier, place les
+   blocs dans la grille et crée les rendus et un vrai `final.schem`.
+4. Utilise la vue 3D et les exports de la colonne **Rendu du moteur BuildAI**.
+   Les durées, la seed et le choix Rapide/Qualité concernent uniquement ce moteur.
+
+Un bouton **Importer un brief ChatGPT** est placé dans le parcours A pour restaurer
+le cahier des charges `gabcon-build-brief-v1` ; le bouton **Importer .py / .json**
+du parcours B est réservé aux blueprints locaux. Ces deux imports ne se confondent pas.
+
+Le moteur local tourne sur `127.0.0.1` et ne doit recevoir que du code de confiance.
+Le parcours A n'a pas besoin que le moteur local fonctionne : il se contente de
+copier un prompt, et ChatGPT crée le fichier directement dans sa conversation.
 
 ## Fonctionnalités
 
