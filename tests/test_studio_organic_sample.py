@@ -10,15 +10,12 @@ from mcbuild.voxel import VoxelGrid
 
 
 def test_studio_organic_tree_example_executes() -> None:
-    javascript = (Path(__file__).resolve().parents[1] / "gabcon-studio/static/app.js").read_text(
-        encoding="utf-8"
-    )
-    part = javascript.split("const SAMPLE_ORGANIC = [", 1)[1].split("].join('\\n');", 1)[0]
-    source = "\n".join(
-        ast.literal_eval(line.strip().rstrip(","))
-        for line in part.splitlines()
-        if line.strip()
-    )
+    js_path = Path(__file__).resolve().parents[1] / "gabcon-studio/static/app.js"
+    javascript = js_path.read_text(encoding="utf-8")
+    start = javascript.split("const SAMPLE_ORGANIC = [", 1)[1]
+    array_text = start.split("].join('\\n');", 1)[0]
+    lines = [line.strip().rstrip(",") for line in array_text.splitlines()]
+    source = "\n".join(ast.literal_eval(line) for line in lines if line)
 
     assert "sphere(" in source and "cylinder(" in source
     assert "spruce_log" in source and "oak_leaves" in source
