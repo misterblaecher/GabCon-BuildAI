@@ -70,7 +70,7 @@ La création du fichier est demandée **dans ChatGPT**, puis le joueur le télé
 dans Minecraft. Le moteur local, le visualiseur et l'éditeur Studio restent disponibles
 comme **outils optionnels** ; aucun n'est nécessaire pour demander un fichier à ChatGPT.
 
-1. Dans **Préparer le prompt pour ChatGPT**, écris ton idée, puis choisis style/échelle/détails.
+1. Dans **Préparer le prompt pour ChatGPT**, écris ton idée, puis choisis le type de création, le style artistique et les détails. **L'échelle n'est plus à régler : ChatGPT choisit lui-même la largeur, la hauteur et la profondeur nécessaires.**
 2. Dans la grille de **cartes-boutons**, laisse **Aucun format imposé** sélectionné pour un prompt **général**.
    ChatGPT décide alors du meilleur format utilisable pour ce projet.
 3. Pour un format particulier, clique sur sa carte. Chaque carte affiche **pour / contre**,
@@ -79,6 +79,25 @@ comme **outils optionnels** ; aucun n'est nécessaire pour demander un fichier �
 4. Clique **Copier le prompt pour ChatGPT**, ouvre une conversation ChatGPT et colle-le.
 5. ChatGPT utilise ses outils disponibles pour **créer le fichier téléchargeable directement**
    et t'indique comment l'installer ou le charger dans Minecraft.
+
+### Échelle décidée par l'IA (aucune taille prédéfinie)
+
+Le choix **Petit / Moyen / Grand** et ses dimensions fixes ont été supprimés.
+Le parcours **A — ChatGPT direct** ne transmet **aucune largeur, hauteur,
+profondeur ou limite de blocs arbitraire issue du moteur GabCon BuildAI**.
+Chaque prompt demande à ChatGPT de définir lui-même les dimensions X/Y/Z
+selon le sujet, les proportions, la silhouette, la complexité et les détails souhaités.
+
+Par exemple, une petite sculpture n'a pas besoin des mêmes dimensions qu'un dragon
+aux ailes déployées ou une cité entière. **Si tu précises des dimensions dans ta
+description, l'IA doit les respecter** ; sinon elle choisit et communique celles
+du fichier réellement généré. Les seules limites restantes sont les contraintes
+**réelles** des outils de génération et du format Minecraft choisi.
+
+Les anciens briefs `gabcon-build-brief-v1` contenant `preferences.size` sont
+toujours importables : ce réglage historique est ignoré et remplacé par
+`preferences.size = "auto"`. Le moteur local **B** conserve ses propres budgets
+techniques de sécurité et de performance, sans les imposer aux prompts du parcours A.
 
 ### Types de créations et styles artistiques
 
