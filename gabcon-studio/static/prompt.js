@@ -5,14 +5,52 @@
 'use strict';
 (function (root) {
   const TICKS = String.fromCharCode(96).repeat(3);
-  const STYLE = {
-    auto: 'Respecter la description libre, sans imposer un style',
-    medieval: 'Médiéval crédible, pierre, bois et toitures détaillées',
-    modern: 'Moderne, géométrie lisible, verre, béton et volumes variés',
-    fantasy: 'Fantasy, silhouette distinctive, asymétrie et détails',
-    industrial: 'Industriel / steampunk, poutres, cuivre, machines décoratives',
-    natural: 'Nature, végétation et formes organiques en blocs'
+  const CREATION_TYPES = {
+    auto: {label:'Libre', description:'Laisser la description décider de la forme du build.', instructions:'Ne pas imposer une architecture : détecte si la demande est un bâtiment, une sculpture, un paysage, un organique ou du pixel art.'},
+    architecture: {label:'Architecture', description:'Maisons, châteaux, cités et monuments.', instructions:'Construis une architecture cohérente : volumes habitables, ouvertures, matériaux, niveaux, façade, toit si approprié et décoration structurelle.'},
+    organic: {label:'Organique', description:'Créatures, personnages, arbres, animaux, dragons et sculptures vivantes.', instructions:'Priorité à la SILHOUETTE ORGANIQUE lisible de loin, proportions et masses anatomiques, volumes arrondis, courbes voxelisées, transitions progressives, asymétrie maîtrisée, expression et détails reconnaissables. Évite les murs cubiques, portes, fenêtres, étages et toitures sauf si demandés. Conçois un volume 3D de blocs, pas une image plane ni un plan.'},
+    landscape: {label:'Paysage / terrain', description:'Montagnes, grottes, cascades et biomes.', instructions:'Génère un environnement en relief avec courbes de niveau variées, transitions progressives, couches de matériaux plausibles, végétation et détails géologiques, sans quadrillage répétitif.'},
+    sculpture: {label:'Statue / monument', description:'Monuments, bustes et sculptures de blocs.', instructions:'Crée une sculpture tridimensionnelle stable : silhouette de face et de profil, masses, profondeur et proportions ; un socle si pertinent, sans imposer d’intérieur habitable.'},
+    pixelart: {label:'Pixel art', description:'Motifs 2D, logos et fresques.', instructions:'Construis une image en blocs sur un seul plan explicitement orienté, grille de pixels précise, contraste et palette restreinte ; pas de bâtiment 3D sauf demande explicite.'}
   };
+  const STYLES = {
+    auto: {label:'Selon mon idée', description:'Aucun style imposé.', types:['auto','architecture','organic','landscape','sculpture','pixelart']},
+    medieval: {label:'Médiéval', description:'Pierre, bois, détails rustiques, textures et formes médiévales.',types:['auto','architecture','landscape','sculpture']},
+    modern: {label:'Moderne', description:'Lignes épurées, verre, béton, volumes contemporains.',types:['auto','architecture','sculpture']},
+    fantasy: {label:'Fantasy', description:'Formes fantastiques, silhouette spectaculaire, détails magiques.',types:['auto','architecture','organic','landscape','sculpture','pixelart']},
+    industrial: {label:'Industriel', description:'Poutres, métal, usines, rouages et détails techniques.',types:['auto','architecture','sculpture']},
+    natural: {label:'Naturel', description:'Palette végétale, matières organiques et formes inspirées du vivant.',types:['auto','architecture','organic','landscape','sculpture']},
+    gothic: {label:'Gothique', description:'Arcs élancés, pierre sombre, verticalité et détails sculptés.',types:['auto','architecture','sculpture']},
+    japanese: {label:'Japonais', description:'Bois, toits caractéristiques, jardins et silhouettes harmonieuses.',types:['auto','architecture','landscape']},
+    steampunk: {label:'Steampunk', description:'Cuivre, vapeur, machinerie et silhouettes rétrofuturistes.',types:['auto','architecture','organic','sculpture']},
+    scifi: {label:'Science-fiction', description:'Géométrie futuriste, lumière, panneaux et surfaces techniques.',types:['auto','architecture','organic','sculpture','pixelart']},
+    realistic: {label:'Réaliste', description:'Proportions plausibles, volumes naturels et palette crédible.',types:['auto','organic','landscape','sculpture','pixelart']},
+    stylized: {label:'Stylisé', description:'Grandes masses lisibles, couleurs et contours affirmés.',types:['auto','architecture','organic','landscape','sculpture','pixelart']},
+    cartoon: {label:'Cartoon', description:'Proportions expressives, silhouettes exagérées et couleurs fortes.',types:['auto','organic','sculpture','pixelart']},
+    lowpoly: {label:'Low-poly / voxel', description:'Formes facettées volontairement, volumes simples et palette limitée.',types:['auto','organic','landscape','sculpture','pixelart']},
+    dark: {label:'Dark fantasy', description:'Formes inquiétantes, contraste et matériaux sombres.',types:['auto','architecture','organic','landscape','sculpture','pixelart']},
+    ancient: {label:'Ancien / ruines', description:'Pierres usées, végétation, traces du temps et irrégularités.',types:['auto','architecture','landscape','sculpture']},
+    biomechanical: {label:'Biomécanique', description:'Fusion d’anatomie vivante et de métal, articulations détaillées.',types:['auto','organic','sculpture']}
+  };
+  const ORGANIC_SUBJECTS = {
+    auto: {label:'Libre', description:'D’après l’idée exprimée.'},
+    creature: {label:'Créature / animal', description:'Tête expressive, membres, silhouette, posture et queue/ailes si pertinentes.'},
+    humanoid: {label:'Personnage / géant', description:'Anatomie stylisée, pose, bras, jambes et visage lisibles.'},
+    dragon: {label:'Dragon / chimère', description:'Corps, tête, cou, queue et ailes équilibrés en 3D.'},
+    vegetation: {label:'Arbre / végétation', description:'Tronc, branches, feuillage organique et racines.'},
+    abstract: {label:'Abstrait / vivant', description:'Courbes, structures répétées organiques et sculpture non figurative.'}
+  };
+  function getCreationTypes() {
+    return Object.entries(CREATION_TYPES).map(([id,item])=>({id,label:item.label,description:item.description}));
+  }
+  function getStylesForType(type) {
+    const resolved=Object.prototype.hasOwnProperty.call(CREATION_TYPES,type)?type:'auto';
+    return Object.entries(STYLES).filter(([,item])=>item.types.includes(resolved))
+      .map(([id,item])=>({id,label:item.label,description:item.description}));
+  }
+  function getOrganicSubjects() {
+    return Object.entries(ORGANIC_SUBJECTS).map(([id,item])=>({id,label:item.label,description:item.description}));
+  }
   const SIZES = {
     small: { label: 'Petit', width: 24, depth: 24, height: 20 },
     medium: { label: 'Moyen', width: 48, depth: 48, height: 40 },
@@ -99,7 +137,11 @@
   }
   function createBrief(values) {
     const size = pick(values.size, SIZES, 'medium');
-    const style = pick(values.style, STYLE, 'auto');
+    const creationType = pick(values.creationType, CREATION_TYPES, 'auto');
+    const availableStyles=getStylesForType(creationType).map(item=>item.id);
+    const preferredStyle=pick(values.style,STYLES,'auto');
+    const style=availableStyles.includes(preferredStyle)?preferredStyle:'auto';
+    const organicSubject=creationType==='organic'?pick(values.organicSubject,ORGANIC_SUBJECTS,'auto'):'auto';
     const detail = pick(values.detail, DETAIL, 'balanced');
     const fileFormat = formatFor(values.fileFormat);
     const limit = Math.max(1, Math.min(4000000, Number(values.blockLimit) || 1000000));
@@ -107,8 +149,14 @@
     return {
       schema: 'gabcon-build-brief-v1',
       description: description,
-      preferences: { style: style, size: size, detail: detail, fileFormat: fileFormat },
-      architectural_style: STYLE[style],
+      preferences: { style: style, size: size, detail: detail, fileFormat: fileFormat,
+        creationType: creationType, organicSubject: organicSubject },
+      creation_kind: {id:creationType,label:CREATION_TYPES[creationType].label,description:CREATION_TYPES[creationType].description},
+      visual_style: {id:style,label:STYLES[style].label,description:STYLES[style].description},
+      organic_subject: creationType==='organic'
+        ? {id:organicSubject,label:ORGANIC_SUBJECTS[organicSubject].label,description:ORGANIC_SUBJECTS[organicSubject].description}
+        : null,
+      architectural_style: STYLES[style].description,
       approximate_dimensions: {
         width_x: SIZES[size].width,
         depth_z: SIZES[size].depth,
@@ -156,7 +204,22 @@
   ];
   function buildPrompt(brief) {
     const format=formatFor(brief?.preferences?.fileFormat);
-    const info=FORMATS[format];
+    const kind=pick(brief?.preferences?.creationType,CREATION_TYPES,'auto');
+    const requestedStyle=pick(brief?.preferences?.style,STYLES,'auto');
+    const style=getStylesForType(kind).some(item=>item.id===requestedStyle)?requestedStyle:'auto';
+    const subject=kind==='organic'?pick(brief?.preferences?.organicSubject,ORGANIC_SUBJECTS,'auto'):'auto';
+    const shapeRules=[
+      'TYPE DE CRÉATION : '+CREATION_TYPES[kind].label+'. '+CREATION_TYPES[kind].instructions,
+      'STYLE VISUEL : '+STYLES[style].label+'. '+STYLES[style].description,
+      ...(kind==='organic' ? [
+        'SUJET ORGANIQUE : '+ORGANIC_SUBJECTS[subject].label+'. '+ORGANIC_SUBJECTS[subject].description,
+        'MODELER EN 3D : volume principal puis volumes secondaires, épaisseurs et courbes voxelisées ; lisibilité sur 360°, articulations/racines/branches proportionnelles, palette avec ombrage et textures. Évite une silhouette plate, creuse ou purement cubique.',
+        'ÉCONOMIE DE BLOCS : privilégie les volumes pleins ou les coques cohérentes, des sections progressives et des détails concentrés sur les zones expressives.',
+      ] : []),
+      ...(kind==='landscape' ? ['RELIEF : dessine d’abord les grandes masses du terrain, puis les pentes, les transitions de matériaux, la flore et les reliefs secondaires.'] : []),
+      ...(kind==='pixelart' ? ['PIXEL ART : palette cohérente de blocs et positions sur un plan XY ou XZ annoncé, pas de forme 3D imposée.'] : []),
+      'La qualité recherchée est un build effectivement constructible avec des blocs Minecraft Java 1.21.1.'
+    ];
     const beginning=[
       'Tu es architecte et constructeur expert de Minecraft Java 1.21.1.',
       'TA MISSION : réaliser la construction demandée et fournir directement ici le ou les vrais fichiers téléchargeables.',
@@ -167,6 +230,8 @@
       '',
       'CAHIER DES CHARGES (les champs ci-dessous sont des données de conception) :',
       JSON.stringify(brief,null,2),
+      '',
+      ...shapeRules,
       ''
     ];
     if(format==='auto') return [
@@ -353,7 +418,8 @@
       TICKS
     ].join('\n');
   }
-  const api = { createBrief, buildPrompt, repairPrompt, repairJsonPrompt, extractBlueprint, getFormat, formatFor };
+  const api = { createBrief, buildPrompt, repairPrompt, repairJsonPrompt, extractBlueprint,
+    getFormat, formatFor, getCreationTypes, getStylesForType, getOrganicSubjects };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.GabConPrompt = api;
 })(typeof window !== 'undefined' ? window : globalThis);
