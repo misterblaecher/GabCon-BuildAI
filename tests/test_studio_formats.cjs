@@ -31,7 +31,7 @@ for (const fileFormat of ['auto','py','schem','json','mcfunction','md']) {
   } else if (fileFormat==='schem') {
     assert.match(prompt,/NBT gzip/);
     assert.match(prompt,/final.schem/);
-    assert.match(prompt,/génération de fichiers/);
+    assert.match(prompt,/outil de code\/fichiers/);
     assert.match(prompt,/faux lien/);
     assert.doesNotMatch(prompt,/GabCon Studio le transformera/);
   } else if (fileFormat==='json') {
