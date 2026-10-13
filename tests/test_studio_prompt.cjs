@@ -4,11 +4,12 @@ const { createBrief, buildPrompt, repairPrompt, extractBlueprint } = require('..
 
 const brief = createBrief({
   idea: 'Une cathédrale médiévale avec un clocher', style: 'medieval',
-  size: 'small', detail: 'detailed', blockLimit: 160000
+  size: 'small', detail: 'detailed', blockLimit: 160000, fileFormat:'py'
 });
 assert.equal(brief.schema, 'gabcon-build-brief-v1');
 assert.equal(brief.deliverable.filename, 'blueprint.py');
-assert.equal(brief.deliverable.export_by_engine, 'final.schem');
+assert.equal(brief.deliverable.export_by_engine, null);
+assert.equal(brief.deliverable.generation, 'directly_in_chatgpt_without_gabcon_studio');
 assert.equal(brief.limits.max_placed_blocks, 160000);
 assert.equal(brief.approximate_dimensions.width_x, 24);
 assert.equal(brief.approximate_dimensions.height_y, 20);
@@ -20,7 +21,8 @@ assert.match(prompt, /cylinder\(cx, cz, y, height, r/);
 assert.match(prompt, /floor\(x1, z1, x2, z2, y/);
 assert.match(prompt, /AUCUN import/);
 assert.match(prompt, /160000/);
-assert.match(prompt, /final.schem/);
+assert.match(prompt, /directement ici/);
+assert.match(prompt, /vrai fichier texte/);
 assert.match(prompt, /\x60\x60\x60python/);
 
 const fenced = [
@@ -49,5 +51,7 @@ const fallback = createBrief({
 assert.equal(fallback.limits.max_placed_blocks, 4000000);
 assert.equal(fallback.approximate_dimensions.width_x, 48);
 assert.equal(fallback.architectural_style.startsWith('Respecter'), true);
+assert.equal(fallback.preferences.fileFormat, 'auto');
+assert.equal(fallback.deliverable.filename, null);
 
 console.log('GabCon Studio AI brief and repair contract tests passed');
