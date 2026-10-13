@@ -45,3 +45,16 @@
 .repair-button:hover{background:#45352d}
 @media(max-width:740px){.brief-fields{grid-template-columns:1fr 1fr}.brief-fields label:last-child{grid-column:1/-1}.brief-fields select{font-size:16px}.repair-button{width:100%}}
 @media(max-width:450px){.brief-fields{grid-template-columns:1fr}.brief-fields label:last-child{grid-column:auto}}
+
+/* Format-specific AI prompt cards: pros/cons and execution support. */
+.format-picker{margin:13px 0 12px;display:flex;flex-direction:column;gap:8px}
+.format-picker>label{color:#c0ddb6;font:700 10px var(--mono);letter-spacing:.5px}
+.format-picker>select{background:#0c2223;border:1px solid #699374;border-radius:8px;color:#e5f8de;padding:10px 12px;width:100%;min-width:0;font:600 12px var(--mono)}
+.format-details{background:#142527;border:1px solid #36544a;border-radius:9px;padding:12px 14px;display:grid;gap:8px}
+.format-details>strong{color:#d9f7c7;font:700 12px var(--head)}
+.format-details p{margin:0;font-size:11px;line-height:1.55;color:#c8d8d3}
+.format-details p span:first-child{font-weight:700;display:inline-block;margin-right:5px}
+.format-plus{color:#b6ee9e}.format-minus{color:#f4c38b}
+.format-details>small{font-size:10px;color:#88b8a2;line-height:1.6}
+#downloadResponse{color:#bceea3;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:740px){.format-picker>select{font-size:16px}.format-details{padding:13px}.editor-utilities{flex-wrap:wrap;gap:9px}}

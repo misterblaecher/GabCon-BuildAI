@@ -59,19 +59,62 @@ Tu peux alors lancer Studio depuis son icône. Le bouton *Installer l'app* de St
 
 Documentation : [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) et [installation des applications Web sur mobile](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
 
+## Choisir le format de sortie dans le prompt ChatGPT
+
+Le menu **Type de fichier à demander à ChatGPT** est dans **Concevoir avec ChatGPT**.
+Chaque option affiche directement **Avantages**, **Limites** et la suite du flux. Le prompt
+copié s'adapte réellement au format, à l'échelle, au style et à la précision choisie.
+
+| Format | Points forts | Points faibles / limites | Ce que fait Studio |
+| --- | --- | --- | --- |
+| **Python DSL `.py`** (recommandé) | Compact, fonctions exactes BuildAI, grandes formes et logique Python, rendu et WorldEdit | Code et noms de blocs doivent être compatibles avec le sandbox | Exécute le code et produit `final.schem` |
+| **WorldEdit `.schem`** | Format final Sponge v3 utilisable avec WorldEdit | **Binaire** : ChatGPT ne peut pas le garantir en réponse texte ; Studio doit l'encoder | Le prompt réclame **`blueprint.py`**, puis Studio calcule le vrai `final.schem` |
+| **Opérations `.json`** | Schéma explicite `gabcon-block-ops-v1`, facile à vérifier et à corriger | Seulement 9 primitives simples et maximum 1 200 opérations ; pas de boucles ni macros | Convertit de façon contrôlée vers Python DSL, prévisualise puis exporte `.schem` ; le JSON original peut être téléchargé |
+| **Datapack `.mcfunction`** | Commandes vanilla `fill` / `setblock` faciles à copier, pas besoin de WorldEdit | Risque de commandes longues/lentes ; installation et permissions du datapack nécessaires ; les commandes ne sont pas exécutées dans Studio | Télécharge le fichier texte, **sans prévisualisation** dans Studio |
+| **Plan `.md`** | Idéal pour préparer une architecture, matériaux, étages et dimensions avant génération | N'est pas un fichier de blocs exécutable | Télécharge le plan Markdown, **sans prévisualisation** |
+
+**Utilisation :** sélectionne le format, copie le prompt dans ChatGPT, puis colle sa réponse
+dans l'éditeur et clique sur **Télécharger le fichier**. Pour les formats `.py`, `.json`
+et `.schem`, tu peux aussi cliquer sur **Visualiser la construction** (le mode `.schem`
+utilise un blueprint Python intermédiaire). Le binaire `.schem` final se récupère dans
+la section **Exporter** après la génération.
+
+**Exemple JSON exécutable par Studio** :
+
+```json
+{
+  "schema": "gabcon-block-ops-v1",
+  "operations": [
+    {"op": "floor", "args": [-4, -4, 4, 4, 0, "oak_planks"]},
+    {"op": "walls", "args": [-4, -4, 4, 4, 1, 4, "stone_bricks"]},
+    {"op": "fill", "args": [-1, 1, -4, 1, 2, -4, "air"]}
+  ]
+}
+```
+
+Les opérations admises sont `set_block`, `fill`, `clear`, `walls`, `floor`,
+`hollow_box`, `cylinder`, `sphere` et `line`. Les paramètres et identifiants
+sont contrôlés lors de la conversion ; cette liste de commandes n'exécute aucun
+script JSON arbitraire. Le moteur Python applique ensuite ses propres contrôles.
+
+Le cahier des charges JSON exporté précédemment (`gabcon-build-brief-v1`) reste
+distinct du blueprint JSON (`gabcon-block-ops-v1`) : le premier **décrit la demande**,
+le second **décrit des opérations de construction**. Un `.nbt` ou un `.schem`
+binaire ne doit pas être inventé directement par un modèle textuel.
+
 ## Prompts IA optimisés — cahier des charges JSON + fichier Python
 
-Le moteur **n'attend pas que l'IA invente un fichier binaire** : le format qu'il exécute est un
+Le moteur **n'attend pas que l'IA invente un fichier binaire** : son format natif est un
 **blueprint DSL Python** (`blueprint.py`), puis le moteur exporte le
 **Sponge Schematic v3** (`final.schem`) compatible avec WorldEdit / Minecraft Java 1.21.1.
 Le JSON améliore la **définition des contraintes de la demande**, il n'est pas exécuté
 comme un blueprint.
 
 1. Décris la construction dans **Ton idée**, puis sélectionne **Style**, **Échelle** et **Détail**.
-2. Clique **Copier le prompt pour ChatGPT**. La demande inclut automatiquement un cahier des charges
+2. Choisis **Type de fichier à demander à ChatGPT**, puis clique **Copier le prompt pour ChatGPT**. La demande inclut automatiquement un cahier des charges
    JSON (`gabcon-build-brief-v1`), la limite courante du moteur, des signatures DSL vérifiées
    sur `src/mcbuild/dsl/REFERENCE.md` et un contrat de réponse strict :
-   **un seul bloc de code Python `blueprint.py`, aucun JSON de sortie**.
+   une sortie spécialisée selon le format sélectionné (par défaut : **un seul bloc Python `blueprint.py`**).
 3. Colle la demande dans ChatGPT normal (aucune clé API). Copie sa réponse ou importe son
    fichier `.py`, `.md`, `.txt` ou `.json` contenant le champ `code`, puis génère localement.
 4. **Télécharger le cahier des charges JSON** sauvegarde le brief. Réimporte ce
